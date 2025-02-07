@@ -49,7 +49,7 @@ class Order:
         """
         Cancel the order if its status is 'pending'.
 
-        :raises ValueError: If the order cannot be cancelled.
+        raises ValueError: If the order cannot be cancelled.
         """
         if self.status == OrderStatus.PENDING:
             self.status = OrderStatus.CANCELLED
