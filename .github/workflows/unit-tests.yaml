@@ -1,0 +1,14 @@
+name: UnitTests
+
+on:
+  pull_request:
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: basic setup
+        uses: ./.github/actions/basic_setup
+      - name: run tests
+        run: poetry run bash -c 'echo run tests here'
