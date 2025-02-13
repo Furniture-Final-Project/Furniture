@@ -16,6 +16,6 @@ runs:
       with:
         python-version: ${{ inputs.python_version }}
     - uses: Gr1N/setup-poetry@v8
-    - name: Install Project
-      run: poetry install
+    - name: Install Poetry (If Not Installed)
+      run: pip install poetry
       shell: bash
