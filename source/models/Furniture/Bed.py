@@ -6,7 +6,8 @@ class Bed(Furniture):
     def __init__(
         self,
         serial_number: int,
-        name: str,
+        model_name: str,
+        model_num: str,
         description: str,
         price: float,
         dimension: dict,
@@ -18,7 +19,8 @@ class Bed(Furniture):
     ):
         super().__init__(
             serial_number,
-            name,
+            model_name,
+            model_num,
             description,
             price,
             dimension,
@@ -79,7 +81,7 @@ class Bed(Furniture):
     def __str__(self):
         hypoallergenic_status = "Yes" if self.is_hypoallergenic() else "No"
         return (
-            f"Bed: {self.name} ({self.get_size()} size)\n"
+            f"Bed: {self.model_name} ({self.get_size()} size)\n"
             f"Description: {self.description}\n"
             f"Mattress Type: {self.mattress_type.capitalize()}, Hypoallergenic: {hypoallergenic_status}\n"
             f"Frame Material: {self.frame_material.capitalize()}\n"

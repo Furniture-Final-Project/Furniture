@@ -6,7 +6,8 @@ class Table(Furniture):
     def __init__(
         self,
         serial_number: int,
-        name: str,
+        model_name: str,
+        model_num: str,
         description: str,
         price: int,
         dimension: dict,
@@ -20,7 +21,8 @@ class Table(Furniture):
     ):
         super().__init__(
             serial_number,
-            name,
+            model_name,
+            model_num,
             description,
             price,
             dimension,
@@ -72,7 +74,7 @@ class Table(Furniture):
     def __str__(self):
         extendable_status = "Yes" if self.is_extendable else "No"
         return (
-            f"Table: {self.name} ({self.shape})\n"
+            f"Table: {self.model_name} ({self.shape})\n"
             f"Description: {self.description}\n"
             f"Material: {self.material}, Price: ${self.get_discounted_price():.2f} (After Discount)\n"
             f"Seating Capacity: {self.seating_capacity}, Extendable: {extendable_status}\n"

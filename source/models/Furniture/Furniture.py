@@ -2,7 +2,10 @@ import os
 from abc import ABC, abstractmethod
 
 
+# This class implements a Singleton-like pattern for managing a shared registry (VALID_MODELS) of model names and their corresponding model numbers,
+# ensuring consistency and preventing mismatches across multiple instances of Furniture.
 class Furniture:
+    VALID_MODELS = {}
     VALID_CATEGORIES = {
         "Office",
         "Living Room",
@@ -15,7 +18,8 @@ class Furniture:
     def __init__(
         self,
         serial_number: int,
-        name: str,
+        model_name: str,
+        model_num: str,
         description: str,
         price: int,
         dimension: dict,
@@ -24,12 +28,23 @@ class Furniture:
         discount: float = 0.0,
     ):
         # Validate name
-        if not isinstance(name, str) or not name.strip():
-            raise ValueError("Name must be a non-empty string.")
+        if not isinstance(model_name, str) or not model_name.strip():
+            raise ValueError("Model name must be a non-empty string.")
 
         # Validate description
         if not isinstance(description, str) or not description.strip():
             raise ValueError("Description must be a non-empty string.")
+
+        # If the model already exists in the system - ensure model name matches model number.
+        if model_name in self.VALID_MODELS:
+            expected_model_num = self.VALID_MODELS[model_name]
+            if model_num != expected_model_num:
+                raise ValueError(
+                    f"Model number '{model_num}' does not match existing model name '{model_name}'. Expected: '{expected_model_num}'."
+                )
+        else:
+            # If the model is new to the system - add it to valid models dict
+            self.VALID_MODELS[model_name] = model_num
 
         # Validate price
         if not isinstance(price, (int, float)) or price < 0:
@@ -54,7 +69,8 @@ class Furniture:
             raise ValueError("Discount must be a percentage between 0 and 100.")
 
         self.serial_number = serial_number
-        self.name = name
+        self.model_name = model_name
+        self.model_num = model_num
         self.description = description
         self.price = price
         self.dimension = (

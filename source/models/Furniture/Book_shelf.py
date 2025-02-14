@@ -6,7 +6,8 @@ class BookShelf(Furniture):
     def __init__(
         self,
         serial_number: int,
-        name: str,
+        model_name: str,
+        model_num: str,
         description: str,
         price: float,
         dimension: dict,
@@ -20,7 +21,8 @@ class BookShelf(Furniture):
     ):
         super().__init__(
             serial_number,
-            name,
+            model_name,
+            model_num,
             description,
             price,
             dimension,
@@ -70,7 +72,7 @@ class BookShelf(Furniture):
 
     def __str__(self):
         return (
-            f"BookShelf: {self.name} ({self.material.capitalize()}, {self.color})\n"
+            f"BookShelf: {self.model_name} ({self.material.capitalize()}, {self.color})\n"
             f"Description: {self.description}\n"
             f"Number of Shelves: {self.num_shelves}, Weight Capacity per Shelf: {self.max_capacity_weight_per_shelf} kg\n"
             f"Total Capacity: {self.calculate_total_capacity()} kg\n"

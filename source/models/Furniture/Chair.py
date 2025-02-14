@@ -6,7 +6,8 @@ class Chair(Furniture):
     def __init__(
         self,
         serial_number: int,
-        name: str,
+        model_name: str,
+        model_num: str,
         description: str,
         price: int,
         dimension: dict,
@@ -19,7 +20,8 @@ class Chair(Furniture):
     ):
         super().__init__(
             serial_number,
-            name,
+            model_name,
+            model_num,
             description,
             price,
             dimension,
@@ -48,7 +50,7 @@ class Chair(Furniture):
 
     def __str__(self):
         return (
-            f"Chair: {self.name} ({self.color}, {self.material})\n"
+            f"Chair: {self.model_name} ({self.color}, {self.material})\n"
             f"Description: {self.description}\n"
             f"Material: {self.material}, Weight: {self.weight} kg\n"
             f"Price: ${self.get_discounted_price():.2f} (After Discount)\n"

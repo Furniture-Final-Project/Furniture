@@ -8,7 +8,8 @@ class TestChair(unittest.TestCase):
         """Create a Chair object before each test"""
         self.chair = Chair(
             serial_number=101,
-            name="Office Chair",
+            model_name="Office Chair",
+            model_num="OC001",
             description="Ergonomic office chair",
             price=250,
             dimension={"height": 120, "width": 60, "depth": 50},
@@ -22,7 +23,8 @@ class TestChair(unittest.TestCase):
 
     def test_valid_initialization(self):
         """Test if Chair object is initialized correctly"""
-        self.assertEqual(self.chair.name, "Office Chair")
+        self.assertEqual(self.chair.model_name, "Office Chair")
+        self.assertEqual(self.chair.model_num, "OC001")
         self.assertEqual(self.chair.description, "Ergonomic office chair")
         self.assertEqual(self.chair.price, 250)
         self.assertEqual(self.chair.dimension["height"], 120)
@@ -39,6 +41,7 @@ class TestChair(unittest.TestCase):
             Chair(
                 102,
                 "Wooden Chair",
+                "WC002",
                 "A solid wood chair",
                 100,
                 {},
@@ -55,6 +58,7 @@ class TestChair(unittest.TestCase):
             Chair(
                 103,
                 "Plastic Chair",
+                "PC003",
                 "A lightweight chair",
                 50,
                 {},
@@ -81,18 +85,19 @@ class TestChair(unittest.TestCase):
         self.assertEqual(self.chair.get_image_path(), "images/chair.jpg")
 
     def test_str_representation(self):
-        """Test the string representation of the Chair class"""
+        """Test the full string representation of the Chair class, including formatted price"""
+        expected_price = "{:.2f}".format(
+            self.chair.get_discounted_price()
+        )  # Ensure correct rounding
         expected_str = (
             "Chair: Office Chair (Black, leather)\n"
             "Description: Ergonomic office chair\n"
             "Material: leather, Weight: 12.5 kg\n"
-            "Price: $238.05 (After Discount)\n"
+            f"Price: ${expected_price} (After Discount)\n"  # Use formatted price
             "Dimensions: {'height': 120, 'width': 60, 'depth': 50}\n"
             "Image: images/chair.jpg"
         )
-        self.assertIn(
-            "Chair: Office Chair (Black, leather)", str(self.chair)
-        )  # Check a key part of the string
+        self.assertEqual(str(self.chair), expected_str)
 
 
 if __name__ == "__main__":
