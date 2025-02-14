@@ -14,9 +14,13 @@ class TestFurnitureClass(unittest.TestCase):
 
     def setUp(self):
         """Creates a valid furniture object before each test"""
+        """Resets the model registry and creates a valid furniture object before each test"""
+        print("Resetting VALID_MODELS before test")  # Debug print
+        Furniture.VALID_MODELS = {}  # Reset model registry before each test
         self.furniture = TestFurniture(
             serial_number=101,
-            name="Test Chair",
+            model_name="Test Chair",
+            model_num="TC123",
             description="comfortable chair.",
             price=200,
             dimension={"height": 100, "width": 50, "depth": 50},
@@ -27,7 +31,8 @@ class TestFurnitureClass(unittest.TestCase):
 
     def test_valid_initialization(self):
         """Tests that a Furniture object initializes correctly"""
-        self.assertEqual(self.furniture.name, "Test Chair")
+        self.assertEqual(self.furniture.model_name, "Test Chair")
+        self.assertEqual(self.furniture.model_num, "TC123")
         self.assertEqual(self.furniture.description, "comfortable chair.")
         self.assertEqual(self.furniture.price, 200)
         self.assertEqual(self.furniture.dimension["height"], 100)
@@ -37,38 +42,138 @@ class TestFurnitureClass(unittest.TestCase):
         self.assertEqual(self.furniture.image_filename, "chair.jpg")
         self.assertEqual(self.furniture.discount, 10.0)
 
-    def test_invalid_name(self):
-        """Tests that an invalid name raises an exception"""
+    def test_invalid_model_number(self):
+        """Tests that an incorrect model number for an existing model raises an exception"""
         with self.assertRaises(ValueError):
-            TestFurniture(102, "", "Description", 150, {}, "Office", "image.jpg")
+            TestFurniture(
+                102,
+                "Test Chair",
+                "WRONG123",
+                "Comfortable chair.",
+                250,
+                {"height": 120, "width": 60},
+                "Office",
+                "chair2.jpg",
+            )
+
+    def test_new_model_registration(self):
+        """Tests that a new model is successfully registered in VALID_MODELS"""
+        new_furniture = TestFurniture(
+            103,
+            "Luxury Sofa",
+            "LS789",
+            "Soft and elegant sofa.",
+            700,
+            {"height": 150, "width": 200},
+            "Living Room",
+            "sofa.jpg",
+        )
+        print("After adding Luxury Sofa:", Furniture.VALID_MODELS)  # Debug print
+        self.assertIn("Luxury Sofa", Furniture.VALID_MODELS)
+        self.assertEqual(Furniture.VALID_MODELS["Luxury Sofa"], "LS789")
+
+    def test_existing_model_with_correct_number(self):
+        """Tests that an existing model with the correct number is allowed"""
+        TestFurniture(
+            104,
+            "Test Chair",
+            "TC123",
+            "Another comfy chair.",
+            300,
+            {"height": 120, "width": 60},
+            "Office",
+            "chair3.jpg",
+        )
+
+    def test_existing_model_with_wrong_number(self):
+        """Ensure that an existing model with an incorrect model number raises an error"""
+        # Register the model first
+        TestFurniture(
+            103,
+            "Luxury Sofa",
+            "LS789",
+            "Soft and elegant sofa.",
+            700,
+            {"height": 150, "width": 200},
+            "Living Room",
+            "sofa.jpg",
+        )
+
+        # Now try with a wrong model number
+        with self.assertRaises(ValueError):
+            TestFurniture(
+                105,
+                "Luxury Sofa",
+                "LS000",
+                "Soft and elegant sofa.",
+                700,
+                {"height": 150, "width": 200},
+                "Living Room",
+                "sofa2.jpg",
+            )
 
     def test_invalid_description(self):
         """Tests that an invalid description raises an exception"""
         with self.assertRaises(ValueError):
-            TestFurniture(103, "Table", "", 150, {}, "Office", "image.jpg")
+            TestFurniture(
+                103, "Nordic dinning table", "ND001", "", 150, {}, "Office", "image.jpg"
+            )
 
     def test_invalid_price(self):
         """Tests that a negative price raises an exception"""
         with self.assertRaises(ValueError):
-            TestFurniture(104, "Table", "Nice Table", -50, {}, "Office", "image.jpg")
+            TestFurniture(
+                104,
+                "Nordic dinning table",
+                "ND001",
+                "Nice Table",
+                -50,
+                {},
+                "Office",
+                "image.jpg",
+            )
 
     def test_invalid_category(self):
         """Tests that an invalid category raises an exception"""
         with self.assertRaises(ValueError):
             TestFurniture(
-                105, "Table", "Nice Table", 150, {}, "InvalidCategory", "image.jpg"
+                105,
+                "Nordic dinning table",
+                "ND001",
+                "Nice Table",
+                150,
+                {},
+                "InvalidCategory",
+                "image.jpg",
             )
 
     def test_invalid_image_filename(self):
         """Tests that an invalid image filename raises an exception"""
         with self.assertRaises(ValueError):
-            TestFurniture(106, "Table", "Nice Table", 150, {}, "Office", "image.txt")
+            TestFurniture(
+                106,
+                "Nordic dinning table",
+                "ND001",
+                "Nice Table",
+                150,
+                {},
+                "Office",
+                "image.txt",
+            )
 
     def test_invalid_discount(self):
         """Tests that an invalid discount raises an exception"""
         with self.assertRaises(ValueError):
             TestFurniture(
-                107, "Table", "Nice Table", 150, {}, "Office", "image.jpg", 150
+                107,
+                "Nordic dinning table",
+                "ND001",
+                "Nice Table",
+                150,
+                {},
+                "Office",
+                "image.jpg",
+                150,
             )
 
     def test_apply_tax(self):
