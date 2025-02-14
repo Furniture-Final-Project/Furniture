@@ -1,0 +1,17 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: end-of-file-fixer  # Ensures there's a newline at the end of the file
+      - id: trailing-whitespace  # Removes unnecessary trailing spaces
+
+  - repo: https://github.com/psf/black
+    rev: 24.8.0
+    hooks:
+      - id: black
+        args: [--line-length=88]  # Formats Python code to be consistent
+
+  - repo: https://github.com/google/pyink
+    rev: 24.3.0
+    hooks:
+      - id: pyink  # Ensures proper code formatting
