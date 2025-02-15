@@ -1,15 +1,17 @@
 from .Furniture import Furniture
 from sqlalchemy import Column, String, Float, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from ..services.database import Base # create the Base object
+from ..services.database import Base  # create the Base object
 
 
 class Bed(Furniture, Base):
     __tablename__ = 'beds'  # Define the table name
 
-    model_number = Column(String, ForeignKey('furniture.model_number'), primary_key=True)  # Foreign key from Furniture
     mattress_type = Column(String, nullable=False)
     frame_material = Column(String, nullable=False)
+    # Note: The primary key 'model_number' is inherited from the Furniture table.
+    # Since Bed inherits from Furniture, the 'model_number' column is already defined
+    # in the Furniture table and serves as the primary key for the Bed table as well.
 
     def __init__(
         self,
