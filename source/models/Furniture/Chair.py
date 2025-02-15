@@ -5,13 +5,11 @@ class Chair(Furniture):
 
     def __init__(
         self,
-        serial_number: int,
-        model_name: str,
         model_num: str,
+        model_name: str,
         description: str,
         price: int,
         dimension: dict,
-        category: str,
         image_filename: str,
         material: str,
         weight: float,
@@ -19,13 +17,11 @@ class Chair(Furniture):
         discount: float = 0.0,
     ):
         super().__init__(
-            serial_number,
-            model_name,
             model_num,
+            model_name,
             description,
             price,
             dimension,
-            category,
             image_filename,
             discount,
         )
