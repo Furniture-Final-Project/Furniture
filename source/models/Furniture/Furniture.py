@@ -14,7 +14,7 @@ class Furniture:
         price: int,
         dimension: dict,
         image_filename: str,
-        discount: float = 0.0,
+        discount: float = 0.0,  # Number in range 0-100
     ):
         # Validate model number
         if not isinstance(model_num, str) or not model_num.strip():
