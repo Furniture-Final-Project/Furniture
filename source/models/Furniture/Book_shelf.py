@@ -5,13 +5,11 @@ class BookShelf(Furniture):
 
     def __init__(
         self,
-        serial_number: int,
-        model_name: str,
         model_num: str,
+        model_name: str,
         description: str,
         price: float,
         dimension: dict,
-        category: str,
         image_filename: str,
         num_shelves: int,
         max_capacity_weight_per_shelf: float,
@@ -20,13 +18,11 @@ class BookShelf(Furniture):
         discount: float = 0.0,
     ):
         super().__init__(
-            serial_number,
-            model_name,
             model_num,
+            model_name,
             description,
             price,
             dimension,
-            category,
             image_filename,
             discount,
         )

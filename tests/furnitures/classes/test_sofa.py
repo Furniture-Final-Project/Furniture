@@ -7,12 +7,11 @@ class MyTestCase(unittest.TestCase):
     def setUp(self):
         """Create a Sofa object before each test"""
         self.sofa = Sofa(
-            serial_number=100,
-            name="Comfortable Sofa",
+            model_num="s100",
+            model_name="Comfortable Sofa",
             description="Classic synthetic sofa",
             price=1250,
             dimension={"height": 120, "width": 280, "depth": 80},
-            category="Living Room",
             image_filename="sofa.jpg",
             upholstery="synthetic",
             color="White",
@@ -20,11 +19,11 @@ class MyTestCase(unittest.TestCase):
 
     def test_valid_initialization(self):
         """Test if sofa object is initialized correctly"""
-        self.assertEqual(self.sofa.name, "Comfortable Sofa")
+        self.assertEqual(self.sofa.model_num, "S100")
+        self.assertEqual(self.sofa.model_name, "COMFORTABLE SOFA")
         self.assertEqual(self.sofa.description, "Classic synthetic sofa")
         self.assertEqual(self.sofa.price, 1250)
         self.assertEqual(self.sofa.dimension["width"], 280)
-        self.assertEqual(self.sofa.category, "Living Room")
         self.assertEqual(self.sofa.image_filename, "sofa.jpg")
         self.assertEqual(self.sofa.upholstery, "synthetic")
         self.assertEqual(self.sofa.color, "White")  # Should be capitalized
@@ -35,12 +34,11 @@ class MyTestCase(unittest.TestCase):
         """Test that an invalid upholstery raises a ValueError"""
         with self.assertRaises(ValueError) as context:
             Sofa(
-                serial_number=101,
-                name="Comfortable Sofa",
+                model_num="S101",
+                model_name="Comfortable Sofa",
                 description="Classic synthetic sofa",
                 price=1250,
                 dimension={"height": 120, "width": 280, "depth": 80},
-                category="Living Room",
                 image_filename="sofa.jpg",
                 upholstery="Invalid upholstery type",
                 color="White",
@@ -51,12 +49,11 @@ class MyTestCase(unittest.TestCase):
         """Test if missing 'width' in dimension raises ValueError"""
         with self.assertRaises(ValueError) as context:
             Sofa(
-                serial_number=103,
-                name="Compact Sofa",
+                model_num="S101",
+                model_name="Comfortable Sofa",
                 description="A small, compact sofa",
                 price=700,
                 dimension={"depth": 80, "height": 75},  # Missing width
-                category="Living Room",
                 image_filename="compact.jpg",
                 upholstery="fabric",
                 color="green",
@@ -79,7 +76,7 @@ class MyTestCase(unittest.TestCase):
             self.sofa.get_discounted_price()
         )  # Ensure correct rounding
         expected_str = (
-            f"Sofa: Comfortable Sofa (White, synthetic)\n"
+            f"Sofa: COMFORTABLE SOFA (White, synthetic)\n"
             f"Description: Classic synthetic sofa\n"
             f"Material: synthetic\n"
             f"Price: ${expected_price} (After Discount)\n"  # Use formatted price

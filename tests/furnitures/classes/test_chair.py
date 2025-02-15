@@ -7,13 +7,11 @@ class TestChair(unittest.TestCase):
     def setUp(self):
         """Create a Chair object before each test"""
         self.chair = Chair(
-            serial_number=101,
+            model_num="C001",
             model_name="Office Chair",
-            model_num="OC001",
             description="Ergonomic office chair",
             price=250,
             dimension={"height": 120, "width": 60, "depth": 50},
-            category="Office",
             image_filename="chair.jpg",
             material="leather",
             weight=12.5,
@@ -23,12 +21,11 @@ class TestChair(unittest.TestCase):
 
     def test_valid_initialization(self):
         """Test if Chair object is initialized correctly"""
-        self.assertEqual(self.chair.model_name, "Office Chair")
-        self.assertEqual(self.chair.model_num, "OC001")
+        self.assertEqual(self.chair.model_name, "OFFICE CHAIR")
+        self.assertEqual(self.chair.model_num, "C001")
         self.assertEqual(self.chair.description, "Ergonomic office chair")
         self.assertEqual(self.chair.price, 250)
         self.assertEqual(self.chair.dimension["height"], 120)
-        self.assertEqual(self.chair.category, "Office")
         self.assertEqual(self.chair.image_filename, "chair.jpg")
         self.assertEqual(self.chair.material, "leather")
         self.assertEqual(self.chair.weight, 12.5)
@@ -39,13 +36,11 @@ class TestChair(unittest.TestCase):
         """Test that an invalid material raises a ValueError"""
         with self.assertRaises(ValueError):
             Chair(
-                102,
+                "C002",
                 "Wooden Chair",
-                "WC002",
                 "A solid wood chair",
                 100,
                 {},
-                "Office",
                 "wood_chair.jpg",
                 "glass",
                 10,
@@ -56,13 +51,11 @@ class TestChair(unittest.TestCase):
         """Test that a non-positive weight raises a ValueError"""
         with self.assertRaises(ValueError):
             Chair(
-                103,
+                "C003",
                 "Plastic Chair",
-                "PC003",
                 "A lightweight chair",
                 50,
                 {},
-                "Office",
                 "plastic_chair.jpg",
                 "plastic",
                 -5,
@@ -90,7 +83,7 @@ class TestChair(unittest.TestCase):
             self.chair.get_discounted_price()
         )  # Ensure correct rounding
         expected_str = (
-            "Chair: Office Chair (Black, leather)\n"
+            "Chair: OFFICE CHAIR (Black, leather)\n"
             "Description: Ergonomic office chair\n"
             "Material: leather, Weight: 12.5 kg\n"
             f"Price: ${expected_price} (After Discount)\n"  # Use formatted price
