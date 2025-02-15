@@ -13,7 +13,7 @@ class Bed(Furniture, Base):
 
     def __init__(
         self,
-        model_num: str,
+        model_number: str,
         model_name: str,
         description: str,
         price: float,
@@ -24,7 +24,7 @@ class Bed(Furniture, Base):
         discount: float = 0.0,
     ):
         super().__init__(
-            model_num,
+            model_number,
             model_name,
             description,
             price,
