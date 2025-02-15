@@ -1,11 +1,21 @@
 from .Furniture import Furniture
+from sqlalchemy import Column, Float, String
+from ..services.database import Base  # Import the Base object
 
 
-class Chair(Furniture):
+class Chair(Furniture, Base):
+    __tablename__ = 'chairs'
+
+    # Note: The primary key 'model_number' is inherited from the Furniture table.
+    # Since Chair inherits from Furniture, 'model_number' is already defined as the primary key.
+
+    material = Column(String, nullable=False)
+    weight = Column(Float, nullable=False)
+    color = Column(String, nullable=False)
 
     def __init__(
         self,
-        model_num: str,
+        model_number: str,
         model_name: str,
         description: str,
         price: int,
@@ -17,7 +27,7 @@ class Chair(Furniture):
         discount: float = 0.0,
     ):
         super().__init__(
-            model_num,
+            model_number,
             model_name,
             description,
             price,
