@@ -1,11 +1,22 @@
 from .Furniture import Furniture
+from sqlalchemy import Column, String, Integer, Boolean
+from ..services.database import Base  # Import the Base object
 
 
-class Table(Furniture):
+class Table(Furniture, Base):
+    __tablename__ = 'tables'
+
+    # Note: The primary key 'model_number' is inherited from the Furniture table.
+    # Since Table inherits from Furniture, 'model_number' is already defined as the primary key.
+
+    shape = Column(String, nullable=False)
+    seating_capacity = Column(Integer, nullable=False)
+    is_extendable = Column(Boolean, nullable=False)
+    material = Column(String, nullable=False)
 
     def __init__(
         self,
-        model_num: str,
+        model_number: str,
         model_name: str,
         description: str,
         price: int,
@@ -18,7 +29,7 @@ class Table(Furniture):
         discount: float = 0.0,
     ):
         super().__init__(
-            model_num,
+            model_number,
             model_name,
             description,
             price,
