@@ -1,11 +1,22 @@
 from .Furniture import Furniture
+from sqlalchemy import Column, Integer, Float, String
+from ..services.database import Base  # Import the Base object
 
 
-class BookShelf(Furniture):
+class BookShelf(Furniture, Base):
+    __tablename__ = 'bookshelves'
+
+    # Note: The primary key 'model_number' is inherited from the Furniture table.
+    # Since BookShelf inherits from Furniture, 'model_number' is already defined as the primary key.
+
+    num_shelves = Column(Integer, nullable=False)
+    max_capacity_weight_per_shelf = Column(Float, nullable=False)
+    material = Column(String, nullable=False)
+    color = Column(String, nullable=False)
 
     def __init__(
         self,
-        model_num: str,
+        model_number: str,
         model_name: str,
         description: str,
         price: float,
@@ -18,7 +29,7 @@ class BookShelf(Furniture):
         discount: float = 0.0,
     ):
         super().__init__(
-            model_num,
+            model_number,
             model_name,
             description,
             price,
