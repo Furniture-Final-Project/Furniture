@@ -3,6 +3,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from source.services.database import Base
 from source.models.Furniture import Furniture, Bed, Chair, Table, BookShelf, Sofa
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../source')))
 
 # Set up a temporary database for testing
 @pytest.fixture(scope='module')
