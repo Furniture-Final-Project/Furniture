@@ -1,7 +1,7 @@
 from .Furniture import Furniture
 from sqlalchemy import Column, String, Float, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from services.database import Base # create the Base object
+from ..services.database import Base # create the Base object
 
 
 class Bed(Furniture, Base):
