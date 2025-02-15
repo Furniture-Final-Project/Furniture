@@ -36,10 +36,9 @@ class Sofa(Furniture):
                 f"Invalid upholstery type '{upholstery}'. Choose from {valid_upholstery_types}."
             )
         if "width" not in self.dimension:
-            raise ValueError("Sofa must have both 'width' in dimensions.")
+            raise ValueError("Sofa must have 'width' in dimensions.")
 
         self.upholstery = upholstery.lower()
-        self.upholstery = upholstery
         self.color = color.capitalize()
 
         # Call static method - calculate nu,ber of seats
@@ -57,7 +56,8 @@ class Sofa(Furniture):
         return (
             f"Sofa: {self.model_name} ({self.color}, {self.upholstery})\n"
             f"Description: {self.description}\n"
-            f"Material: {self.upholstery}, Price: ${self.get_discounted_price():.2f} (After Discount)\n"
+            f"Material: {self.upholstery}\n"
+            f"Price: ${self.get_discounted_price():.2f} (After Discount)\n"
             f"Number of Seats: {self.num_seats}\n"
             f"Dimensions: {self.dimension}\n"
             f"Image: {self.get_image_path()}"
