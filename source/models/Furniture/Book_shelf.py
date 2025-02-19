@@ -16,7 +16,7 @@ class BookShelf(Furniture, Base):
 
     def __init__(
         self,
-        model_number: str,
+        model_num: str,
         model_name: str,
         description: str,
         price: float,
@@ -29,7 +29,7 @@ class BookShelf(Furniture, Base):
         discount: float = 0.0,
     ):
         super().__init__(
-            model_number,
+            model_num,
             model_name,
             description,
             price,
