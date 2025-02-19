@@ -10,7 +10,7 @@ class Furniture(Base, ABC):  # Inherit from SQLAlchemy Base and ABC
     __tablename__ = 'furniture'  # Define the table name
 
     # SQLAlchemy Columns
-    model_number = Column(String, primary_key=True)  # Primary key
+    model_num = Column(String, primary_key=True)  # Primary key
     model_name = Column(String, nullable=False)
     description = Column(String, nullable=False)
     price = Column(Float, nullable=False)
@@ -18,10 +18,19 @@ class Furniture(Base, ABC):  # Inherit from SQLAlchemy Base and ABC
     image_filename = Column(String, nullable=False)
     discount = Column(Float, default=0.0)
 
-    def __init__(self, model_number, model_name, description, price, dimension, image_filename, discount=0.0):
+    def __init__(
+        self,
+        model_num: str,  # key - unique between same models with different colors, dimension ... This value is given from the user
+        model_name: str,  # Identify between same models with different sizes, color...
+        description: str,
+        price: int,
+        dimension: dict,
+        image_filename: str,
+        discount: float = 0.0,  # Number in range 0-100
+    ):
 
         # Validate model number
-        if not isinstance(model_number, str) or not model_number.strip():
+        if not isinstance(model_num, str) or not model_num.strip():
             raise ValueError("Model number must be a non-empty string.")
 
         # Validate model name
@@ -48,7 +57,7 @@ class Furniture(Base, ABC):  # Inherit from SQLAlchemy Base and ABC
         if not isinstance(discount, (int, float)) or not (0 <= discount <= 100):
             raise ValueError("Discount must be a percentage between 0 and 100.")
 
-        self.model_number = model_number.upper()
+        self.model_num = model_num.upper()
         self.model_name = model_name.upper()
         self.description = description
         self.price = price
