@@ -7,7 +7,7 @@
     {
         "category": "Table",
         "model_num": "TB-2002",
-        "quantity": 5
+        "quantity": 0
     },
     {
         "category": "Sofa",
@@ -17,11 +17,11 @@
     {
         "category": "BookShelf",
         "model_num": "BS-4004",
-        "quantity": 7
+        "quantity": 0
     },
     {
         "category": "Bed",
         "model_num": "BD-5005",
-        "quantity": 3
+        "quantity": 20
     }
 ]
