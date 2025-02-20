@@ -1,5 +1,5 @@
 from source.models.Furniture import Furniture
-from source.models.Inventory import Inventory
+from source.models.inventory import Inventory
 
 # from PIL import Image
 import os
@@ -11,7 +11,8 @@ def create_furniture() -> Furniture:
 
 # needs tests
 def get_furniture_summary(model_num: str, inventory: Inventory = None) -> str:
-    """Returns summery description of a furniture: model name, the price after tax + discounted price (is discount >0), if it's in stock and the image),
+    """Returns summery description of a furniture: model name, the price after tax + discounted price (is discount >0),
+     if it's in stock and the image),
     according to the model number of the furniture"""
     if inventory is None:
         inventory = Inventory()  # Default behavior: Use real Inventory
