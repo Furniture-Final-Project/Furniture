@@ -93,7 +93,7 @@ class Inventory(InventorySingleton):
 # Example usage:
 if __name__ == '__main__':
     # Assume that the JSON files are stored under "source/data" folder, so pass that folder path.
-    data_folder = os.path.join("source", "data")
+    data_folder = os.path.join("source", "database")
 
     inventory_instance = Inventory(data_folder)
     available_items = inventory_instance.get_all_available_items()
