@@ -53,42 +53,42 @@ def get_furniture_summary(model_num: str, inventory: Inventory = None) -> str:
 
     return "\n".join(details)
 
-
-def get_furniture_full_summery(model_num: str, inventory: Inventory = None) -> str:
-    """Returns all information  for presenting on the furniture's web page
-    according to the model number of the furniture"""
-    if inventory is None:
-        inventory = Inventory()  # Default behavior: Use real Inventory
-
-    furniture = inventory.get_furniture_by_id(model_num)
-
-    if not furniture:  # If no furniture exists in inventory with this model number
-        return "Furniture not found."
-
-    stock_quantity = inventory.check_availability(furniture)
-    details = []
-
-    # Out of stock message
-    if stock_quantity == 0:
-        details.append("Item is out of stock.")
-
-    # Basic details
-    details.append(str(furniture))
-
-    # Low stock warning
-    if stock_quantity < 5:
-        details.append("Hurry up! This item is low in stock.")
-
-    # Retrieve and display the image
-    image_path = furniture.get_image_path()
-
-    #    if os.path.exists(image_path):  # If it's a local file, show it
-    #        img = Image.open(image_path)
-    #        img.show()  # Opens the image in the default viewer (works in PyCharm)
-    #    else:
-    #        details.append(f"Image not found: {image_path}")  # Print path if missing
-
-    return "\n".join(details)
+# This method get_furniture_full_summery is created within the inventory.py and called get_all_available_items
+# def get_furniture_full_summery(model_num: str, inventory: Inventory = None) -> str:
+#     """Returns all information  for presenting on the furniture's web page
+#     according to the model number of the furniture"""
+#     if inventory is None:
+#         inventory = Inventory()  # Default behavior: Use real Inventory
+#
+#     furniture = inventory.get_furniture_by_id(model_num)
+#
+#     if not furniture:  # If no furniture exists in inventory with this model number
+#         return "Furniture not found."
+#
+#     stock_quantity = inventory.check_availability(furniture)
+#     details = []
+#
+#     # Out of stock message
+#     if stock_quantity == 0:
+#         details.append("Item is out of stock.")
+#
+#     # Basic details
+#     details.append(str(furniture))
+#
+#     # Low stock warning
+#     if stock_quantity < 5:
+#         details.append("Hurry up! This item is low in stock.")
+#
+#     # Retrieve and display the image
+#     image_path = furniture.get_image_path()
+#
+#     #    if os.path.exists(image_path):  # If it's a local file, show it
+#     #        img = Image.open(image_path)
+#     #        img.show()  # Opens the image in the default viewer (works in PyCharm)
+#     #    else:
+#     #        details.append(f"Image not found: {image_path}")  # Print path if missing
+#
+#     return "\n".join(details)
 
 
 # this one is for internal system use - everything should return
