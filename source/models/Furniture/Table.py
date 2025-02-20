@@ -27,12 +27,6 @@ class Table(Furniture):
             discount,
         )
 
-        # Validate shape
-        if shape not in {"rectangular", "circular"}:
-            raise ValueError(
-                f"Invalid shape '{shape}'. Supported shapes: 'rectangular', 'circular'."
-            )
-
         # Validate dimensions based on shape
         if shape == "rectangular" and not all(
             k in dimension for k in ("length", "width")
@@ -43,9 +37,6 @@ class Table(Furniture):
         if shape == "circular" and "diameter" not in dimension:
             raise ValueError("Circular tables must have 'diameter' in dimensions.")
 
-        if seating_capacity <= 0:
-            raise ValueError("Seating capacity must be at least 1.")
-
         self.shape = shape
         self.seating_capacity = seating_capacity
         self.is_extendable = is_extendable
@@ -53,6 +44,58 @@ class Table(Furniture):
 
     def furniture_type(self):
         return "Table"
+
+    @property
+    def shape(self):
+        return self._shape
+
+    @shape.setter
+    def shape(self, value):
+        # Validate shape
+        if value.lower() not in {"rectangular", "circular"}:
+            raise ValueError(
+                f"Invalid shape '{value}'. Supported shapes: 'rectangular', 'circular'."
+            )
+        self._shape = value
+
+    @property
+    def seating_capacity(self):
+        return self._seating_capacity
+
+    @seating_capacity.setter
+    def seating_capacity(self, value):
+        if value <= 0:
+            raise ValueError("Seating capacity must be at least 1.")
+        self._seating_capacity = value
+
+    @property
+    def is_extendable(self):
+        return self._is_extendable
+
+    @is_extendable.setter
+    def is_extendable(self, value):
+        if not isinstance(value, bool):
+            raise ValueError("is_extendable must be a boolean.")
+        self._is_extendable = value
+
+    @property
+    def material(self):
+        return self._material
+
+    @material.setter
+    def material(self, value):
+        valid_table_materials = [
+            "wood",
+            "metal",
+            "glass",
+            "stone",
+            "plastic",
+            "acrylic",
+            "laminate",
+        ]
+        if value not in valid_table_materials:
+            raise ValueError(f"Material must be one of {valid_table_materials}")
+        self._material = value.lower()
 
     def calculate_area(self) -> float:
         """Calculate the surface area of the table."""

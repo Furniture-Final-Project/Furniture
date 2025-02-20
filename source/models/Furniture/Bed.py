@@ -25,6 +25,22 @@ class Bed(Furniture):
             discount,
         )
 
+        # Validate dimensions (must contain width)
+        if "width" not in dimension:
+            raise ValueError("Bed dimensions must include 'width'.")
+
+        self.mattress_type = mattress_type
+        self.frame_material = frame_material
+
+    def furniture_type(self):
+        return "Bed"
+
+    @property
+    def mattress_type(self):
+        return self._mattress_type  # Access the private attribute
+
+    @mattress_type.setter
+    def mattress_type(self, value):
         # Validate mattress type
         valid_mattress_types = {
             "latex",
@@ -34,27 +50,25 @@ class Bed(Furniture):
             "hybrid",
             "cotton",
         }
-        if mattress_type.lower() not in valid_mattress_types:
+        if value.lower() not in valid_mattress_types:
             raise ValueError(
-                f"Invalid mattress type '{mattress_type}'. Must be one of {valid_mattress_types}."
+                f"Invalid mattress type '{value}'. Must be one of {valid_mattress_types}."
             )
+        self._mattress_type = value.lower()
 
+    @property
+    def frame_material(self):
+        return self._frame_material
+
+    @frame_material.setter
+    def frame_material(self, value):
         # Validate frame material
         valid_frame_materials = {"wood", "metal", "upholstered", "bamboo"}
-        if frame_material.lower() not in valid_frame_materials:
+        if value.lower() not in valid_frame_materials:
             raise ValueError(
-                f"Invalid frame material '{frame_material}'. Must be one of {valid_frame_materials}."
+                f"Invalid frame material '{value}'. Must be one of {valid_frame_materials}."
             )
-
-        # Validate dimensions (must contain width)
-        if "width" not in dimension:
-            raise ValueError("Bed dimensions must include 'width'.")
-
-        self.mattress_type = mattress_type.lower()
-        self.frame_material = frame_material.lower()
-
-    def furniture_type(self):
-        return "Bed"
+        self._frame_material = value.lower()
 
     def get_size(self) -> str:
         """Determine the bed size based on its width."""

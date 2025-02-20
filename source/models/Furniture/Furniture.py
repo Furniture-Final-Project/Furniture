@@ -2,79 +2,110 @@ import os
 from abc import ABC, abstractmethod
 
 
-# This class implements a Singleton-like pattern for managing a shared registry (VALID_MODELS) of model names and their corresponding model numbers,
-# ensuring consistency and preventing mismatches across multiple instances of Furniture.
-class Furniture:
+class Furniture(ABC):  # Inherit from ABC to define an abstract base class
 
     def __init__(
         self,
-        model_num: str,  # key - unique between same models with different colors, dimension ... This value is given from the user
-        model_name: str,  # Identify between same models with different sizes, color...
+        model_num: str,  # immutable
+        model_name: str,
         description: str,
         price: int,
         dimension: dict,
         image_filename: str,
-        discount: float = 0.0,  # Number in range 0-100
+        discount: float = 0.0,
     ):
-        # Validate model number
+
         if not isinstance(model_num, str) or not model_num.strip():
             raise ValueError("Model number must be a non-empty string.")
+        self._model_num = model_num.upper()
 
-        # Validate model name
-        if not isinstance(model_name, str) or not model_name.strip():
-            raise ValueError("Model name must be a non-empty string.")
+        self.model_name = model_name
+        self.description = description
+        self.price = price
+        self.dimension = dimension
+        self.image_filename = image_filename
+        self.discount = discount
 
-        # Validate description
-        if not isinstance(description, str) or not description.strip():
+    @property
+    def model_num(self):
+        return self._model_num  # Access the private attribute
+
+    @property
+    def model_name(self):
+        return self._model_name  # Access the private attribute
+
+    @model_name.setter
+    def model_name(self, value):
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("Model Name must be a non-empty string.")
+        self._model_name = value.upper()  # Corrected assignment
+
+    @property
+    def description(self):
+        return self._description  # Access the private attribute
+
+    @description.setter
+    def description(self, value):
+        if not isinstance(value, str) or not value.strip():
             raise ValueError("Description must be a non-empty string.")
+        self._description = value.capitalize()  # Assign to the private attribute
 
-        # Validate price
-        if not isinstance(price, (int, float)) or price < 0:
+    @property
+    def price(self):
+        return self._price  # Access the private attribute
+
+    @price.setter
+    def price(self, value):
+        if not isinstance(value, (int, float)) or value < 0:
             raise ValueError("Price must be a non-negative number.")
+        self._price = value  # Assign to the private attribute
 
-        # Validate image filename
-        if not isinstance(image_filename, str) or not image_filename.lower().endswith(
+    @property
+    def dimension(self):
+        return self._dimension  # Access the private attribute
+
+    @dimension.setter
+    def dimension(self, value):
+        if not isinstance(value, dict):
+            raise ValueError("Dimension must be a dict.")
+        self._dimension = value  # Assign to the private attribute
+
+    @property
+    def image_filename(self):
+        return self._image_filename  # Access the private attribute
+
+    @image_filename.setter
+    def image_filename(self, value):
+        if not isinstance(value, str) or not value.lower().endswith(
             (".jpg", ".png", ".jpeg")
         ):
             raise ValueError(
                 "Image filename must be a valid image file (.jpg, .png, .jpeg)."
             )
+        self._image_filename = value  # Assign to the private attribute
 
-        # Validate discount
-        if not isinstance(discount, (int, float)) or not (0 <= discount <= 100):
+    @property
+    def discount(self):
+        return self._discount  # Access the private attribute
+
+    @discount.setter
+    def discount(self, value):
+        if not isinstance(value, (int, float)) or not (0 <= value <= 100):
             raise ValueError("Discount must be a percentage between 0 and 100.")
-
-        self.model_num = model_num.upper()
-        self.model_name = model_name.upper()
-        self.description = description
-        self.price = price
-        self.dimension = (
-            dimension  # Expecting a dict with keys: height, width, depth, diameter
-        )
-        self.image_filename = image_filename
-        self.discount = discount
+        self._discount = value  # Assign to the private attribute
 
     @abstractmethod
     def furniture_type(self):
-        """function that will declare the furniture type"""
+        """Declare the furniture type"""
         pass
-
-    def get_price(self) -> float:
-        """Return the base price of the furniture."""
-        return self.price
 
     def apply_tax(self, tax_rate: float = 18) -> float:
         """Apply a tax rate to the price and return the new price."""
         return self.price * (1 + tax_rate / 100)
 
     def get_discounted_price(self) -> float:
-        """Return the updated (including tax) price after applying the discount."""
+        """Return the price after applying the discount and tax."""
         return self.apply_tax() * (1 - self.discount / 100)
-
-    def check_availability(self) -> bool:
-        """Check if the furniture is available (placeholder for actual logic)."""
-        # Placeholder logic; replace with inventory check later
-        return True
 
     def calculate_discount(self, discount_percent: float) -> float:
         """Set a new discount percentage and return the discounted price."""
@@ -82,5 +113,5 @@ class Furniture:
         return self.get_discounted_price()
 
     def get_image_path(self):
-        """Returns the relative path to the image file."""
+        """Return the relative path to the image file."""
         return os.path.join("images", self.image_filename)

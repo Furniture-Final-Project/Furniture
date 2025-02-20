@@ -25,23 +25,39 @@ class Sofa(Furniture):
             discount,
         )
 
-        # Validate upholstery material and dimension
-        valid_upholstery_types = {"leather", "fabric", "velvet", "synthetic"}
-        if upholstery.lower() not in valid_upholstery_types:
-            raise ValueError(
-                f"Invalid upholstery type '{upholstery}'. Choose from {valid_upholstery_types}."
-            )
         if "width" not in self.dimension:
             raise ValueError("Sofa must have 'width' in dimensions.")
 
-        self.upholstery = upholstery.lower()
-        self.color = color.capitalize()
+        self.upholstery = upholstery
+        self.color = color
 
         # Call static method - calculate nu,ber of seats
         self.num_seats = Sofa.calculate_seating_capacity(self.dimension["width"])
 
     def furniture_type(self):
         return "Sofa"
+
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, value):
+        self._color = value.capitalize()
+
+    @property
+    def upholstery(self):
+        return self._upholstery
+
+    @upholstery.setter
+    def upholstery(self, value):
+        # Validate upholstery material and dimension
+        valid_upholstery_types = {"leather", "fabric", "velvet", "synthetic"}
+        if value.lower() not in valid_upholstery_types:
+            raise ValueError(
+                f"Invalid upholstery type '{value}'. Choose from {valid_upholstery_types}."
+            )
+        self._upholstery = value.lower()
 
     @staticmethod
     def calculate_seating_capacity(width: int, seat_width: int = 55) -> int:

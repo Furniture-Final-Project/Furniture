@@ -1,4 +1,4 @@
-from .Furniture import Furniture
+from source.models.Furniture.Furniture import Furniture
 
 
 class Chair(Furniture):
@@ -26,23 +26,45 @@ class Chair(Furniture):
             discount,
         )
 
-        # Validate material type
-        valid_materials = {"wood", "metal", "plastic", "leather", "fabric"}
-        if material.lower() not in valid_materials:
-            raise ValueError(
-                f"Invalid material '{material}'. Choose from {valid_materials}."
-            )
-
-        # Validate weight
-        if weight <= 0:
-            raise ValueError("Weight must be a positive number.")
-
-        self.material = material.lower()
+        self.material = material
         self.weight = weight
         self.color = color.capitalize()  # Capitalize color for readability
 
     def furniture_type(self):
         return "Chair"
+
+    @property
+    def material(self):
+        return self._material  # Access the private attribute
+
+    @material.setter
+    def material(self, value):
+        # Validate material type
+        valid_materials = {"wood", "metal", "plastic", "leather", "fabric"}
+        if value.lower() not in valid_materials:
+            raise ValueError(
+                f"Invalid material '{value}'. Choose from {valid_materials}."
+            )
+        self._material = value.lower()
+
+    @property
+    def weight(self):
+        return self._weight  # Access the private attribute
+
+    @weight.setter
+    def weight(self, value):
+        # Validate weight
+        if value <= 0:
+            raise ValueError("Weight must be a positive number.")
+        self._weight = value
+
+    @property
+    def color(self):
+        return self._color  # Access the private attribute
+
+    @color.setter
+    def color(self, value):
+        self._color = value.capitalize()
 
     def __str__(self):
         return (

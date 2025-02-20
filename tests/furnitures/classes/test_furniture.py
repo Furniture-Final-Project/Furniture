@@ -5,6 +5,7 @@ from source.models.Furniture import Furniture
 
 # Since Furniture has an abstract method (furniture_type), we create a dummy subclass TestFurniture that implements it.
 class TestFurniture(Furniture):
+    __test__ = False
 
     def furniture_type(self):
         return "TestType"
@@ -30,7 +31,7 @@ class TestFurnitureClass(unittest.TestCase):
         """Tests that a Furniture object initializes correctly"""
         self.assertEqual(self.furniture.model_name, "TEST CHAIR")
         self.assertEqual(self.furniture.model_num, "TC123")
-        self.assertEqual(self.furniture.description, "comfortable chair.")
+        self.assertEqual(self.furniture.description, "Comfortable chair.")
         self.assertEqual(self.furniture.price, 200)
         self.assertEqual(self.furniture.dimension["height"], 100)
         self.assertEqual(self.furniture.dimension["width"], 50)
@@ -117,6 +118,29 @@ class TestFurnitureClass(unittest.TestCase):
         self.assertEqual(
             self.furniture.get_image_path(), os.path.join("images", "chair.jpg")
         )
+
+    def test_update_price(self):
+        """Tests updating price correctly"""
+        self.furniture.price = 220
+        self.assertEqual(self.furniture.price, 220)
+
+    def test_update_discount(self):
+        """Tests updating discount correctly"""
+        self.furniture.discount = 30
+        self.assertEqual(
+            self.furniture.get_discounted_price(), self.furniture.price * 1.18 * 0.7
+        )
+
+    def test_update_description(self):
+        """Tests updating description correctly - with capitalization"""
+        self.furniture.description = "VERY Comfortable chair."
+        self.assertEqual(self.furniture.description, "Very comfortable chair.")
+
+
+#    def test_model_num_immutable(self):
+#        """Tests that it is not possible to change model number for an existing  furniture"""
+#        with self.assertRaises(AttributeError):
+#            self.furniture.model_num = "B456"
 
 
 if __name__ == "__main__":
