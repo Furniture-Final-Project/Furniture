@@ -1,0 +1,27 @@
+[
+    {
+        "category": "Chair",
+        "model_num": "CH-1001",
+        "quantity": 10
+    },
+    {
+        "category": "Table",
+        "model_num": "TB-2002",
+        "quantity": 5
+    },
+    {
+        "category": "Sofa",
+        "model_num": "SF-3003",
+        "quantity": 2
+    },
+    {
+        "category": "BookShelf",
+        "model_num": "BS-4004",
+        "quantity": 7
+    },
+    {
+        "category": "Bed",
+        "model_num": "BD-5005",
+        "quantity": 3
+    }
+]
