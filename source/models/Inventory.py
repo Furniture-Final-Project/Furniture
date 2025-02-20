@@ -90,13 +90,13 @@ class Inventory(InventorySingleton):
         return available_items
 
 
-# Example usage:
-if __name__ == '__main__':
-    # Assume that the JSON files are stored under "source/data" folder, so pass that folder path.
-    data_folder = os.path.join("source", "database")
-
-    inventory_instance = Inventory(data_folder)
-    available_items = inventory_instance.get_all_available_items()
-
-    for item in available_items:
-        print(item)
+# # Example usage:
+# if __name__ == '__main__':
+#     # Assume that the JSON files are stored under "source/data" folder, so pass that folder path.
+#     data_folder = os.path.join("source", "database")
+#
+#     inventory_instance = Inventory(data_folder)
+#     available_items = inventory_instance.get_all_available_items()
+#
+#     for item in available_items:
+#         print(item)
