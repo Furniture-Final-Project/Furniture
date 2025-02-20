@@ -12,7 +12,7 @@ def create_furniture() -> Furniture:
 # needs tests
 def get_furniture_summary(model_num: str, inventory: Inventory = None) -> str:
     """Returns summery description of a furniture: model name, the price after tax + discounted price (is discount >0),
-     if it's in stock and the image),
+    if it's in stock and the image),
     according to the model number of the furniture"""
     if inventory is None:
         inventory = Inventory()  # Default behavior: Use real Inventory
