@@ -74,8 +74,8 @@ def test_get_all_available_items(inventory):
     assert items == expected_result
 
 
-def test_api_available_items(client, inventory, monkeypatch):
+def test_api_available_items(client, inventory):
     response = client.get('/available-items')
     assert response.status_code == 200, "Expected status code 200"
     data = json.loads(response.data)
-    assert data == expected_result, "API response data does not match expected result"
+    assert data == expected_result
