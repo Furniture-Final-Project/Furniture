@@ -16,5 +16,15 @@ def get_available_items():
     return jsonify(items)
 
 
+@app.route('/inventory', methods=['POST'])
+def add_item():
+    return jsonify({})
+
+
+@app.route('/inventory', methods=['GET'])
+def get_inventory():
+    return jsonify({})
+
+
 if __name__ == '__main__':
     app.run(debug=True)

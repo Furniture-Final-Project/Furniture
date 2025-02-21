@@ -1,9 +1,11 @@
+
 import os
 import json
 import pytest
 
 from flask import Flask
 import app
+import http
 from source.models.inventory import Inventory
 
 
@@ -79,3 +81,18 @@ def test_api_available_items(client, inventory):
     assert response.status_code == 200, "Expected status code 200"
     data = json.loads(response.data)
     assert data == expected_result
+
+
+def test_admin_adds_new_type_of_chair_to_inventory(client, inventory):
+    chair_attributes = {'model_num': 'CH-1002', 'model_name': 'Moshe', 'description': 'nice chair',
+                                    'price': 5, 'dimension': {"height": 90, "width": 45, "depth": 50},
+                                    'image_filename': 'Moshe.jpg', 'material': 'wood', 'weight': 10, 'color': 'Red', 'discount': 0.0}
+
+    response = client.post('/inventory', json={'quantity': 7, 'details': chair_attributes})
+    assert response.status_code == http.HTTPStatus.OK
+
+    response = client.get('/inventory')
+    assert response.status_code == http.HTTPStatus.OK
+
+    data = json.loads(response.data)
+    assert data['CH-1002'] == {'quantity': 7, 'details': chair_attributes}
