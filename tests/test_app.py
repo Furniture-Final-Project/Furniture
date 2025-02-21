@@ -1,7 +1,9 @@
 
 import os
+import tempfile
 import json
 import pytest
+import shutil
 
 from flask import Flask
 import app
@@ -21,12 +23,15 @@ def client():
 @pytest.fixture
 def inventory():
     # Path to the test data folder containing JSON files
-    test_data_folder = os.path.join('tests', 'test_data')
-    inventory = Inventory(test_data_folder)
-    old_inventory = app.inventory
-    app.inventory = inventory
-    yield inventory
-    app.inventory = old_inventory
+    with tempfile.TemporaryDirectory() as directory:
+        test_data_folder = os.path.join('tests', 'test_data')
+        destination = os.path.join(directory, 'test_data')
+        shutil.copytree(test_data_folder, destination)
+        inventory = Inventory(destination)
+        old_inventory = app.inventory
+        app.inventory = inventory
+        yield inventory
+        app.inventory = old_inventory
 
 
 # Expected result for get_all_available_items using our test data
