@@ -79,7 +79,3 @@ def test_api_available_items(client, inventory, monkeypatch):
     assert response.status_code == 200, "Expected status code 200"
     data = json.loads(response.data)
     assert data == expected_result, "API response data does not match expected result"
-
-
-if __name__ == '__main__':
-    pytest.main([os.path.realpath(__file__)])
