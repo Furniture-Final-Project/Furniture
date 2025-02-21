@@ -1,27 +1,8 @@
-[
-    {
-        "category": "Chair",
-        "model_num": "CH-1001",
-        "quantity": 10
-    },
-    {
-        "category": "Table",
-        "model_num": "TB-2002",
-        "quantity": 0
-    },
-    {
-        "category": "Sofa",
-        "model_num": "SF-3003",
-        "quantity": 2
-    },
-    {
-        "category": "BookShelf",
-        "model_num": "BS-4004",
-        "quantity": 0
-    },
-    {
-        "category": "Bed",
-        "model_num": "BD-5005",
-        "quantity": 20
-    }
-]
+{
+    "CH-1001": {"category":  "Chair", "quantity":  10},
+    "TB-2002": {"category":  "Table", "quantity":  0},
+    "SF-3003": {"category":  "Sofa", "quantity":  2},
+    "BS-4004": {"category":  "BookShelf", "quantity":  0},
+    "BD-5005": {"category": "Bed", "quantity": 20}
+}
+
