@@ -4,14 +4,15 @@ import os
 
 app = Flask(__name__)
 
+
 # Initialize the Inventory instance at startup
 data_folder = os.path.join("source", "database")
-inventory_instance = Inventory(data_folder)
+inventory = Inventory(data_folder)
 
 
 @app.route('/available-items', methods=['GET'])
 def get_available_items():
-    items = inventory_instance.get_all_available_items()
+    items = inventory.get_all_available_items()
     return jsonify(items)
 
 
