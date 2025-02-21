@@ -95,4 +95,4 @@ def test_admin_adds_new_type_of_chair_to_inventory(client, inventory):
     assert response.status_code == http.HTTPStatus.OK
 
     data = json.loads(response.data)
-    assert data['CH-1002'] == {'quantity': 7, 'details': chair_attributes}
+    assert data['CH-1002'] == {'quantity': 7, 'category': "Chair"}
