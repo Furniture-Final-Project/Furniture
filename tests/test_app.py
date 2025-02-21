@@ -1,9 +1,13 @@
+
 import os
+import tempfile
 import json
 import pytest
+import shutil
 
 from flask import Flask
 import app
+import http
 from source.models.inventory import Inventory
 
 
@@ -19,12 +23,15 @@ def client():
 @pytest.fixture
 def inventory():
     # Path to the test data folder containing JSON files
-    test_data_folder = os.path.join('tests', 'test_data')
-    inventory = Inventory(test_data_folder)
-    old_inventory = app.inventory
-    app.inventory = inventory
-    yield inventory
-    app.inventory = old_inventory
+    with tempfile.TemporaryDirectory() as directory:
+        test_data_folder = os.path.join('tests', 'test_data')
+        destination = os.path.join(directory, 'test_data')
+        shutil.copytree(test_data_folder, destination)
+        inventory = Inventory(destination)
+        old_inventory = app.inventory
+        app.inventory = inventory
+        yield inventory
+        app.inventory = old_inventory
 
 
 # Expected result for get_all_available_items using our test data
@@ -79,3 +86,18 @@ def test_api_available_items(client, inventory):
     assert response.status_code == 200, "Expected status code 200"
     data = json.loads(response.data)
     assert data == expected_result
+
+
+def test_admin_adds_new_type_of_chair_to_inventory(client, inventory):
+    chair_attributes = {'model_num': 'CH-1002', 'model_name': 'Moshe', 'description': 'nice chair',
+                                    'price': 5, 'dimension': {"height": 90, "width": 45, "depth": 50},
+                                    'image_filename': 'Moshe.jpg', 'material': 'wood', 'weight': 10, 'color': 'Red', 'discount': 0.0}
+
+    response = client.post('/inventory', json={'quantity': 7, 'details': chair_attributes})
+    assert response.status_code == http.HTTPStatus.OK
+
+    response = client.get('/inventory')
+    assert response.status_code == http.HTTPStatus.OK
+
+    data = json.loads(response.data)
+    assert data['CH-1002'] == {'quantity': 7, 'category': "Chair"}

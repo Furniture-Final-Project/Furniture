@@ -1,3 +1,4 @@
+import contextlib
 import json
 import os
 
@@ -14,15 +15,16 @@ class InventorySingleton:
 class Inventory(InventorySingleton):
     def __init__(self, base_data_folder):
         # Only initialize the first time: prevents re-loading on subsequent instantiations.
+        self.furniture_file = os.path.join(base_data_folder, "furniture_data.json")
+        self.chairs_file = os.path.join(base_data_folder, "chairs_data.json")
+        self.beds_file = os.path.join(base_data_folder, "beds_data.json")
+        self.bookshelves_file = os.path.join(base_data_folder, "bookshelves_data.json")
+        self.sofas_file = os.path.join(base_data_folder, "sofas_data.json")
+        self.tables_file = os.path.join(base_data_folder, "tables_data.json")
+        self.inventory_file = os.path.join(base_data_folder, "inventory.json")
+
         if not hasattr(self, 'initialized'):
             # Set paths for each file (all files are stored in the base_data_folder)
-            self.furniture_file = os.path.join(base_data_folder, "furniture_data.json")
-            self.chairs_file = os.path.join(base_data_folder, "chairs_data.json")
-            self.beds_file = os.path.join(base_data_folder, "beds_data.json")
-            self.bookshelves_file = os.path.join(base_data_folder, "bookshelves_data.json")
-            self.sofas_file = os.path.join(base_data_folder, "sofas_data.json")
-            self.tables_file = os.path.join(base_data_folder, "tables_data.json")
-            self.inventory_file = os.path.join(base_data_folder, "inventory.json")
 
             # Load JSON files and store the data
             self.furniture_data = self._load_json(self.furniture_file)
@@ -88,6 +90,49 @@ class Inventory(InventorySingleton):
                     available_items.append(combined_item)
 
         return available_items
+
+    def add_item(self, quantity: int, details: dict) -> None:
+        common_keys = 'model_num', 'model_name', 'description', 'price', 'dimension', 'image_filename', 'discount'
+        common_attributes = {key: details[key] for key in common_keys}
+        self._add_furniture_item(common_attributes)
+
+        chair_keys = 'material', 'weight', 'color'
+        chair_attributes = {key: details[key] for key in chair_keys}
+        self._add_chair_item(chair_attributes)
+
+        self._update_quantity(model_num=common_attributes['model_num'], category="Chair", quantity=quantity)
+
+    def get_inventory(self):
+        with open(self.inventory_file) as f:
+            return json.load(f)
+
+    @contextlib.contextmanager
+    def _change_json_file(self, file):
+        with open(file) as f:
+            data = json.load(f)
+            yield data
+
+        with open(file, 'w') as f:
+            json.dump(data, f, indent=4)
+
+    def _add_furniture_item(self, attributes) -> None:
+        with self._change_json_file(self.furniture_file) as data:
+            data.append(attributes)
+
+    def _add_chair_item(self, attributes) -> None:
+        with self._change_json_file(self.chairs_file) as data:
+            data.append(attributes)
+
+    def _update_quantity(self, model_num: str, category: str, quantity: int):
+        with self._change_json_file(self.inventory_file) as data:
+            data[model_num] = {"category": category, "quantity": quantity}
+
+
+
+
+
+
+
 
 
 # # Example usage:
