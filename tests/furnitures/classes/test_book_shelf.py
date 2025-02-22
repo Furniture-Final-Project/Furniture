@@ -91,6 +91,44 @@ class TestBookShelf(unittest.TestCase):
             self.valid_bookshelf.get_discounted_price(), 300 * 1.18 * 0.9, places=2
         )
 
+    def test_valid_edge_cases(self):
+        shelf = BookShelf(
+            "BS127",
+            "Small Shelf",
+            "Minimalist",
+            100.0,
+            {"height": 50, "width": 30, "depth": 20},
+            "small_shelf.jpg",
+            1,
+            0.1,
+            "glass",
+            "black",
+        )
+        self.assertEqual(shelf.num_shelves, 1)
+        self.assertEqual(shelf.max_capacity_weight_per_shelf, 0.1)
+
+    def test_estimate_book_capacity_varied_weights(self):
+        self.assertEqual(self.valid_bookshelf.estimate_book_capacity(0.2), 500)
+        self.assertEqual(self.valid_bookshelf.estimate_book_capacity(2.0), 50)
+
+    def test_case_insensitive_material(self):
+        shelf = BookShelf(
+            "BS129",
+            "Case Test",
+            "Mixed case material",
+            150.0,
+            {"height": 100, "width": 50},
+            "case_shelf.jpg",
+            3,
+            10.0,
+            "WoOd",
+            "yellow",
+        )
+        self.assertEqual(shelf.material, "wood")
+
+    def test_get_image_path(self):
+        self.assertTrue(hasattr(self.valid_bookshelf, "get_image_path"))
+
     def test_str_representation(self):
         expected_price = "{:.2f}".format(self.valid_bookshelf.get_discounted_price())
         expected_str = (

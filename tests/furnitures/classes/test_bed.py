@@ -71,6 +71,36 @@ class TestBed(unittest.TestCase):
                 "metal",
             )
 
+    def test_invalid_width_dimension(self):
+        """Ensure ValueError is raised when 'width' is missing"""
+        with self.assertRaises(ValueError):
+            Bed(
+                "B126",
+                "No Width Bed",
+                "Missing width in dimensions.",
+                800.0,
+                {"length": 200},  # Missing width
+                "nowidth.jpg",
+                "bamboo",
+                "metal",
+            )
+
+    def test_setters_mattress_type(self):
+        """Ensure the setter properly updates mattress type with valid input"""
+        self.valid_bed.mattress_type = "latex"
+        self.assertEqual(self.valid_bed.mattress_type, "latex")
+
+        with self.assertRaises(ValueError):
+            self.valid_bed.mattress_type = "plastic"  # Invalid type
+
+    def test_setters_frame_material(self):
+        """Ensure the setter properly updates frame material with valid input"""
+        self.valid_bed.frame_material = "metal"
+        self.assertEqual(self.valid_bed.frame_material, "metal")
+
+        with self.assertRaises(ValueError):
+            self.valid_bed.frame_material = "glass"  # Invalid material
+
     def test_get_size_boundaries(self):
         self.assertEqual(
             Bed(
@@ -127,6 +157,14 @@ class TestBed(unittest.TestCase):
 
     def test_discount_price(self):
         self.assertAlmostEqual(self.valid_bed.get_discounted_price(), 1062.0)
+
+    def test_extreme_discount(self):
+        """Test discount calculation with extreme values"""
+        self.valid_bed.discount = 100  # 100% discount
+        self.assertEqual(self.valid_bed.get_discounted_price(), 0.0)
+
+        with self.assertRaises(ValueError):
+            self.valid_bed.discount = -5  # Negative discount (should not apply)
 
     def test_hypoallergenic_mattress(self):
         self.assertTrue(self.valid_bed.is_hypoallergenic())

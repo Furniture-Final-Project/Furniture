@@ -45,6 +45,65 @@ class TestTable(unittest.TestCase):
                 "metal",
             )
 
+    def test_invalid_material_assignment(self):
+        with self.assertRaises(ValueError):
+            self.valid_table.material = "rubber"
+
+    def test_invalid_is_extendable(self):
+        with self.assertRaises(ValueError):
+            self.valid_table.is_extendable = "yes"
+
+    def test_invalid_seating_capacity_assignment(self):
+        with self.assertRaises(ValueError):
+            self.valid_table.seating_capacity = -2
+
+    def test_default_discount(self):
+        table_no_discount = Table(
+            model_num="t130",
+            model_name="Basic Table",
+            description="A simple table.",
+            price=300,
+            dimension={"length": 150, "width": 75},
+            image_filename="basic.jpg",
+            shape="rectangular",
+            seating_capacity=4,
+            is_extendable=False,
+            material="glass",
+        )
+        self.assertEqual(table_no_discount.discount, 0.0)
+
+    def test_is_large_table_edge_case(self):
+        six_seat_table = Table(
+            "T133",
+            "Edge Case Table",
+            "A table with exactly 6 seats.",
+            550,
+            {"length": 220, "width": 110},
+            "edge.jpg",
+            "rectangular",
+            6,
+            False,
+            "metal",
+        )
+        self.assertFalse(six_seat_table.is_large_table())
+
+    def test_discount_price_no_discount(self):
+        table_no_discount = Table(
+            "T134",
+            "No Discount Table",
+            "A table with no discount.",
+            400,
+            {"length": 180, "width": 90},
+            "no_discount.jpg",
+            "rectangular",
+            4,
+            False,
+            "wood",
+        )
+        self.assertAlmostEqual(
+            table_no_discount.get_discounted_price(), 400 * 1.18, places=2
+        )
+
     def test_missing_dimensions_for_rectangular(self):
         with self.assertRaises(ValueError):
             Table(

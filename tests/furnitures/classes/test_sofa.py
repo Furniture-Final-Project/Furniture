@@ -45,6 +45,20 @@ class MyTestCase(unittest.TestCase):
             )
         self.assertIn("Invalid upholstery type", str(context.exception))
 
+    def test_color_capitalization(self):
+        """Test if color input is always capitalized"""
+        self.sofa.color = "blue"
+        self.assertEqual(self.sofa.color, "Blue")
+
+        self.sofa.color = "RED"
+        self.assertEqual(self.sofa.color, "Red")
+
+    def test_seating_capacity_edge_cases(self):
+        """Test seating capacity calculation with edge case widths"""
+        self.assertEqual(Sofa.calculate_seating_capacity(54), 1)  # Just below seat size
+        self.assertEqual(Sofa.calculate_seating_capacity(55), 1)  # Exact seat size
+        self.assertEqual(Sofa.calculate_seating_capacity(500), 9)  # Large width
+
     def test_missing_width_dimension(self):
         """Test if missing 'width' in dimension raises ValueError"""
         with self.assertRaises(ValueError) as context:
@@ -59,6 +73,34 @@ class MyTestCase(unittest.TestCase):
                 color="green",
             )
         self.assertIn("Sofa must have 'width' in dimensions.", str(context.exception))
+
+    def test_invalid_dimension_format(self):
+        """Test invalid dimension data type"""
+        with self.assertRaises(ValueError):
+            Sofa(
+                model_num="S102",
+                model_name="Luxury Sofa",
+                description="A luxurious leather sofa",
+                price=2000,
+                dimension=None,  # Invalid type
+                image_filename="luxury.jpg",
+                upholstery="leather",
+                color="black",
+            )
+
+    def test_non_integer_width(self):
+        """Test width as a non-integer value"""
+        with self.assertRaises(TypeError):
+            Sofa(
+                model_num="S103",
+                model_name="Fancy Sofa",
+                description="A stylish sofa",
+                price=1500,
+                dimension={"width": "two hundred", "height": 100},  # Invalid width
+                image_filename="fancy.jpg",
+                upholstery="velvet",
+                color="pink",
+            )
 
     def test_furniture_type(self):
         """Test if furniture_type() returns 'Sofa'"""
