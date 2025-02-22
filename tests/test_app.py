@@ -12,10 +12,8 @@ import schema
 
 @pytest.fixture
 def application():
-    with tempfile.TemporaryDirectory(delete=False) as directory:
-        filename = pathlib.Path(directory) / 'data.sqlite3'
-        application = app.create_app({'database_url': f'sqlite:///{filename}'})
-        yield application
+    application = app.create_app({'database_url': f'sqlite:///:memory:'})
+    yield application
 
 @pytest.fixture
 def client(application):
