@@ -4,17 +4,18 @@ from flask import request
 import os
 import schema 
 
-app = Flask(__name__)
+def create_app(config: dict):
+    app = Flask(__name__)
 
-@app.route('/items', methods=['GET'])
-def get_items():
-    s = schema.session()
-    results = s.query(schema.Furniture).all()
+    schema.create(config['database_url'])
 
-    items = [result.to_dict() for result in results]
+    @app.route('/items', methods=['GET'])
+    def get_items():
+        s = schema.session()
+        results = s.query(schema.Furniture).all()
+
+        items = [result.to_dict() for result in results]
+        
+        return jsonify({'items': items})
     
-    return jsonify({'items': items})
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    return app

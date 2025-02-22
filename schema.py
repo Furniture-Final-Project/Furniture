@@ -30,11 +30,10 @@ _engine = None
 _session_maker = None
 
 # Database setup
-def create(filename):
+def create(database_url: str, echo: bool=True):
     global _engine
     global _session_maker
-    db_url = f"sqlite:///{filename}"
-    _engine = create_engine(db_url, echo=True)
+    _engine = create_engine(database_url, echo=echo)
     _session_maker = sessionmaker(bind=_engine)
     Base.metadata.create_all(_engine)
 
