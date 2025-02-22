@@ -136,11 +136,10 @@ class TestFurnitureClass(unittest.TestCase):
         self.furniture.description = "VERY Comfortable chair."
         self.assertEqual(self.furniture.description, "Very comfortable chair.")
 
-
-#    def test_model_num_immutable(self):
-#        """Tests that it is not possible to change model number for an existing  furniture"""
-#        with self.assertRaises(AttributeError):
-#            self.furniture.model_num = "B456"
+    def test_model_num_immutable(self):
+        """Tests that it is not possible to change model number for an existing  furniture"""
+        with self.assertRaises(AttributeError):
+            self.furniture.model_num = "B456"
 
 
 if __name__ == "__main__":
