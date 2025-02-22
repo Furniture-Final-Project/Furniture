@@ -1,0 +1,9 @@
+[
+    {
+        "model_num": "BS-4004",
+        "num_shelves": 5,
+        "max_capacity_weight_per_shelf": 20.0,
+        "material": "Pine Wood",
+        "color": "Natural Oak"
+    }
+]
