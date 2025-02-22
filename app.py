@@ -13,9 +13,8 @@ def create_app(config: dict):
     def get_items():
         s = schema.session()
         results = s.query(schema.Furniture).all()
-
-        items = [result.to_dict() for result in results]
-        
+        items = { result.model_num: result.to_dict() for result in results}
         return jsonify({'items': items})
+
     
     return app
