@@ -3,5 +3,6 @@ sqlalchemy
 
 # dev dependencies
 pytest
+pytest-cov
 black
 ptpython
