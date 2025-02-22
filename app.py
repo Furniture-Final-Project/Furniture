@@ -2,33 +2,18 @@ import source.models.inventory
 from flask import Flask, jsonify
 from flask import request
 import os
+import schema 
 
 app = Flask(__name__)
 
+@app.route('/items', methods=['GET'])
+def get_items():
+    s = schema.session()
+    results = s.query(schema.Furniture).all()
 
-# Initialize the Inventory instance at startup
-data_folder = os.path.join("source", "database")
-inventory = source.models.inventory.Inventory(data_folder)
-
-
-@app.route('/available-items', methods=['GET'])
-def get_available_items():
-    items = inventory.get_all_available_items()
-    return jsonify(items)
-
-
-@app.route('/inventory', methods=['POST'])
-def add_item():
-    data = request.get_json()
-    quantity = data['quantity']
-    details = data['details']
-    inventory.add_item(quantity, details)
-    return jsonify({})
-
-
-@app.route('/inventory', methods=['GET'])
-def get_inventory():
-    return inventory.get_inventory()
+    items = [result.to_dict() for result in results]
+    
+    return jsonify({'items': items})
 
 
 if __name__ == '__main__':
