@@ -161,7 +161,7 @@ def test_user_get_all_items(client):
                 }
 
 def test_filtered_items(client):
-    response = client.get('/items', query_string={"category": "bed"})
+    response = client.get('/items', query_string={"category": "Bed"})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     items = data['items']
