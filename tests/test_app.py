@@ -27,7 +27,7 @@ def client(application):
 @pytest.fixture(autouse=True)
 def preprepared_data(application):
     session = schema.session()
-    chair = schema.Furniture(
+    chair0 = schema.Furniture(
                                 model_num='chair-0', 
                                 name='Yosef', 
                                 description='a nice chair',
@@ -38,6 +38,17 @@ def preprepared_data(application):
                                 stock_quantity=3,
                                 discount=0.0,
                                 details={'material': 'wood', 'weight': 5, 'color': 'white'})
+    chair1 = schema.Furniture(
+                                model_num='chair-1', 
+                                name='Haim', 
+                                description='a Very nice chair',
+                                price=200.0, 
+                                dimensions={"height": 90, "width": 45, "depth": 50}, 
+                                category="Chair",
+                                image_filename='classic_wooden_chair.jpg',
+                                stock_quantity=4,
+                                discount=0.0,
+                                details={'material': 'wood', 'weight': 6, 'color': 'white'})
     bed = schema.Furniture(
                                 model_num="BD-5005",
                                 name="DreamComfort",
@@ -57,7 +68,7 @@ def preprepared_data(application):
                                 model_num="BS-4004",
                                 name="OakElegance",
                                 description="A stylish and durable bookshelf made of pine wood with a natural oak finish.",
-                                price=350.0,
+                                price=110.0,
                                 dimensions={"height": 180, "width": 80, "depth": 30},
                                 category="BookShelf",
                                 image_filename="oak_bookshelf.jpg",
@@ -89,7 +100,7 @@ def preprepared_data(application):
 
 
 
-    session.add_all([chair, bed, bookshelf, sofa])
+    session.add_all([chair0, chair1, bed, bookshelf, sofa])
     session.commit()
     yield
 
@@ -100,6 +111,7 @@ def test_user_get_all_items(client):
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     items = data['items']
+    assert len(items) == 5
     assert items['chair-0'] == {'model_num': 'chair-0',
                         'name': 'Yosef',
                         'description': 'a nice chair', 
@@ -110,6 +122,16 @@ def test_user_get_all_items(client):
                         'stock_quantity': 3,
                         'discount': 0.0, 
                         'details': {'material': 'wood', 'weight': 5, 'color': 'white'} }
+    assert items['chair-1'] == {'model_num': 'chair-1',
+                        'name': 'Haim',
+                        'description': 'a Very nice chair', 
+                        'price': 200.0, 
+                        'dimensions': {"height": 90, "width": 45, "depth": 50}, 
+                        'category': 'Chair',
+                        'image_filename': "classic_wooden_chair.jpg", 
+                        'stock_quantity': 4,
+                        'discount': 0.0, 
+                        'details': {'material': 'wood', 'weight': 6, 'color': 'white'} }
     
     assert items['BD-5005'] == {
                     'model_num': "BD-5005",
@@ -130,7 +152,7 @@ def test_user_get_all_items(client):
                     'model_num': "BS-4004",
                     'name': "OakElegance",
                     'description': "A stylish and durable bookshelf made of pine wood with a natural oak finish.",
-                    'price': 350.0,
+                    'price': 110.0,
                     'dimensions': {"height": 180, "width": 80, "depth": 30},
                     'category': "BookShelf",
                     'image_filename': "oak_bookshelf.jpg",
@@ -182,3 +204,19 @@ def test_single_filter(client):
                     }
                 }
  
+def test_double_filter(client):
+    response = client.get('/items', query_string={"category": "Chair", "max_price": 150})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    items = data['items']
+    assert len(items) == 1
+    assert items['chair-0'] == {'model_num': 'chair-0',
+                        'name': 'Yosef',
+                        'description': 'a nice chair', 
+                        'price': 100.0, 
+                        'dimensions': {"height": 90, "width": 45, "depth": 50}, 
+                        'category': 'Chair',
+                        'image_filename': "classic_wooden_chair.jpg", 
+                        'stock_quantity': 3,
+                        'discount': 0.0, 
+                        'details': {'material': 'wood', 'weight': 5, 'color': 'white'} }
