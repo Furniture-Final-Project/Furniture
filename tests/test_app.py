@@ -160,3 +160,25 @@ def test_user_get_all_items(client):
                     }
                 }
 
+def test_filtered_items(client):
+    response = client.get('/items', query_string={"category": "bed"})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    items = data['items']
+    assert len(items) == 1
+    assert items['BD-5005'] == {
+                    'model_num': "BD-5005",
+                    'name': "DreamComfort",
+                    'description': "A luxurious memory foam bed with a sturdy solid wood frame.",
+                    'price': 1200.0,
+                    'dimensions': {"height": 50, "width": 160, "depth": 200},
+                    'category': "Bed",
+                    'image_filename': "memory_foam_bed.jpg",
+                    'stock_quantity': 5,
+                    'discount': 10.0,
+                    'details': {
+                        "mattress_type": "Memory Foam",
+                        "frame_material": "Solid Wood"
+                    }
+                }
+ 
