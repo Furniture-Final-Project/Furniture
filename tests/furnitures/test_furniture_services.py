@@ -1,12 +1,11 @@
 import unittest
 from unittest.mock import MagicMock
 from source.models.Furniture import Furniture
-from source.models.Inventory import Inventory
+from source.models.inventory import Inventory
 import inspect
 
 from source.services.furniture_service import (
     get_furniture_summary,
-    get_furniture_full_summery,
     get_furniture_details,
 )
 
@@ -61,18 +60,6 @@ class TestFurnitureFunctions(unittest.TestCase):
         self.mock_inventory.check_availability.return_value = 0
         summary = get_furniture_summary("123", self.mock_inventory)
         self.assertIn("out of stock", summary)
-
-    def test_get_furniture_full_summary_found(self):
-        summary = get_furniture_full_summery("123", self.mock_inventory)
-        self.assertIn("Furniture Type: MagicMock", summary)  # Mocked class type
-        self.assertIn("Luxury Chair", summary)
-        self.assertIn("Hurry up!", summary)
-        self.assertIn("In stock: 3 units.", summary)
-
-    def test_get_furniture_full_summary_not_found(self):
-        self.mock_inventory.get_furniture_by_id.return_value = None
-        summary = get_furniture_full_summery("999", self.mock_inventory)
-        self.assertEqual(summary, "Furniture not found.")
 
     def test_get_furniture_details_found(self):
         details = get_furniture_details("123", self.mock_inventory)

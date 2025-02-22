@@ -1,4 +1,5 @@
 import unittest
+import os
 from source.models.Furniture import Chair
 
 
@@ -160,20 +161,22 @@ class TestChair(unittest.TestCase):
 
     def test_get_image_path(self):
         """Test correct image file path generation"""
-        self.assertEqual(self.chair.get_image_path(), "images/chair.jpg")
+        image_expected_path = os.path.join("images", "chair.jpg")
+        self.assertEqual(self.chair.get_image_path(), image_expected_path)
 
     def test_str_representation(self):
         """Test the full string representation of the Chair class, including formatted price"""
         expected_price = "{:.2f}".format(
             self.chair.get_discounted_price()
         )  # Ensure correct rounding
+        image_expected_path = os.path.join("images", "chair.jpg")
         expected_str = (
             "Chair: OFFICE CHAIR (Black, leather)\n"
             "Description: Ergonomic office chair\n"
             "Material: leather, Weight: 12.5 kg\n"
             f"Price: ${expected_price} (After Discount)\n"  # Use formatted price
             "Dimensions: {'height': 120, 'width': 60, 'depth': 50}\n"
-            "Image: images/chair.jpg"
+            f"Image: {image_expected_path}"
         )
         self.assertEqual(str(self.chair), expected_str)
 
@@ -190,13 +193,14 @@ class TestChair(unittest.TestCase):
             12.0,
             "brown",
         )
+        image_expected_path = os.path.join("images", "wood_chair.jpg")
         expected_str = (
             "Chair: WOOD CHAIR (Brown, wood)\n"
             "Description: Classic wooden chair\n"
             "Material: wood, Weight: 12.0 kg\n"
             f"Price: ${300 * 1.18:.2f} (After Discount)\n"
             "Dimensions: {'height': 100, 'width': 50, 'depth': 40}\n"
-            "Image: images/wood_chair.jpg"
+            f"Image: {image_expected_path}"
         )
         self.assertEqual(str(chair_no_discount), expected_str)
 

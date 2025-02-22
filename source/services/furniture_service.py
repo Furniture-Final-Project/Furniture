@@ -1,10 +1,6 @@
 from source.models.Furniture import Furniture
-<<<<<<< HEAD
-from source.models.Inventory import Inventory
-import inspect
-=======
 from source.models.inventory import Inventory
->>>>>>> main
+import inspect
 
 # from PIL import Image
 import os
