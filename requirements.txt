@@ -1,5 +1,7 @@
 flask
-
+sqlalchemy
 
 # dev dependencies
 pytest
+black
+ptpython
