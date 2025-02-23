@@ -25,6 +25,11 @@ class Furniture(Base):
     image_filename: Mapped[str] = mapped_column(String, nullable=False)
     discount: Mapped[float] = mapped_column(Float, nullable=False)
 
+    def to_dict(self):
+        result = Base.to_dict(self)
+        result['final_price'] = self.price * (1 - self.discount/100)
+        return result
+
 
 _engine = None
 _session_maker = None
