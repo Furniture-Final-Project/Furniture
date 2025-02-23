@@ -191,6 +191,7 @@ def test_single_filter(client):
                     'name': "DreamComfort",
                     'description': "A luxurious memory foam bed with a sturdy solid wood frame.",
                     'price': 1200.0,
+                    'final_price': 1080.0,
                     'dimensions': {"height": 50, "width": 160, "depth": 200},
                     'category': "Bed",
                     'image_filename': "memory_foam_bed.jpg",
