@@ -71,7 +71,7 @@ def preprepared_data(application):
                                 category="BookShelf",
                                 image_filename="oak_bookshelf.jpg",
                                 stock_quantity=7,
-                                discount=5.0,
+                                discount=50.0,
                                 details={
                                     "num_shelves": 5,
                                     "max_capacity_weight_per_shelf": 20.0,
@@ -159,7 +159,7 @@ def test_user_get_all_items(client):
                     'category': "BookShelf",
                     'image_filename': "oak_bookshelf.jpg",
                     'stock_quantity': 7,
-                    'discount': 5.0,
+                    'discount': 50.0,
                     'details': {
                         "num_shelves": 5,
                         "max_capacity_weight_per_shelf": 20.0,
