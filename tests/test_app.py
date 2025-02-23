@@ -220,7 +220,7 @@ def test_double_filter(client):
                         'details': {'material': 'wood', 'weight': 5, 'color': 'white'} }
                         
 
-def get_item_by_model_num(client):
+def test_get_item_by_model_num(client):
     response = client.get('/items', query_string={"model_num": "BD-5005"})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
