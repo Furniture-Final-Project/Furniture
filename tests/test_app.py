@@ -114,6 +114,7 @@ def test_user_get_all_items(client):
                         'name': 'Yosef',
                         'description': 'a nice chair', 
                         'price': 100.0, 
+                        'final_price': 118.0,
                         'dimensions': {"height": 90, "width": 45, "depth": 50}, 
                         'category': 'Chair',
                         'image_filename': "classic_wooden_chair.jpg", 
@@ -124,6 +125,7 @@ def test_user_get_all_items(client):
                         'name': 'Haim',
                         'description': 'a Very nice chair', 
                         'price': 200.0, 
+                        'final_price': 236.0, 
                         'dimensions': {"height": 90, "width": 45, "depth": 50}, 
                         'category': 'Chair',
                         'image_filename': "classic_wooden_chair.jpg", 
@@ -136,6 +138,7 @@ def test_user_get_all_items(client):
                     'name': "DreamComfort",
                     'description': "A luxurious memory foam bed with a sturdy solid wood frame.",
                     'price': 1200.0,
+                    'final_price': 1274.4,  
                     'dimensions': {"height": 50, "width": 160, "depth": 200},
                     'category': "Bed",
                     'image_filename': "memory_foam_bed.jpg",
@@ -151,6 +154,7 @@ def test_user_get_all_items(client):
                     'name': "OakElegance",
                     'description': "A stylish and durable bookshelf made of pine wood with a natural oak finish.",
                     'price': 110.0,
+                    'final_price': 64.9,  
                     'dimensions': {"height": 180, "width": 80, "depth": 30},
                     'category': "BookShelf",
                     'image_filename': "oak_bookshelf.jpg",
@@ -168,6 +172,7 @@ def test_user_get_all_items(client):
                     'name': "LuxComfort",
                     'description': "A luxurious three-seater sofa with top-grain leather upholstery, perfect for a modern living room.",
                     'price': 1200.0,
+                    'final_price': 1274.4,
                     'dimensions': {"height": 85, "width": 220, "depth": 95},
                     'category': "Sofa",
                     'image_filename': "luxury_leather_sofa.jpg",
@@ -191,7 +196,7 @@ def test_single_filter(client):
                     'name': "DreamComfort",
                     'description': "A luxurious memory foam bed with a sturdy solid wood frame.",
                     'price': 1200.0,
-                    'final_price': 1080.0,
+                    'final_price': 1274.4,
                     'dimensions': {"height": 50, "width": 160, "depth": 200},
                     'category': "Bed",
                     'image_filename': "memory_foam_bed.jpg",
@@ -213,12 +218,14 @@ def test_double_filter(client):
                         'name': 'Yosef',
                         'description': 'a nice chair', 
                         'price': 100.0, 
+                        'final_price': 118.0,
                         'dimensions': {"height": 90, "width": 45, "depth": 50}, 
                         'category': 'Chair',
                         'image_filename': "classic_wooden_chair.jpg", 
                         'stock_quantity': 3,
                         'discount': 0.0, 
-                        'details': {'material': 'wood', 'weight': 5, 'color': 'white'} }
+                        'details': {'material': 'wood', 'weight': 5, 'color': 'white'} 
+                        }
                         
 
 def test_get_item_by_model_num(client):
@@ -232,6 +239,7 @@ def test_get_item_by_model_num(client):
                     'name': "DreamComfort",
                     'description': "A luxurious memory foam bed with a sturdy solid wood frame.",
                     'price': 1200.0,
+                    'final_price': 1274.4, 
                     'dimensions': {"height": 50, "width": 160, "depth": 200},
                     'category': "Bed",
                     'image_filename': "memory_foam_bed.jpg",

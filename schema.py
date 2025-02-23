@@ -27,8 +27,18 @@ class Furniture(Base):
 
     def to_dict(self):
         result = Base.to_dict(self)
-        result['final_price'] = self.price * (1 - self.discount/100)
+        if self.discount > 0.0:
+            discount_price = self.price * (1 - self.discount/100)
+            result['final_price'] = self.apply_tax(discount_price)
+        else:
+            result['final_price'] = self.apply_tax(self.price)
+
         return result
+    
+    def apply_tax(self, final_price: float, tax_rate: float = 18) -> float:
+        """Apply a tax rate to the price and return the new price."""
+        return round(final_price * (1 + tax_rate / 100), 1)
+
 
 
 _engine = None
