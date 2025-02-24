@@ -398,3 +398,37 @@ def test_add_bed_item(client):
     assert data["items"]["B-101"]["model_name"] == "King Bed"
     assert data["items"]["B-101"]["is_available"] == True
 
+
+def test_add_bed_item_not_correct_values(client):
+    """Test adding a Bed item with an invalid mattress type."""
+    invalid_item = {
+        "model_num": "B-999",
+        "model_name": "Faulty Bed",
+        "description": "This bed has an invalid mattress type.",
+        "price": 1200.0,
+        "dimensions": {"width": 160, "length": 200, "height": 45},
+        "stock_quantity": 5,
+        "category": "Bed",
+        "image_filename": "faulty_bed.jpg",
+        "discount": 0.0,
+        "details": {
+            "mattress_type": "plastic",  # Invalid value!
+            "frame_material": "wood"
+        }
+    }
+
+    # Send a POST request to add invalid item
+    response = client.post('/add_item', json=invalid_item)
+    data = response.get_json()
+    # Check that the response returns an error
+    assert response.status_code ==  http.HTTPStatus.OK 
+
+    # Send a GET request to verify item exists
+    response = client.get('/items', query_string={"model_num": "B-999"})
+    assert response.status_code ==  http.HTTPStatus.OK 
+    data = response.get_json()
+
+    # Check that the item does NOT exist in the database
+    assert "B-999" not in data["items"]
+
+  

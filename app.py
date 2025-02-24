@@ -77,6 +77,7 @@ def create_app(config: dict):
         data = flask.request.get_json()  # Get JSON payload from the request
         s = schema.session()  # create a new session for DB operations
         result = services.add_item(s, data)  # call add_item from services.py
+        
         return flask.jsonify({"message": result})
 
 

@@ -15,6 +15,7 @@ class Bed(schema.Furniture):
         stock_quantity : int = 0,
         discount: float = 0.0,
     ):
+        
         super().__init__(
             model_num=model_num,
             model_name=model_name,
@@ -28,30 +29,40 @@ class Bed(schema.Furniture):
             discount=discount
         )
 
-        # Validate dimensions (must contain width)
+        # Validate BEFORE assigning attributes
+        if not self.validate_details(details):
+            self.details = None
+            raise ValueError("Invalid details: Mattress type or frame material is incorrect.")
+             
+        
+         # Validate dimensions (must contain width)
         if "width" not in dimensions:
+            self.dimensions= None
             raise ValueError("Bed dimensions must include 'width'.")
-
-        # Validate special attributes in 'details' field
-        self.validate_details()
+            
 
 
-    def validate_details(self):
+    def validate_details(self, details: dict) -> bool:
+        """Check if the given details dictionary contains valid mattress type and frame material."""
         valid_mattress_types = {"latex", "memory foam", "bamboo", "spring", "hybrid", "cotton"}
         valid_frame_materials = {"wood", "metal", "upholstered", "bamboo"}
 
-        if "mattress_type" not in self.details or "frame_material" not in self.details:
-            raise ValueError("Bed details must include 'mattress_type' and 'frame_material'.")
-        
-        mattress_type = self.details["mattress_type"].lower()
-        frame_material = self.details["frame_material"].lower()
+        if not isinstance(details, dict):
+            return False
+
+        mattress_type = details.get("mattress_type", "").lower()
+        frame_material = details.get("frame_material", "").lower()
 
         if mattress_type not in valid_mattress_types:
-            raise ValueError(f"Invalid mattress type '{mattress_type}'. Must be one of {valid_mattress_types}.")
+            print(f"Invalid mattress type detected: {mattress_type}")
+            return False
 
         if frame_material not in valid_frame_materials:
-            raise ValueError(f"Invalid frame material '{frame_material}'. Must be one of {valid_frame_materials}.")
-        
+            print(f"Invalid frame material detected: {frame_material}")
+            return False
+
+        return True
+
 
     def get_size(self) -> str:
         """Determine the bed size based on its width."""

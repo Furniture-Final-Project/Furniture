@@ -31,9 +31,11 @@ def add_item(session: Session, item_data: dict) -> str:
                 discount=item_data.get("discount", 0.0)
             )
 
-            # Ensure validation passes
-            bed.validate_details()
-
+            # Validate details before creating the DB entry
+            if not bed.validate_details(item_data["details"]):
+                raise ValueError("Invalid details: Mattress type or frame material is incorrect.")
+            
+            # Ensure the item is only added if validation passes
             # Create Furniture instance to store in DB
             new_furniture = schema.Furniture(
                 model_num=bed.model_num,
@@ -47,14 +49,14 @@ def add_item(session: Session, item_data: dict) -> str:
                 image_filename=bed.image_filename,
                 discount=bed.discount
             )
-
             session.add(new_furniture)
             session.commit()
             return f"Item '{bed.model_num}' added successfully!"
 
         except ValueError as e:
             session.rollback()
+            print(f"Validation failed: {str(e)}")  # Debugging
             return f"Error: {str(e)}"
 
-    return "Unsupported category!"
+    return "Item was not added successfully"
 
