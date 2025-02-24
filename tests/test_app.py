@@ -254,25 +254,29 @@ def test_double_filter(client):
                         }
                         
 
-def test_get_item_by_model_num(client):
+def test_get_item_by_model_num_and_verify_availability(client):
     """
-    Tests the retrieval of a specific item by its model number from the inventory API.
+    Tests the retrieval of a specific item by its model number from the inventory API 
+    and verifies its stock availability.
 
-    This test simulates a client request to fetch an item's details by providing 
-    its `model_num` as a query parameter. The API should return a JSON response 
-    containing the full details of the requested item.
+    This test sends a GET request to '/items' with a `model_num` query parameter 
+    to fetch details about a specific furniture item.
 
     Expected Behavior:
     - The response status code should be HTTP 200 (OK).
     - The response should contain exactly one item matching the requested `model_num`.
     - The returned item's details should include:
         - Model number, name, description, price, and final price.
-        - Final price reflects any applied discount and tax calculations.
+        - Final price reflecting any applied discount and tax calculations.
         - Dimensions (height, width, depth), category, image filename, and stock quantity.
         - Additional details specific to the item's category.
+    - If the item is in stock (`stock_quantity > 0`), the response must include `"is_available": True`.
+    - If the item is out of stock (`stock_quantity == 0`), the response must include `"is_available": False`.
 
-    This ensures that the system correctly retrieves item data, applies tax and discounts, 
-    and returns complete product details in the expected format.
+    This ensures that:
+    - The API correctly retrieves item details.
+    - The `is_available` field accurately reflects stock availability.
+    - The system properly applies discounts and tax calculations in the response.
     """    
     response = client.get('/items', query_string={"model_num": "BD-5005"})
     assert response.status_code == http.HTTPStatus.OK
@@ -290,6 +294,7 @@ def test_get_item_by_model_num(client):
                     'image_filename': "memory_foam_bed.jpg",
                     'stock_quantity': 5,
                     'discount': 10.0,
+                    "is_available": True,
                     'details': {
                         "mattress_type": "Memory Foam",
                         "frame_material": "Solid Wood"
