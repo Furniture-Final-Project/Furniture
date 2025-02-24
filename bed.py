@@ -12,7 +12,7 @@ class Bed(schema.Furniture):
         dimensions: dict,
         image_filename: str,
         details: dict,  # Stores mattress_type & frame_material
-        stock_quantity : int = 0,
+        stock_quantity : int,
         discount: float = 0.0,
     ):
         
@@ -30,35 +30,30 @@ class Bed(schema.Furniture):
         )
 
         # Validate BEFORE assigning attributes
-        if not self.validate_details(details):
-            self.details = None
-            raise ValueError("Invalid details: Mattress type or frame material is incorrect.")
-             
         
          # Validate dimensions (must contain width)
-        if "width" not in dimensions:
-            self.dimensions= None
-            raise ValueError("Bed dimensions must include 'width'.")
+        #TODO test this
+        # if "width" not in dimensions:
+            # self.dimensions= None
+            # raise ValueError("Bed dimensions must include 'width'.")
             
 
 
-    def validate_details(self, details: dict) -> bool:
+    def valid(self) -> bool:
         """Check if the given details dictionary contains valid mattress type and frame material."""
-        valid_mattress_types = {"latex", "memory foam", "bamboo", "spring", "hybrid", "cotton"}
-        valid_frame_materials = {"wood", "metal", "upholstered", "bamboo"}
+        VALID_MATTRESS_TYPES = {"latex", "memory foam", "bamboo", "spring", "hybrid", "cotton"}
+        VALID_FRAME_MATERIALS = {"wood", "metal", "upholstered", "bamboo"}
 
-        if not isinstance(details, dict):
+        if not isinstance(self.details, dict):
             return False
 
-        mattress_type = details.get("mattress_type", "").lower()
-        frame_material = details.get("frame_material", "").lower()
+        mattress_type = self.details.get("mattress_type", "").lower()
+        frame_material = self.details.get("frame_material", "").lower()
 
-        if mattress_type not in valid_mattress_types:
-            print(f"Invalid mattress type detected: {mattress_type}")
+        if mattress_type not in VALID_MATTRESS_TYPES:
             return False
 
-        if frame_material not in valid_frame_materials:
-            print(f"Invalid frame material detected: {frame_material}")
+        if frame_material not in VALID_FRAME_MATERIALS:
             return False
 
         return True

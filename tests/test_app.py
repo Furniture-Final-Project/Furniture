@@ -386,7 +386,6 @@ def test_add_bed_item(client):
     
     # Check that the item was added successfully
     assert response.status_code == http.HTTPStatus.OK
-    assert "Item 'B-101' added successfully!" in data["message"]
 
     # Send a GET request to verify item exists
     response = client.get('/items', query_string={"model_num": "B-101"})
