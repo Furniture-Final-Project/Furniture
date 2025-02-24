@@ -1,6 +1,6 @@
 import json
 import schema
-from source.models.furniture.bed import Bed
+from bed import Bed
 from sqlalchemy.orm import Session
 
 
@@ -42,7 +42,7 @@ def add_item(session: Session, item_data: dict) -> str:
                 price=bed.price,
                 dimensions=bed.dimensions,  # Stored as JSON
                 stock_quantity=item_data.get("stock_quantity", 0),
-                details=json.dumps(bed.details),  # Store subclass attributes as JSON
+                details=bed.details,  # Store subclass attributes as JSON
                 category="Bed",  # Ensure correct category
                 image_filename=bed.image_filename,
                 discount=bed.discount

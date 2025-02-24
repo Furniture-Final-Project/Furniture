@@ -9,9 +9,10 @@ class Bed(schema.Furniture):
         model_name: str,
         description: str,
         price: float,
-        dimension: dict,
+        dimensions: dict,
         image_filename: str,
         details: dict,  # Stores mattress_type & frame_material
+        stock_quantity : int = 0,
         discount: float = 0.0,
     ):
         super().__init__(
@@ -19,8 +20,8 @@ class Bed(schema.Furniture):
             model_name=model_name,
             description=description,
             price=price,
-            dimensions=dimension,
-            stock_quantity=0,  # Default to 0 until updated
+            dimensions=dimensions,
+            stock_quantity=stock_quantity,  # Default to 0 until updated
             details=details,  # Store all bed-specific attributes in details
             category="Bed",  # Ensure this is always set correctly
             image_filename=image_filename,
@@ -28,7 +29,7 @@ class Bed(schema.Furniture):
         )
 
         # Validate dimensions (must contain width)
-        if "width" not in dimension:
+        if "width" not in dimensions:
             raise ValueError("Bed dimensions must include 'width'.")
 
         # Validate special attributes in 'details' field
@@ -54,7 +55,7 @@ class Bed(schema.Furniture):
 
     def get_size(self) -> str:
         """Determine the bed size based on its width."""
-        width = self.dimension["width"]
+        width = self.dimensions["width"]
 
         if width <= 100:
             return "Single"
@@ -69,8 +70,7 @@ class Bed(schema.Furniture):
     def is_hypoallergenic(self) -> bool:
         """Check if the mattress material is hypoallergenic."""
         hypoallergenic_materials = {"latex", "memory foam", "bamboo"}
-        return self.mattress_type in hypoallergenic_materials
-
+        return self.details["mattress_type"].lower() in hypoallergenic_materials
 
     def __str__(self):
         hypoallergenic_status = "Yes" if self.is_hypoallergenic() else "No"
