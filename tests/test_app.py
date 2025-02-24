@@ -27,7 +27,7 @@ def preprepared_data(application):
     session = schema.session()
     chair0 = schema.Furniture(
                                 model_num='chair-0', 
-                                name='Yosef', 
+                                model_name='Yosef', 
                                 description='a nice chair',
                                 price=100.0, 
                                 dimensions={"height": 90, "width": 45, "depth": 50}, 
@@ -38,7 +38,7 @@ def preprepared_data(application):
                                 details={'material': 'wood', 'weight': 5, 'color': 'white'})
     chair1 = schema.Furniture(
                                 model_num='chair-1', 
-                                name='Haim', 
+                                model_name='Haim', 
                                 description='a Very nice chair',
                                 price=200.0, 
                                 dimensions={"height": 90, "width": 45, "depth": 50}, 
@@ -49,7 +49,7 @@ def preprepared_data(application):
                                 details={'material': 'wood', 'weight': 6, 'color': 'white'})
     bed = schema.Furniture(
                                 model_num="BD-5005",
-                                name="DreamComfort",
+                                model_name="DreamComfort",
                                 description="A luxurious memory foam bed with a sturdy solid wood frame.",
                                 price=1200.0,
                                 dimensions={"height": 50, "width": 160, "depth": 200},
@@ -64,7 +64,7 @@ def preprepared_data(application):
                             )
     bookshelf = schema.Furniture(
                                 model_num="BS-4004",
-                                name="OakElegance",
+                                model_name="OakElegance",
                                 description="A stylish and durable bookshelf made of pine wood with a natural oak finish.",
                                 price=110.0,
                                 dimensions={"height": 180, "width": 80, "depth": 30},
@@ -81,7 +81,7 @@ def preprepared_data(application):
                             )
     sofa = schema.Furniture(
                                 model_num="SF-3003",
-                                name="LuxComfort",
+                                model_name="LuxComfort",
                                 description="A luxurious three-seater sofa with top-grain leather upholstery, perfect for a modern living room.",
                                 price=1200.0,
                                 dimensions={"height": 85, "width": 220, "depth": 95},
@@ -111,7 +111,7 @@ def test_user_get_all_items(client):
     Sends a GET request to '/items' to fetch the complete list of items.
     Verifies the response status is 200 OK and that all expected items are returned,
     regardless of their stock status. Ensures each item includes necessary details
-    such as model number, name, description, price, final price (including tax and
+    such as model number, model_name, description, price, final price (including tax and
     discounts), dimensions, category, image filename, stock quantity, discount, and
     additional details.
     """
@@ -121,7 +121,7 @@ def test_user_get_all_items(client):
     items = data['items']
     assert len(items) == 5
     assert items['chair-0'] == {'model_num': 'chair-0',
-                        'name': 'Yosef',
+                        'model_name': 'Yosef',
                         'description': 'a nice chair', 
                         'price': 100.0, 
                         'final_price': 118.0,
@@ -132,7 +132,7 @@ def test_user_get_all_items(client):
                         'discount': 0.0, 
                         'details': {'material': 'wood', 'weight': 5, 'color': 'white'} }
     assert items['chair-1'] == {'model_num': 'chair-1',
-                        'name': 'Haim',
+                        'model_name': 'Haim',
                         'description': 'a Very nice chair', 
                         'price': 200.0, 
                         'final_price': 236.0, 
@@ -144,58 +144,58 @@ def test_user_get_all_items(client):
                         'details': {'material': 'wood', 'weight': 6, 'color': 'white'} }
     
     assert items['BD-5005'] == {
-                    'model_num': "BD-5005",
-                    'name': "DreamComfort",
-                    'description': "A luxurious memory foam bed with a sturdy solid wood frame.",
-                    'price': 1200.0,
-                    'final_price': 1274.4,  
-                    'dimensions': {"height": 50, "width": 160, "depth": 200},
-                    'category': "Bed",
-                    'image_filename': "memory_foam_bed.jpg",
-                    'stock_quantity': 5,
-                    'discount': 10.0,
-                    'details': {
-                        "mattress_type": "Memory Foam",
-                        "frame_material": "Solid Wood"
-                    }
-                }
+                        'model_num': "BD-5005",
+                        'model_name': "DreamComfort",
+                        'description': "A luxurious memory foam bed with a sturdy solid wood frame.",
+                        'price': 1200.0,
+                        'final_price': 1274.4,  
+                        'dimensions': {"height": 50, "width": 160, "depth": 200},
+                        'category': "Bed",
+                        'image_filename': "memory_foam_bed.jpg",
+                        'stock_quantity': 5,
+                        'discount': 10.0,
+                        'details': {
+                            "mattress_type": "Memory Foam",
+                            "frame_material": "Solid Wood"
+                        }
+                   }
     assert items["BS-4004"] == {
-                    'model_num': "BS-4004",
-                    'name': "OakElegance",
-                    'description': "A stylish and durable bookshelf made of pine wood with a natural oak finish.",
-                    'price': 110.0,
-                    'final_price': 64.9,  
-                    'dimensions': {"height": 180, "width": 80, "depth": 30},
-                    'category': "BookShelf",
-                    'image_filename': "oak_bookshelf.jpg",
-                    'stock_quantity': 0,
-                    'discount': 50.0,
-                    'details': {
-                        "num_shelves": 5,
-                        "max_capacity_weight_per_shelf": 20.0,
-                        "material": "Pine Wood",
-                        "color": "Natural Oak"
+                        'model_num': "BS-4004",
+                        'model_name': "OakElegance",
+                        'description': "A stylish and durable bookshelf made of pine wood with a natural oak finish.",
+                        'price': 110.0,
+                        'final_price': 64.9,  
+                        'dimensions': {"height": 180, "width": 80, "depth": 30},
+                        'category': "BookShelf",
+                        'image_filename': "oak_bookshelf.jpg",
+                        'stock_quantity': 0,
+                        'discount': 50.0,
+                        'details': {
+                            "num_shelves": 5,
+                            "max_capacity_weight_per_shelf": 20.0,
+                            "material": "Pine Wood",
+                            "color": "Natural Oak"
+                        }
                     }
-                }
     assert items["SF-3003"] == {
-                    'model_num': "SF-3003",
-                    'name': "LuxComfort",
-                    'description': "A luxurious three-seater sofa with top-grain leather upholstery, perfect for a modern living room.",
-                    'price': 1200.0,
-                    'final_price': 1274.4,
-                    'dimensions': {"height": 85, "width": 220, "depth": 95},
-                    'category': "Sofa",
-                    'image_filename': "luxury_leather_sofa.jpg",
-                    'stock_quantity': 5,
-                    'discount': 10.0,
-                    'details': {
-                        "upholstery": "Top-Grain Leather",
-                        "color": "Dark Gray",
-                        "num_seats": 3
+                        'model_num': "SF-3003",
+                        'model_name': "LuxComfort",
+                        'description': "A luxurious three-seater sofa with top-grain leather upholstery, perfect for a modern living room.",
+                        'price': 1200.0,
+                        'final_price': 1274.4,
+                        'dimensions': {"height": 85, "width": 220, "depth": 95},
+                        'category': "Sofa",
+                        'image_filename': "luxury_leather_sofa.jpg",
+                        'stock_quantity': 5,
+                        'discount': 10.0,
+                        'details': {
+                            "upholstery": "Top-Grain Leather",
+                            "color": "Dark Gray",
+                            "num_seats": 3
+                        }
                     }
-                }
 
-def test_single_filter(client):
+def test_single_filter_by_category(client):
     """
     Test retrieving items by category.
 
@@ -211,7 +211,7 @@ def test_single_filter(client):
     assert len(items) == 1
     assert items['BD-5005'] == {
                     'model_num': "BD-5005",
-                    'name': "DreamComfort",
+                    'model_name': "DreamComfort",
                     'description': "A luxurious memory foam bed with a sturdy solid wood frame.",
                     'price': 1200.0,
                     'final_price': 1274.4,
@@ -223,6 +223,37 @@ def test_single_filter(client):
                     'details': {
                         "mattress_type": "Memory Foam",
                         "frame_material": "Solid Wood"
+                    }
+                }
+    
+def test_single_filter_by_name(client):
+    """
+    Test retrieving items by model_name.
+
+    Sends a GET request to '/items' with 'model_name' as a query parameter.
+    Verifies the response status is 200 OK and that the returned items match
+    the specified model_name. 
+    """
+    response = client.get('/items', query_string={"model_name": "LuxComfort"})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    items = data['items']
+    assert len(items) == 1
+    assert items['SF-3003'] == {
+                    'model_num': "SF-3003",
+                    'model_name': "LuxComfort",
+                    'description': "A luxurious three-seater sofa with top-grain leather upholstery, perfect for a modern living room.",
+                    'price': 1200.0,
+                    'final_price': 1274.4,
+                    'dimensions': {"height": 85, "width": 220, "depth": 95},
+                    'category': "Sofa",
+                    'image_filename': "luxury_leather_sofa.jpg",
+                    'stock_quantity': 5,
+                    'discount': 10.0,
+                    'details': {
+                        "upholstery": "Top-Grain Leather",
+                        "color": "Dark Gray",
+                        "num_seats": 3
                     }
                 }
  
@@ -241,7 +272,7 @@ def test_double_filter(client):
     items = data['items']
     assert len(items) == 1
     assert items['chair-0'] == {'model_num': 'chair-0',
-                        'name': 'Yosef',
+                        'model_name': 'Yosef',
                         'description': 'a nice chair', 
                         'price': 100.0, 
                         'final_price': 118.0,
@@ -285,7 +316,7 @@ def test_get_item_by_model_num_and_verify_availability(client):
     assert len(items) == 1
     assert items['BD-5005'] == {
                     'model_num': "BD-5005",
-                    'name': "DreamComfort",
+                    'model_name': "DreamComfort",
                     'description': "A luxurious memory foam bed with a sturdy solid wood frame.",
                     'price': 1200.0,
                     'final_price': 1274.4, 
@@ -303,6 +334,7 @@ def test_get_item_by_model_num_and_verify_availability(client):
 
 def test_verify_availability_out_of_stock(client):
     """
+    Tests that an out-of-stock item is correctly returned with `is_available: False`.
     """    
     response = client.get('/items', query_string={"model_num": "BS-4004"})
     assert response.status_code == http.HTTPStatus.OK
@@ -311,7 +343,7 @@ def test_verify_availability_out_of_stock(client):
     assert len(items) == 1
     assert items['BS-4004'] == {
                         'model_num': "BS-4004",
-                        'name': "OakElegance",
+                        'model_name': "OakElegance",
                         'description': "A stylish and durable bookshelf made of pine wood with a natural oak finish.",
                         'price': 110.0,
                         'final_price': 64.9,  

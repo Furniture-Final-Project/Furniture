@@ -15,7 +15,7 @@ class Furniture(Base):
     __tablename__ = "furniture"
     
     model_num: Mapped[str] = mapped_column(String, primary_key=True)
-    name: Mapped[str] = mapped_column(String, nullable=False)
+    model_name: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     price: Mapped[float] = mapped_column(Float, nullable=False)
     dimensions: Mapped[Optional[Dict]] = mapped_column(JSON, nullable=True)

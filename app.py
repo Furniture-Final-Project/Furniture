@@ -42,6 +42,7 @@ def create_app(config: dict):
         category = flask.request.args.get('category')
         price = flask.request.args.get('max_price')
         model_num = flask.request.args.get('model_num')
+        model_name = flask.request.args.get('model_name')
 
         if category is not None:
             query = query.filter_by(category=category)
@@ -50,6 +51,8 @@ def create_app(config: dict):
             query = query.filter(schema.Furniture.price<price)
         if model_num is not None:
             query = query.filter_by(model_num=model_num)
+        if model_name is not None:
+            query = query.filter(schema.Furniture.model_name == model_name)
             
         results = query.all()
 
