@@ -1,4 +1,7 @@
-from .Furniture import Furniture
+# Temporarily remove this if it's causing an import issue
+# from source.models.Furniture.Furniture import Furniture
+
+from schema import Furniture
 
 
 class BookShelf(Furniture):

@@ -12,7 +12,7 @@ import schema
 
 @pytest.fixture
 def application():
-    application = app.create_app({'database_url': f'sqlite:///:memory:'})
+    application = app.create_app({'database_url': f'sqlite:///:memory:'})  # Use in-memory DB for testing
     yield application
 
 @pytest.fixture
@@ -360,4 +360,41 @@ def test_verify_availability_out_of_stock(client):
                         "color": "Natural Oak"
                         }   
                     }    
-                
+
+
+def test_add_bed_item(client):
+    """Test adding a new Bed item using POST request."""
+    new_item = {
+        "model_num": "B-101",
+        "model_name": "King Bed",
+        "description": "A comfortable king-size bed.",
+        "price": 1500.0,
+        "dimensions": {"width": 180, "length": 200, "height": 50},
+        "stock_quantity": 10,
+        "category": "Bed",
+        "image_filename": "king_bed.jpg",
+        "discount": 5.0,
+        "details": {
+            "mattress_type": "memory foam",
+            "frame_material": "wood"
+        }
+    }
+
+    # Send a POST request to add the item
+    response = client.post('/add_item', json=new_item)
+    data = response.get_json()
+    
+    # Check that the item was added successfully
+    assert response.status_code == http.HTTPStatus.OK
+    assert "Item 'B-101' added successfully!" in data["message"]
+
+    # Send a GET request to verify item exists
+    response = client.get('/items', query_string={"model_num": "B-101"})
+    data = response.get_json()
+
+    # Check that the item is returned correctly
+    assert response.status_code == http.HTTPStatus.OK
+    assert "B-101" in data["items"]
+    assert data["items"]["B-101"]["model_name"] == "King Bed"
+    assert data["items"]["B-101"]["is_available"] == True
+

@@ -1,7 +1,8 @@
-import source.models.inventory
 import flask
 import os
 import schema 
+import services
+
 
 def create_app(config: dict):
     app = flask.Flask(__name__)
@@ -66,6 +67,18 @@ def create_app(config: dict):
             items = { result.model_num: result.to_dict() for result in results}
 
         return flask.jsonify({'items': items})
+    
+
+    @app.route('/add_item', methods=['POST'])
+    def add_item_endpoint():
+        """
+        API endpoint to add a new furniture item.
+        """
+        data = flask.request.get_json()  # Get JSON payload from the request
+        s = schema.session()  # create a new session for DB operations
+        result = services.add_item(s, data)  # call add_item from services.py
+        return flask.jsonify({"message": result})
+
 
     return app
     

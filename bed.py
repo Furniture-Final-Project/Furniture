@@ -1,5 +1,6 @@
 import schema
 
+
 class Bed(schema.Furniture):
 
     def __init__(

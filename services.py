@@ -1,7 +1,8 @@
 import json
 import schema
-from source.models.Furniture.bed import Bed
+from source.models.furniture.bed import Bed
 from sqlalchemy.orm import Session
+
 
 def add_item(session: Session, item_data: dict) -> str:
     """

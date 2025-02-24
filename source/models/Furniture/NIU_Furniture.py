@@ -1,3 +1,6 @@
+# Temporarily remove this if it's causing an import issue
+# from source.models.Furniture.Furniture import Furniture
+
 import os
 from abc import ABC, abstractmethod
 
