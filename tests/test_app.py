@@ -421,7 +421,7 @@ def test_add_bed_item_not_correct_values(client):
     response = client.post('/add_item', json=invalid_item)
     data = response.get_json()
     # Check that the response returns an error
-    assert response.status_code ==  http.HTTPStatus.OK 
+    assert response.status_code ==  http.HTTPStatus.BAD_REQUEST
 
     # Send a GET request to verify item exists
     response = client.get('/items', query_string={"model_num": "B-999"})
