@@ -70,7 +70,7 @@ def preprepared_data(application):
                                 dimensions={"height": 180, "width": 80, "depth": 30},
                                 category="BookShelf",
                                 image_filename="oak_bookshelf.jpg",
-                                stock_quantity=7,
+                                stock_quantity=0,
                                 discount=50.0,
                                 details={
                                     "num_shelves": 5,
@@ -168,7 +168,7 @@ def test_user_get_all_items(client):
                     'dimensions': {"height": 180, "width": 80, "depth": 30},
                     'category': "BookShelf",
                     'image_filename': "oak_bookshelf.jpg",
-                    'stock_quantity': 7,
+                    'stock_quantity': 0,
                     'discount': 50.0,
                     'details': {
                         "num_shelves": 5,
@@ -300,3 +300,32 @@ def test_get_item_by_model_num_and_verify_availability(client):
                         "frame_material": "Solid Wood"
                     }
                 }
+
+def test_verify_availability_out_of_stock(client):
+    """
+    """    
+    response = client.get('/items', query_string={"model_num": "BS-4004"})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    items = data['items']
+    assert len(items) == 1
+    assert items['BS-4004'] == {
+                        'model_num': "BS-4004",
+                        'name': "OakElegance",
+                        'description': "A stylish and durable bookshelf made of pine wood with a natural oak finish.",
+                        'price': 110.0,
+                        'final_price': 64.9,  
+                        'dimensions': {"height": 180, "width": 80, "depth": 30},
+                        'category': "BookShelf",
+                        'image_filename': "oak_bookshelf.jpg",
+                        'stock_quantity': 0,
+                        'discount': 50.0,
+                        "is_available": False,
+                        'details': {
+                        "num_shelves": 5,
+                        "max_capacity_weight_per_shelf": 20.0,
+                        "material": "Pine Wood",
+                        "color": "Natural Oak"
+                        }   
+                    }    
+                
