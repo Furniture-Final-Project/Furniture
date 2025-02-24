@@ -105,6 +105,16 @@ def preprepared_data(application):
 
 
 def test_user_get_all_items(client):
+    """
+    Test retrieving all items, including out-of-stock items.
+
+    Sends a GET request to '/items' to fetch the complete list of items.
+    Verifies the response status is 200 OK and that all expected items are returned,
+    regardless of their stock status. Ensures each item includes necessary details
+    such as model number, name, description, price, final price (including tax and
+    discounts), dimensions, category, image filename, stock quantity, discount, and
+    additional details.
+    """
     response = client.get('/items')
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
@@ -186,6 +196,14 @@ def test_user_get_all_items(client):
                 }
 
 def test_single_filter(client):
+    """
+    Test retrieving items by category.
+
+    Sends a GET request to '/items' with 'category' as a query parameter.
+    Verifies the response status is 200 OK and that the returned items match
+    the specified category. Ensures each item's 'stock_quantity' is included
+    for inventory status display (e.g., "1 piece left" or "out of stock").
+    """
     response = client.get('/items', query_string={"category": "Bed"})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
@@ -209,6 +227,14 @@ def test_single_filter(client):
                 }
  
 def test_double_filter(client):
+    """
+    Test filtering items by category and maximum price.
+
+    Sends a GET request to '/items' with 'category' and 'max_price' as query parameters.
+    Verifies the response status is 200 OK and that the returned items match the specified
+    category and do not exceed the maximum price. Ensures each item's 'stock_quantity' is
+    included for inventory status display.
+    """
     response = client.get('/items', query_string={"category": "Chair", "max_price": 150})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
@@ -229,6 +255,25 @@ def test_double_filter(client):
                         
 
 def test_get_item_by_model_num(client):
+    """
+    Tests the retrieval of a specific item by its model number from the inventory API.
+
+    This test simulates a client request to fetch an item's details by providing 
+    its `model_num` as a query parameter. The API should return a JSON response 
+    containing the full details of the requested item.
+
+    Expected Behavior:
+    - The response status code should be HTTP 200 (OK).
+    - The response should contain exactly one item matching the requested `model_num`.
+    - The returned item's details should include:
+        - Model number, name, description, price, and final price.
+        - Final price reflects any applied discount and tax calculations.
+        - Dimensions (height, width, depth), category, image filename, and stock quantity.
+        - Additional details specific to the item's category.
+
+    This ensures that the system correctly retrieves item data, applies tax and discounts, 
+    and returns complete product details in the expected format.
+    """    
     response = client.get('/items', query_string={"model_num": "BD-5005"})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
