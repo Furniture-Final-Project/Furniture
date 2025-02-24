@@ -29,16 +29,6 @@ class Bed(schema.Furniture):
             discount=discount
         )
 
-        # Validate BEFORE assigning attributes
-        
-         # Validate dimensions (must contain width)
-        #TODO test this
-        # if "width" not in dimensions:
-            # self.dimensions= None
-            # raise ValueError("Bed dimensions must include 'width'.")
-            
-
-
     def valid(self) -> bool:
         """Check if the given details dictionary contains valid mattress type and frame material."""
         VALID_MATTRESS_TYPES = {"latex", "memory foam", "bamboo", "spring", "hybrid", "cotton"}
@@ -54,6 +44,9 @@ class Bed(schema.Furniture):
             return False
 
         if frame_material not in VALID_FRAME_MATERIALS:
+            return False
+        
+        if "width" not in self.dimensions:
             return False
 
         return True
