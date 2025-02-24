@@ -1,7 +1,6 @@
-from .Furniture import Furniture
+import schema
 
-
-class Bed(Furniture):
+class Bed(schema.Furniture):
 
     def __init__(
         self,
@@ -11,64 +10,46 @@ class Bed(Furniture):
         price: float,
         dimension: dict,
         image_filename: str,
-        mattress_type: str,
-        frame_material: str,
+        details: dict,  # Stores mattress_type & frame_material
         discount: float = 0.0,
     ):
         super().__init__(
-            model_num,
-            model_name,
-            description,
-            price,
-            dimension,
-            image_filename,
-            discount,
+            model_num=model_num,
+            model_name=model_name,
+            description=description,
+            price=price,
+            dimensions=dimension,
+            stock_quantity=0,  # Default to 0 until updated
+            details=details,  # Store all bed-specific attributes in details
+            category="Bed",  # Ensure this is always set correctly
+            image_filename=image_filename,
+            discount=discount
         )
 
         # Validate dimensions (must contain width)
         if "width" not in dimension:
             raise ValueError("Bed dimensions must include 'width'.")
 
-        self.mattress_type = mattress_type
-        self.frame_material = frame_material
+        # Validate special attributes in 'details' field
+        self.validate_details()
 
-    def furniture_type(self):
-        return "Bed"
 
-    @property
-    def mattress_type(self):
-        return self._mattress_type  # Access the private attribute
-
-    @mattress_type.setter
-    def mattress_type(self, value):
-        # Validate mattress type
-        valid_mattress_types = {
-            "latex",
-            "memory foam",
-            "bamboo",
-            "spring",
-            "hybrid",
-            "cotton",
-        }
-        if value.lower() not in valid_mattress_types:
-            raise ValueError(
-                f"Invalid mattress type '{value}'. Must be one of {valid_mattress_types}."
-            )
-        self._mattress_type = value.lower()
-
-    @property
-    def frame_material(self):
-        return self._frame_material
-
-    @frame_material.setter
-    def frame_material(self, value):
-        # Validate frame material
+    def validate_details(self):
+        valid_mattress_types = {"latex", "memory foam", "bamboo", "spring", "hybrid", "cotton"}
         valid_frame_materials = {"wood", "metal", "upholstered", "bamboo"}
-        if value.lower() not in valid_frame_materials:
-            raise ValueError(
-                f"Invalid frame material '{value}'. Must be one of {valid_frame_materials}."
-            )
-        self._frame_material = value.lower()
+
+        if "mattress_type" not in self.details or "frame_material" not in self.details:
+            raise ValueError("Bed details must include 'mattress_type' and 'frame_material'.")
+        
+        mattress_type = self.details["mattress_type"].lower()
+        frame_material = self.details["frame_material"].lower()
+
+        if mattress_type not in valid_mattress_types:
+            raise ValueError(f"Invalid mattress type '{mattress_type}'. Must be one of {valid_mattress_types}.")
+
+        if frame_material not in valid_frame_materials:
+            raise ValueError(f"Invalid frame material '{frame_material}'. Must be one of {valid_frame_materials}.")
+        
 
     def get_size(self) -> str:
         """Determine the bed size based on its width."""
@@ -82,11 +63,13 @@ class Bed(Furniture):
             return "Queen"
         else:
             return "King"
+        
 
     def is_hypoallergenic(self) -> bool:
         """Check if the mattress material is hypoallergenic."""
         hypoallergenic_materials = {"latex", "memory foam", "bamboo"}
         return self.mattress_type in hypoallergenic_materials
+
 
     def __str__(self):
         hypoallergenic_status = "Yes" if self.is_hypoallergenic() else "No"
