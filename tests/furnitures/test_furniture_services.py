@@ -37,12 +37,8 @@ class TestFurnitureFunctions(unittest.TestCase):
         )
 
         # Explicitly setting the method since `spec=Inventory` may not include it
-        self.mock_inventory.get_furniture_by_id = MagicMock(
-            return_value=self.mock_furniture
-        )
-        self.mock_inventory.check_availability = MagicMock(
-            return_value=3
-        )  # Low stock scenario
+        self.mock_inventory.get_furniture_by_id = MagicMock(return_value=self.mock_furniture)
+        self.mock_inventory.check_availability = MagicMock(return_value=3)  # Low stock scenario
 
     def test_get_furniture_summary_found(self):
         summary = get_furniture_summary("123", self.mock_inventory)
@@ -74,9 +70,7 @@ class TestFurnitureFunctions(unittest.TestCase):
         self.assertIsNone(details)
 
     def test_get_furniture_details_includes_properties(self):
-        type(self.mock_furniture).some_property = property(
-            lambda self: "Property Value"
-        )
+        type(self.mock_furniture).some_property = property(lambda self: "Property Value")
         details = get_furniture_details("123", self.mock_inventory)
 
         self.assertIn("some_property", details)

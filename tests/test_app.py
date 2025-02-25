@@ -15,93 +15,80 @@ def application():
     application = app.create_app({'database_url': f'sqlite:///:memory:'})  # Use in-memory DB for testing
     yield application
 
+
 @pytest.fixture
 def client(application):
     with application.test_client() as client:
         yield client
 
 
-
 @pytest.fixture(autouse=True)
 def preprepared_data(application):
     session = schema.session()
     chair0 = schema.Furniture(
-                                model_num='chair-0', 
-                                model_name='Yosef', 
-                                description='a nice chair',
-                                price=100.0, 
-                                dimensions={"height": 90, "width": 45, "depth": 50}, 
-                                category="Chair",
-                                image_filename='classic_wooden_chair.jpg',
-                                stock_quantity=3,
-                                discount=0.0,
-                                details={'material': 'wood', 'weight': 5, 'color': 'white'})
+        model_num='chair-0',
+        model_name='Yosef',
+        description='a nice chair',
+        price=100.0,
+        dimensions={"height": 90, "width": 45, "depth": 50},
+        category="Chair",
+        image_filename='classic_wooden_chair.jpg',
+        stock_quantity=3,
+        discount=0.0,
+        details={'material': 'wood', 'weight': 5, 'color': 'white'},
+    )
     chair1 = schema.Furniture(
-                                model_num='chair-1', 
-                                model_name='Haim', 
-                                description='a Very nice chair',
-                                price=200.0, 
-                                dimensions={"height": 90, "width": 45, "depth": 50}, 
-                                category="Chair",
-                                image_filename='classic_wooden_chair.jpg',
-                                stock_quantity=4,
-                                discount=0.0,
-                                details={'material': 'wood', 'weight': 6, 'color': 'white'})
+        model_num='chair-1',
+        model_name='Haim',
+        description='a Very nice chair',
+        price=200.0,
+        dimensions={"height": 90, "width": 45, "depth": 50},
+        category="Chair",
+        image_filename='classic_wooden_chair.jpg',
+        stock_quantity=4,
+        discount=0.0,
+        details={'material': 'wood', 'weight': 6, 'color': 'white'},
+    )
     bed = schema.Furniture(
-                                model_num="BD-5005",
-                                model_name="DreamComfort",
-                                description="A luxurious memory foam bed with a sturdy solid wood frame.",
-                                price=1200.0,
-                                dimensions={"height": 50, "width": 160, "depth": 200},
-                                category="Bed",
-                                image_filename="memory_foam_bed.jpg",
-                                stock_quantity=5,
-                                discount=10.0,
-                                details={
-                                    "mattress_type": "Memory Foam",
-                                    "frame_material": "Solid Wood"
-                                }
-                            )
+        model_num="BD-5005",
+        model_name="DreamComfort",
+        description="A luxurious memory foam bed with a sturdy solid wood frame.",
+        price=1200.0,
+        dimensions={"height": 50, "width": 160, "depth": 200},
+        category="Bed",
+        image_filename="memory_foam_bed.jpg",
+        stock_quantity=5,
+        discount=10.0,
+        details={"mattress_type": "Memory Foam", "frame_material": "Solid Wood"},
+    )
     bookshelf = schema.Furniture(
-                                model_num="BS-4004",
-                                model_name="OakElegance",
-                                description="A stylish and durable bookshelf made of pine wood with a natural oak finish.",
-                                price=110.0,
-                                dimensions={"height": 180, "width": 80, "depth": 30},
-                                category="BookShelf",
-                                image_filename="oak_bookshelf.jpg",
-                                stock_quantity=0,
-                                discount=50.0,
-                                details={
-                                    "num_shelves": 5,
-                                    "max_capacity_weight_per_shelf": 20.0,
-                                    "material": "Pine Wood",
-                                    "color": "Natural Oak"
-                                }
-                            )
+        model_num="BS-4004",
+        model_name="OakElegance",
+        description="A stylish and durable bookshelf made of pine wood with a natural oak finish.",
+        price=110.0,
+        dimensions={"height": 180, "width": 80, "depth": 30},
+        category="BookShelf",
+        image_filename="oak_bookshelf.jpg",
+        stock_quantity=0,
+        discount=50.0,
+        details={"num_shelves": 5, "max_capacity_weight_per_shelf": 20.0, "material": "Pine Wood", "color": "Natural Oak"},
+    )
     sofa = schema.Furniture(
-                                model_num="SF-3003",
-                                model_name="LuxComfort",
-                                description="A luxurious three-seater sofa with top-grain leather upholstery, perfect for a modern living room.",
-                                price=1200.0,
-                                dimensions={"height": 85, "width": 220, "depth": 95},
-                                category="Sofa",
-                                image_filename="luxury_leather_sofa.jpg",
-                                stock_quantity=5,
-                                discount=10.0,
-                                details={
-                                    "upholstery": "Top-Grain Leather",
-                                    "color": "Dark Gray",
-                                    "num_seats": 3
-                                }
-                            )
-
-
+        model_num="SF-3003",
+        model_name="LuxComfort",
+        description="A luxurious three-seater sofa with top-grain leather upholstery, perfect for a modern living room.",
+        price=1200.0,
+        dimensions={"height": 85, "width": 220, "depth": 95},
+        category="Sofa",
+        image_filename="luxury_leather_sofa.jpg",
+        stock_quantity=5,
+        discount=10.0,
+        details={"upholstery": "Top-Grain Leather", "color": "Dark Gray", "num_seats": 3},
+    )
 
     session.add_all([chair0, chair1, bed, bookshelf, sofa])
     session.commit()
     yield
-
 
 
 def test_user_get_all_items(client):
@@ -120,80 +107,73 @@ def test_user_get_all_items(client):
     data = response.get_json()
     items = data['items']
     assert len(items) == 5
-    assert items['chair-0'] == {'model_num': 'chair-0',
-                        'model_name': 'Yosef',
-                        'description': 'a nice chair', 
-                        'price': 100.0, 
-                        'final_price': 118.0,
-                        'dimensions': {"height": 90, "width": 45, "depth": 50}, 
-                        'category': 'Chair',
-                        'image_filename': "classic_wooden_chair.jpg", 
-                        'stock_quantity': 3,
-                        'discount': 0.0, 
-                        'details': {'material': 'wood', 'weight': 5, 'color': 'white'} }
-    assert items['chair-1'] == {'model_num': 'chair-1',
-                        'model_name': 'Haim',
-                        'description': 'a Very nice chair', 
-                        'price': 200.0, 
-                        'final_price': 236.0, 
-                        'dimensions': {"height": 90, "width": 45, "depth": 50}, 
-                        'category': 'Chair',
-                        'image_filename': "classic_wooden_chair.jpg", 
-                        'stock_quantity': 4,
-                        'discount': 0.0, 
-                        'details': {'material': 'wood', 'weight': 6, 'color': 'white'} }
-    
+    assert items['chair-0'] == {
+        'model_num': 'chair-0',
+        'model_name': 'Yosef',
+        'description': 'a nice chair',
+        'price': 100.0,
+        'final_price': 118.0,
+        'dimensions': {"height": 90, "width": 45, "depth": 50},
+        'category': 'Chair',
+        'image_filename': "classic_wooden_chair.jpg",
+        'stock_quantity': 3,
+        'discount': 0.0,
+        'details': {'material': 'wood', 'weight': 5, 'color': 'white'},
+    }
+    assert items['chair-1'] == {
+        'model_num': 'chair-1',
+        'model_name': 'Haim',
+        'description': 'a Very nice chair',
+        'price': 200.0,
+        'final_price': 236.0,
+        'dimensions': {"height": 90, "width": 45, "depth": 50},
+        'category': 'Chair',
+        'image_filename': "classic_wooden_chair.jpg",
+        'stock_quantity': 4,
+        'discount': 0.0,
+        'details': {'material': 'wood', 'weight': 6, 'color': 'white'},
+    }
+
     assert items['BD-5005'] == {
-                        'model_num': "BD-5005",
-                        'model_name': "DreamComfort",
-                        'description': "A luxurious memory foam bed with a sturdy solid wood frame.",
-                        'price': 1200.0,
-                        'final_price': 1274.4,  
-                        'dimensions': {"height": 50, "width": 160, "depth": 200},
-                        'category': "Bed",
-                        'image_filename': "memory_foam_bed.jpg",
-                        'stock_quantity': 5,
-                        'discount': 10.0,
-                        'details': {
-                            "mattress_type": "Memory Foam",
-                            "frame_material": "Solid Wood"
-                        }
-                   }
+        'model_num': "BD-5005",
+        'model_name': "DreamComfort",
+        'description': "A luxurious memory foam bed with a sturdy solid wood frame.",
+        'price': 1200.0,
+        'final_price': 1274.4,
+        'dimensions': {"height": 50, "width": 160, "depth": 200},
+        'category': "Bed",
+        'image_filename': "memory_foam_bed.jpg",
+        'stock_quantity': 5,
+        'discount': 10.0,
+        'details': {"mattress_type": "Memory Foam", "frame_material": "Solid Wood"},
+    }
     assert items["BS-4004"] == {
-                        'model_num': "BS-4004",
-                        'model_name': "OakElegance",
-                        'description': "A stylish and durable bookshelf made of pine wood with a natural oak finish.",
-                        'price': 110.0,
-                        'final_price': 64.9,  
-                        'dimensions': {"height": 180, "width": 80, "depth": 30},
-                        'category': "BookShelf",
-                        'image_filename': "oak_bookshelf.jpg",
-                        'stock_quantity': 0,
-                        'discount': 50.0,
-                        'details': {
-                            "num_shelves": 5,
-                            "max_capacity_weight_per_shelf": 20.0,
-                            "material": "Pine Wood",
-                            "color": "Natural Oak"
-                        }
-                    }
+        'model_num': "BS-4004",
+        'model_name': "OakElegance",
+        'description': "A stylish and durable bookshelf made of pine wood with a natural oak finish.",
+        'price': 110.0,
+        'final_price': 64.9,
+        'dimensions': {"height": 180, "width": 80, "depth": 30},
+        'category': "BookShelf",
+        'image_filename': "oak_bookshelf.jpg",
+        'stock_quantity': 0,
+        'discount': 50.0,
+        'details': {"num_shelves": 5, "max_capacity_weight_per_shelf": 20.0, "material": "Pine Wood", "color": "Natural Oak"},
+    }
     assert items["SF-3003"] == {
-                        'model_num': "SF-3003",
-                        'model_name': "LuxComfort",
-                        'description': "A luxurious three-seater sofa with top-grain leather upholstery, perfect for a modern living room.",
-                        'price': 1200.0,
-                        'final_price': 1274.4,
-                        'dimensions': {"height": 85, "width": 220, "depth": 95},
-                        'category': "Sofa",
-                        'image_filename': "luxury_leather_sofa.jpg",
-                        'stock_quantity': 5,
-                        'discount': 10.0,
-                        'details': {
-                            "upholstery": "Top-Grain Leather",
-                            "color": "Dark Gray",
-                            "num_seats": 3
-                        }
-                    }
+        'model_num': "SF-3003",
+        'model_name': "LuxComfort",
+        'description': "A luxurious three-seater sofa with top-grain leather upholstery, perfect for a modern living room.",
+        'price': 1200.0,
+        'final_price': 1274.4,
+        'dimensions': {"height": 85, "width": 220, "depth": 95},
+        'category': "Sofa",
+        'image_filename': "luxury_leather_sofa.jpg",
+        'stock_quantity': 5,
+        'discount': 10.0,
+        'details': {"upholstery": "Top-Grain Leather", "color": "Dark Gray", "num_seats": 3},
+    }
+
 
 def test_single_filter_by_category(client):
     """
@@ -210,29 +190,27 @@ def test_single_filter_by_category(client):
     items = data['items']
     assert len(items) == 1
     assert items['BD-5005'] == {
-                    'model_num': "BD-5005",
-                    'model_name': "DreamComfort",
-                    'description': "A luxurious memory foam bed with a sturdy solid wood frame.",
-                    'price': 1200.0,
-                    'final_price': 1274.4,
-                    'dimensions': {"height": 50, "width": 160, "depth": 200},
-                    'category': "Bed",
-                    'image_filename': "memory_foam_bed.jpg",
-                    'stock_quantity': 5,
-                    'discount': 10.0,
-                    'details': {
-                        "mattress_type": "Memory Foam",
-                        "frame_material": "Solid Wood"
-                    }
-                }
-    
+        'model_num': "BD-5005",
+        'model_name': "DreamComfort",
+        'description': "A luxurious memory foam bed with a sturdy solid wood frame.",
+        'price': 1200.0,
+        'final_price': 1274.4,
+        'dimensions': {"height": 50, "width": 160, "depth": 200},
+        'category': "Bed",
+        'image_filename': "memory_foam_bed.jpg",
+        'stock_quantity': 5,
+        'discount': 10.0,
+        'details': {"mattress_type": "Memory Foam", "frame_material": "Solid Wood"},
+    }
+
+
 def test_single_filter_by_name(client):
     """
     Test retrieving items by model_name.
 
     Sends a GET request to '/items' with 'model_name' as a query parameter.
     Verifies the response status is 200 OK and that the returned items match
-    the specified model_name. 
+    the specified model_name.
     """
     response = client.get('/items', query_string={"model_name": "LuxComfort"})
     assert response.status_code == http.HTTPStatus.OK
@@ -240,23 +218,20 @@ def test_single_filter_by_name(client):
     items = data['items']
     assert len(items) == 1
     assert items['SF-3003'] == {
-                    'model_num': "SF-3003",
-                    'model_name': "LuxComfort",
-                    'description': "A luxurious three-seater sofa with top-grain leather upholstery, perfect for a modern living room.",
-                    'price': 1200.0,
-                    'final_price': 1274.4,
-                    'dimensions': {"height": 85, "width": 220, "depth": 95},
-                    'category': "Sofa",
-                    'image_filename': "luxury_leather_sofa.jpg",
-                    'stock_quantity': 5,
-                    'discount': 10.0,
-                    'details': {
-                        "upholstery": "Top-Grain Leather",
-                        "color": "Dark Gray",
-                        "num_seats": 3
-                    }
-                }
- 
+        'model_num': "SF-3003",
+        'model_name': "LuxComfort",
+        'description': "A luxurious three-seater sofa with top-grain leather upholstery, perfect for a modern living room.",
+        'price': 1200.0,
+        'final_price': 1274.4,
+        'dimensions': {"height": 85, "width": 220, "depth": 95},
+        'category': "Sofa",
+        'image_filename': "luxury_leather_sofa.jpg",
+        'stock_quantity': 5,
+        'discount': 10.0,
+        'details': {"upholstery": "Top-Grain Leather", "color": "Dark Gray", "num_seats": 3},
+    }
+
+
 def test_double_filter(client):
     """
     Test filtering items by category and maximum price.
@@ -271,26 +246,27 @@ def test_double_filter(client):
     data = response.get_json()
     items = data['items']
     assert len(items) == 1
-    assert items['chair-0'] == {'model_num': 'chair-0',
-                        'model_name': 'Yosef',
-                        'description': 'a nice chair', 
-                        'price': 100.0, 
-                        'final_price': 118.0,
-                        'dimensions': {"height": 90, "width": 45, "depth": 50}, 
-                        'category': 'Chair',
-                        'image_filename': "classic_wooden_chair.jpg", 
-                        'stock_quantity': 3,
-                        'discount': 0.0, 
-                        'details': {'material': 'wood', 'weight': 5, 'color': 'white'} 
-                        }
-                        
+    assert items['chair-0'] == {
+        'model_num': 'chair-0',
+        'model_name': 'Yosef',
+        'description': 'a nice chair',
+        'price': 100.0,
+        'final_price': 118.0,
+        'dimensions': {"height": 90, "width": 45, "depth": 50},
+        'category': 'Chair',
+        'image_filename': "classic_wooden_chair.jpg",
+        'stock_quantity': 3,
+        'discount': 0.0,
+        'details': {'material': 'wood', 'weight': 5, 'color': 'white'},
+    }
+
 
 def test_get_item_by_model_num_and_verify_availability(client):
     """
-    Tests the retrieval of a specific item by its model number from the inventory API 
+    Tests the retrieval of a specific item by its model number from the inventory API
     and verifies its stock availability.
 
-    This test sends a GET request to '/items' with a `model_num` query parameter 
+    This test sends a GET request to '/items' with a `model_num` query parameter
     to fetch details about a specific furniture item.
 
     Expected Behavior:
@@ -308,58 +284,51 @@ def test_get_item_by_model_num_and_verify_availability(client):
     - The API correctly retrieves item details.
     - The `is_available` field accurately reflects stock availability.
     - The system properly applies discounts and tax calculations in the response.
-    """    
+    """
     response = client.get('/items', query_string={"model_num": "BD-5005"})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     items = data['items']
     assert len(items) == 1
     assert items['BD-5005'] == {
-                    'model_num': "BD-5005",
-                    'model_name': "DreamComfort",
-                    'description': "A luxurious memory foam bed with a sturdy solid wood frame.",
-                    'price': 1200.0,
-                    'final_price': 1274.4, 
-                    'dimensions': {"height": 50, "width": 160, "depth": 200},
-                    'category': "Bed",
-                    'image_filename': "memory_foam_bed.jpg",
-                    'stock_quantity': 5,
-                    'discount': 10.0,
-                    "is_available": True,
-                    'details': {
-                        "mattress_type": "Memory Foam",
-                        "frame_material": "Solid Wood"
-                    }
-                }
+        'model_num': "BD-5005",
+        'model_name': "DreamComfort",
+        'description': "A luxurious memory foam bed with a sturdy solid wood frame.",
+        'price': 1200.0,
+        'final_price': 1274.4,
+        'dimensions': {"height": 50, "width": 160, "depth": 200},
+        'category': "Bed",
+        'image_filename': "memory_foam_bed.jpg",
+        'stock_quantity': 5,
+        'discount': 10.0,
+        "is_available": True,
+        'details': {"mattress_type": "Memory Foam", "frame_material": "Solid Wood"},
+    }
+
 
 def test_verify_availability_out_of_stock(client):
     """
     Tests that an out-of-stock item is correctly returned with `is_available: False`.
-    """    
+    """
     response = client.get('/items', query_string={"model_num": "BS-4004"})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     items = data['items']
     assert len(items) == 1
     assert items['BS-4004'] == {
-                        'model_num': "BS-4004",
-                        'model_name': "OakElegance",
-                        'description': "A stylish and durable bookshelf made of pine wood with a natural oak finish.",
-                        'price': 110.0,
-                        'final_price': 64.9,  
-                        'dimensions': {"height": 180, "width": 80, "depth": 30},
-                        'category': "BookShelf",
-                        'image_filename': "oak_bookshelf.jpg",
-                        'stock_quantity': 0,
-                        'discount': 50.0,
-                        "is_available": False,
-                        'details': {
-                        "num_shelves": 5,
-                        "max_capacity_weight_per_shelf": 20.0,
-                        "material": "Pine Wood",
-                        "color": "Natural Oak"
-                        }   
-                    }    
+        'model_num': "BS-4004",
+        'model_name': "OakElegance",
+        'description': "A stylish and durable bookshelf made of pine wood with a natural oak finish.",
+        'price': 110.0,
+        'final_price': 64.9,
+        'dimensions': {"height": 180, "width": 80, "depth": 30},
+        'category': "BookShelf",
+        'image_filename': "oak_bookshelf.jpg",
+        'stock_quantity': 0,
+        'discount': 50.0,
+        "is_available": False,
+        'details': {"num_shelves": 5, "max_capacity_weight_per_shelf": 20.0, "material": "Pine Wood", "color": "Natural Oak"},
+    }
 
 
 def test_add_bed_item(client):
@@ -371,19 +340,16 @@ def test_add_bed_item(client):
         "price": 1500.0,
         "dimensions": {"width": 180, "length": 200, "height": 50},
         "stock_quantity": 10,
-        "details": {
-            "mattress_type": "memory foam",
-            "frame_material": "wood"
-        },
+        "details": {"mattress_type": "memory foam", "frame_material": "wood"},
         "image_filename": "king_bed.jpg",
-       "discount": 5.0,
-      "category": "Bed",
+        "discount": 5.0,
+        "category": "Bed",
     }
 
     # Send a POST request to add the item
     response = client.post('/add_item', json=new_item)
     data = response.get_json()
-    
+
     # Check that the item was added successfully
     assert response.status_code == http.HTTPStatus.OK
 
@@ -407,52 +373,45 @@ def test_add_bed_item_not_correct_values(client):
         "price": 1200.0,
         "dimensions": {"width": 160, "length": 200, "height": 45},
         "stock_quantity": 5,
-        "details": {
-            "mattress_type": "plastic",  # Invalid value!
-            "frame_material": "wood"
-        },
+        "details": {"mattress_type": "plastic", "frame_material": "wood"},  # Invalid value!
         "image_filename": "faulty_bed.jpg",
         "discount": 0.0,
-     "category": "Bed",
+        "category": "Bed",
     }
 
     # Send a POST request to add invalid item
     response = client.post('/add_item', json=invalid_item)
     data = response.get_json()
     # Check that the response returns an error
-    assert response.status_code ==  http.HTTPStatus.BAD_REQUEST
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
     # Send a GET request to verify item exists
     response = client.get('/items', query_string={"model_num": "B-999"})
-    assert response.status_code ==  http.HTTPStatus.OK 
+    assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
 
     # Check that the item does NOT exist in the database
     assert "B-999" not in data["items"]
 
-  
+
 def test_add_chair(client):
     """Test adding a new Chair item using POST request."""
-    new_item ={
+    new_item = {
         "model_num": "C-202",
         "model_name": "ErgoChair",
         "description": "An ergonomic office chair with lumbar support.",
         "price": 350.0,
         "dimensions": {"width": 50, "depth": 55, "height": 110},
         "stock_quantity": 8,
-        "details": {
-            "material": "fabric",  # Chosen from VALID_MATERIALS
-            "weight": 12,
-            "color": "black"
-        },
+        "details": {"material": "fabric", "weight": 12, "color": "black"},  # Chosen from VALID_MATERIALS
         "image_filename": "ergonomic_office_chair.jpg",
         "discount": 10.0,
-        "category": "Chair"
+        "category": "Chair",
     }
     # Send a POST request to add the item
     response = client.post('/add_item', json=new_item)
     data = response.get_json()
-    
+
     # Check that the item was added successfully
     assert response.status_code == http.HTTPStatus.OK
 
@@ -476,24 +435,20 @@ def test_add_chair_item_not_correct_values(client):
         "price": 350.0,
         "dimensions": {"width": 50, "depth": 55, "height": 110},
         "stock_quantity": 8,
-        "details": {
-            "material": "stone",  # Invalid value!
-            "weight": 12,
-            "color": "white"
-        },
+        "details": {"material": "stone", "weight": 12, "color": "white"},  # Invalid value!
         "image_filename": "ergonomic_office_chair.jpg",
         "discount": 10.0,
-        "category": "Chair"
+        "category": "Chair",
     }
     # Send a POST request to add invalid item
     response = client.post('/add_item', json=invalid_item)
     data = response.get_json()
     # Check that the response returns an error
-    assert response.status_code ==  http.HTTPStatus.BAD_REQUEST
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
     # Send a GET request to verify item exists
     response = client.get('/items', query_string={"model_num": "C-203"})
-    assert response.status_code ==  http.HTTPStatus.OK 
+    assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
 
     # Check that the item does NOT exist in the database
@@ -502,7 +457,7 @@ def test_add_chair_item_not_correct_values(client):
 
 def test_add_BookShelf(client):
     """Test adding a new BookShelf item using POST request."""
-    new_item ={
+    new_item = {
         "model_num": "BS-5001",
         "model_name": "ModernGlassShelf",
         "description": "A sleek, modern bookshelf with tempered glass shelves and a metal frame.",
@@ -513,16 +468,16 @@ def test_add_BookShelf(client):
             "num_shelves": 4,
             "max_capacity_weight_per_shelf": 15.0,
             "material": "glass",  # Chosen from VALID_MATERIALS
-            "color": "transparent"
+            "color": "transparent",
         },
         "image_filename": "modern_glass_bookshelf.jpg",
         "discount": 15.0,
-        "category": "Book Shelf"
+        "category": "Book Shelf",
     }
     # Send a POST request to add the item
     response = client.post('/add_item', json=new_item)
     data = response.get_json()
-    
+
     # Check that the item was added successfully
     assert response.status_code == http.HTTPStatus.OK
 
@@ -536,30 +491,28 @@ def test_add_BookShelf(client):
     assert data["items"]["BS-5001"]["model_name"] == "ModernGlassShelf"
     assert data["items"]["BS-5001"]["is_available"] == True
 
+
 # TODO - add: test_add_Bookshelf_item_not_correct_values(client)
+
 
 def test_add_Sofa(client):
     """Test adding a new Sofa item using POST request."""
-    new_item ={
+    new_item = {
         "model_num": "SF-5005",
         "model_name": "CozyVelvet",
         "description": "A stylish and comfortable two-seater sofa with plush velvet upholstery, perfect for cozy living spaces.",
         "price": 850.0,
         "dimensions": {"width": 180, "depth": 85, "height": 80},
         "stock_quantity": 7,
-        "details": {
-            "upholstery": "velvet",  # Chosen from VALID_UPHOLSTERY_TYPES
-            "color": "navy blue",
-            "num_seats": 2
-        },
+        "details": {"upholstery": "velvet", "color": "navy blue", "num_seats": 2},  # Chosen from VALID_UPHOLSTERY_TYPES
         "image_filename": "cozy_velvet_sofa.jpg",
         "discount": 12.0,
-        "category": "Sofa"
+        "category": "Sofa",
     }
     # Send a POST request to add the item
     response = client.post('/add_item', json=new_item)
     data = response.get_json()
-    
+
     # Check that the item was added successfully
     assert response.status_code == http.HTTPStatus.OK
 
@@ -572,6 +525,7 @@ def test_add_Sofa(client):
     assert "SF-5005" in data["items"]
     assert data["items"]["SF-5005"]["model_name"] == "CozyVelvet"
     assert data["items"]["SF-5005"]["is_available"] == True
+
 
 # TODO - add: test_add_Sofa_item_not_correct_values(client)
 
@@ -602,12 +556,4 @@ def test_delete_item(client):
     response = client.get('/items', query_string={"model_num": "chair-1"})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
-    assert data == {'items': {}} 
-
-
-
-
-
-    
-
-    
+    assert data == {'items': {}}

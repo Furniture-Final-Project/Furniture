@@ -1,6 +1,6 @@
 import flask
 import os
-import schema 
+import schema
 import services
 
 
@@ -25,7 +25,7 @@ def create_app(config: dict):
         - This field is **only included** when retrieving a single item (`model_num` is specified).
 
         Returns:
-            JSON response containing a dictionary of available items, 
+            JSON response containing a dictionary of available items,
             where keys are `model_num` and values are the item's full details.
 
         Example API Requests:
@@ -49,27 +49,23 @@ def create_app(config: dict):
             query = query.filter_by(category=category)
         if price is not None:
             price = float(price)
-            query = query.filter(schema.Furniture.price<price)
+            query = query.filter(schema.Furniture.price < price)
         if model_num is not None:
             query = query.filter_by(model_num=model_num)
         if model_name is not None:
             query = query.filter(schema.Furniture.model_name == model_name)
-            
+
         results = query.all()
 
-        # conditionally add "is_available" only if a specific model_num is requested 
+        # conditionally add "is_available" only if a specific model_num is requested
         if model_num:
-            items = {
-                result.model_num: {**result.to_dict(), "is_available": result.stock_quantity > 0}
-                for result in results
-            }
-        else: 
-            items = { result.model_num: result.to_dict() for result in results}
+            items = {result.model_num: {**result.to_dict(), "is_available": result.stock_quantity > 0} for result in results}
+        else:
+            items = {result.model_num: result.to_dict() for result in results}
 
         return flask.jsonify({'items': items})
-    
 
-    # TODO - Admin 
+    # TODO - Admin
     @app.route('/add_item', methods=['POST'])
     def add_item_endpoint():
         """
@@ -79,9 +75,7 @@ def create_app(config: dict):
         s = schema.session()  # create a new session for DB operations
         services.add_item(s, data)  # call add_item from services.py
         return flask.jsonify({})
-        
-    
-    
+
     @app.route('/update_item', methods=['POST'])
     def update_item_endpoint():
         """
@@ -91,7 +85,7 @@ def create_app(config: dict):
         s = schema.session()  # create a new session for DB operations
         services.update_item_quantity(s, data)  # call add_item from services.py
         return flask.jsonify({})
-    
+
     @app.route('/delete_item', methods=['POST'])
     def delete_item_endpoint():
         data = flask.request.get_json()
@@ -99,6 +93,4 @@ def create_app(config: dict):
         services.delete_item(s, data["model_num"])
         return flask.jsonify({})
 
-
-    return app  
-
+    return app

@@ -100,9 +100,7 @@ class TestTable(unittest.TestCase):
             False,
             "wood",
         )
-        self.assertAlmostEqual(
-            table_no_discount.get_discounted_price(), 400 * 1.18, places=2
-        )
+        self.assertAlmostEqual(table_no_discount.get_discounted_price(), 400 * 1.18, places=2)
 
     def test_missing_dimensions_for_rectangular(self):
         with self.assertRaises(ValueError):
@@ -184,9 +182,7 @@ class TestTable(unittest.TestCase):
         self.assertTrue(large_table.is_large_table())
 
     def test_discount_price(self):
-        self.assertAlmostEqual(
-            self.valid_table.get_discounted_price(), 500 * 1.18 * 0.9, places=2
-        )
+        self.assertAlmostEqual(self.valid_table.get_discounted_price(), 500 * 1.18 * 0.9, places=2)
 
     def test_str_representation(self):
         expected_price = "{:.2f}".format(self.valid_table.get_discounted_price())

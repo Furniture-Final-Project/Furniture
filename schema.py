@@ -3,7 +3,8 @@ from sqlalchemy import String, Float, Integer, JSON, create_engine
 from typing import Optional, Dict
 import dataclasses
 import copy
-import abc 
+import abc
+
 
 class Base(DeclarativeBase):
     def to_dict(self):
@@ -14,7 +15,7 @@ class Base(DeclarativeBase):
 
 class Furniture(Base):
     __tablename__ = "furniture"
-    
+
     model_num: Mapped[str] = mapped_column(String, primary_key=True)
     model_name: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
@@ -29,26 +30,25 @@ class Furniture(Base):
     def to_dict(self):
         result = Base.to_dict(self)
         if self.discount > 0.0:
-            discount_price = self.price * (1 - self.discount/100)
+            discount_price = self.price * (1 - self.discount / 100)
             result['final_price'] = self.apply_tax(discount_price)
         else:
             result['final_price'] = self.apply_tax(self.price)
 
         return result
-    
+
     def apply_tax(self, final_price: float, tax_rate: float = 18) -> float:
         """Apply a tax rate to the price and return the new price."""
         return round(final_price * (1 + tax_rate / 100), 1)
-    
 
     @abc.abstractmethod
     def valid(self) -> bool:
         pass
-    
+
     @abc.abstractmethod
     def post_init(self) -> bool:
         pass
-    
+
 
 class Bed(Furniture):
     def post_init(self):
@@ -70,13 +70,13 @@ class Bed(Furniture):
 
         if frame_material not in VALID_FRAME_MATERIALS:
             return False
-        
+
         if "width" not in self.dimensions:
             return False
 
         return True
-    
-    
+
+
 class Chair(Furniture):
     def post_init(self):
         self.category = "Chair"
@@ -87,23 +87,23 @@ class Chair(Furniture):
         material = self.details.get("material", "").lower()
         if material not in VALID_MATERIALS:
             return False
-        
+
         # Validate weight
         weight = self.details.get("weight", float)
         if weight <= 0:
             return False
-        
+
         # Validate color
         if "color" not in self.details:
             return False
-        
+
         return True
 
 
 class BookShelf(Furniture):
     def post_init(self):
         self.category = "Book Shelf"
-    
+
     def valid(self):
         # Validate number of shelves
         num_shelves = self.details.get("num_shelves")
@@ -112,24 +112,21 @@ class BookShelf(Furniture):
 
         # Validate weight capacity per shelf
         max_capacity_weight_per_shelf = self.details.get("max_capacity_weight_per_shelf")
-        if (
-            not isinstance(max_capacity_weight_per_shelf, (int, float))
-            or max_capacity_weight_per_shelf <= 0
-        ):
+        if not isinstance(max_capacity_weight_per_shelf, (int, float)) or max_capacity_weight_per_shelf <= 0:
             return False
 
         # Validate material
         VALID_MATERIALS = {"wood", "metal", "glass", "plastic"}
         material = self.details.get("material", "").lower()
         if material not in VALID_MATERIALS:
-           return False
-        
+            return False
+
         # Validate color
         if "color" not in self.details:
             return False
-        
+
         return True
-    
+
     def _calculate_total_capacity(self) -> float:
         """Calculate the total weight capacity of the bookshelf."""
         return self.details.get("num_shelves") * self.details.get("max_capacity_weight_per_shelf")
@@ -138,57 +135,60 @@ class BookShelf(Furniture):
 class Sofa(Furniture):
     def post_init(self):
         self.category = "Sofa"
-    
+
     def valid(self):
         if "width" not in self.dimensions:
             return False
-        
+
         # Validate upholstery material and dimension
         VALID_UPHOLSTERY_TYPES = {"leather", "fabric", "velvet", "synthetic"}
         upholstery = self.details.get("upholstery", "").lower()
         if upholstery not in VALID_UPHOLSTERY_TYPES:
             return False
-        
+
         return True
 
 
-class Table(Furniture):     # TODO seating_capacity
+class Table(Furniture):  # TODO seating_capacity
     def post_init(self):
         self.category = "Table"
-    
+
     def valid(self):
         # Validate material
         VALID_MATERIALS = {"wood", "metal", "glass", "stone", "plastic", "acrylic", "laminate"}
         material = self.details.get("material", "").lower()
         if material not in VALID_MATERIALS:
-           return False
-        
+            return False
+
         # Validate dimensions based on shape
-        if self.dimensions.get("shape") == "rectangular" and not all(
-            k in self.dimensions for k in ("length", "width")
-              ):
+        if self.dimensions.get("shape") == "rectangular" and not all(k in self.dimensions for k in ("length", "width")):
             return False
-        
-        if self.dimensions.get("shape") ==  "circular" and "diameter" not in self.dimensions:
+
+        if self.dimensions.get("shape") == "circular" and "diameter" not in self.dimensions:
             return False
-        
+
         # validate "is_extendable"
         is_extendable = self.dimensions.get("is_extendable")
         if not isinstance(is_extendable, bool):
             return False
-        
+
         return True
 
 
-def new(model_num: str, model_name: str, description: str, price: float, dimensions: dict, stock_quantity: int, details: dict, image_filename: str, discount: float, category: str):
-    class_map = {
-        "Bed": Bed,
-        "Chair": Chair,
-        "Book Shelf": BookShelf,
-        "Sofa": Sofa,
-        "Table": Table
-    }
-    
+def new(
+    model_num: str,
+    model_name: str,
+    description: str,
+    price: float,
+    dimensions: dict,
+    stock_quantity: int,
+    details: dict,
+    image_filename: str,
+    discount: float,
+    category: str,
+):
+    class_map = {"Bed": Bed, "Chair": Chair, "Book Shelf": BookShelf, "Sofa": Sofa, "Table": Table}
+
     class_ = class_map[category]
     result = class_(
         model_num=model_num,
@@ -199,15 +199,16 @@ def new(model_num: str, model_name: str, description: str, price: float, dimensi
         stock_quantity=stock_quantity,
         details=details,
         image_filename=image_filename,
-        discount=discount
-        )
+        discount=discount,
+    )
     result.post_init()
-    return result   # i tried to add this but it still not working 
+    return result  # i tried to add this but it still not working
 
-#=====================================================================
-# class User(Base): # TODO - make it fit to user 
+
+# =====================================================================
+# class User(Base): # TODO - make it fit to user
 #     __tablename__ = "furniture"
-    
+
 #     model_num: Mapped[str] = mapped_column(String, primary_key=True)
 #     model_name: Mapped[str] = mapped_column(String, nullable=False)
 #     description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
@@ -228,21 +229,22 @@ def new(model_num: str, model_name: str, description: str, price: float, dimensi
 #             result['final_price'] = self.apply_tax(self.price)
 
 #         return result
-    
+
 #     def apply_tax(self, final_price: float, tax_rate: float = 18) -> float:
-#         """Apply a tax rate to the price and return the new price."""    
-#============================================================================
+#         """Apply a tax rate to the price and return the new price."""
+# ============================================================================
 _engine = None
 _session_maker = None
 
+
 # Database setup
-def create(database_url: str, echo: bool=True):
+def create(database_url: str, echo: bool = True):
     global _engine
     global _session_maker
     _engine = create_engine(database_url, echo=echo)
     _session_maker = sessionmaker(bind=_engine)
     Base.metadata.create_all(_engine)
 
+
 def session():
     return _session_maker()
-

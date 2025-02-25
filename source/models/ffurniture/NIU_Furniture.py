@@ -79,12 +79,8 @@ class Furniture(ABC):  # Inherit from ABC to define an abstract base class
 
     @image_filename.setter
     def image_filename(self, value):
-        if not isinstance(value, str) or not value.lower().endswith(
-            (".jpg", ".png", ".jpeg")
-        ):
-            raise ValueError(
-                "Image filename must be a valid image file (.jpg, .png, .jpeg)."
-            )
+        if not isinstance(value, str) or not value.lower().endswith((".jpg", ".png", ".jpeg")):
+            raise ValueError("Image filename must be a valid image file (.jpg, .png, .jpeg).")
         self._image_filename = value  # Assign to the private attribute
 
     @property

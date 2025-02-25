@@ -101,23 +101,17 @@ class TestFurnitureClass(unittest.TestCase):
     def test_get_discounted_price(self):
         """Tests correct discounted price calculation"""
         expected_price = (200 * 1.18) * 0.90  # 18% tax, then 10% discount
-        self.assertAlmostEqual(
-            self.furniture.get_discounted_price(), expected_price, places=2
-        )
+        self.assertAlmostEqual(self.furniture.get_discounted_price(), expected_price, places=2)
 
     def test_calculate_discount(self):
         """Tests setting and calculating a new discount"""
         self.furniture.calculate_discount(20)  # Set new discount to 20%
         expected_price = (200 * 1.18) * 0.80  # 18% tax, then 20% discount
-        self.assertAlmostEqual(
-            self.furniture.get_discounted_price(), expected_price, places=2
-        )
+        self.assertAlmostEqual(self.furniture.get_discounted_price(), expected_price, places=2)
 
     def test_get_image_path(self):
         """Tests if image path is generated correctly"""
-        self.assertEqual(
-            self.furniture.get_image_path(), os.path.join("images", "chair.jpg")
-        )
+        self.assertEqual(self.furniture.get_image_path(), os.path.join("images", "chair.jpg"))
 
     def test_update_price(self):
         """Tests updating price correctly"""
@@ -127,9 +121,7 @@ class TestFurnitureClass(unittest.TestCase):
     def test_update_discount(self):
         """Tests updating discount correctly"""
         self.furniture.discount = 30
-        self.assertEqual(
-            self.furniture.get_discounted_price(), self.furniture.price * 1.18 * 0.7
-        )
+        self.assertEqual(self.furniture.get_discounted_price(), self.furniture.price * 1.18 * 0.7)
 
     def test_update_description(self):
         """Tests updating description correctly - with capitalization"""

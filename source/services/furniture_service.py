@@ -51,7 +51,6 @@ def get_furniture_summary(model_num: str, inventory: Inventory = None) -> str:
     return "\n".join(details)
 
 
-
 # this one is for internal system use - everything should return
 def get_furniture_details(model_num: str, inventory: Inventory = None) -> dict:
     """Returns all information of a product as a dict
@@ -69,12 +68,7 @@ def get_furniture_details(model_num: str, inventory: Inventory = None) -> dict:
 
     details = vars(furniture).copy()
     # Find all property attributes
-    properties = {
-        name: getattr(furniture, name)
-        for name, value in inspect.getmembers(
-            type(furniture), lambda x: isinstance(x, property)
-        )
-    }
+    properties = {name: getattr(furniture, name) for name, value in inspect.getmembers(type(furniture), lambda x: isinstance(x, property))}
 
     details.update(properties)
     details["stock_quantity"] = stock_quantity

@@ -95,9 +95,7 @@ class TestChair(unittest.TestCase):
     def test_apply_discount(self):
         """Test correct discount application"""
         expected_price = (250 * 1.18) * 0.90  # 18% tax, then 10% discount
-        self.assertAlmostEqual(
-            self.chair.get_discounted_price(), expected_price, places=2
-        )
+        self.assertAlmostEqual(self.chair.get_discounted_price(), expected_price, places=2)
 
     def test_discount_default(self):
         """Test that discount defaults to 0.0 when not provided."""
@@ -166,9 +164,7 @@ class TestChair(unittest.TestCase):
 
     def test_str_representation(self):
         """Test the full string representation of the Chair class, including formatted price"""
-        expected_price = "{:.2f}".format(
-            self.chair.get_discounted_price()
-        )  # Ensure correct rounding
+        expected_price = "{:.2f}".format(self.chair.get_discounted_price())  # Ensure correct rounding
         image_expected_path = os.path.join("images", "chair.jpg")
         expected_str = (
             "Chair: OFFICE CHAIR (Black, leather)\n"

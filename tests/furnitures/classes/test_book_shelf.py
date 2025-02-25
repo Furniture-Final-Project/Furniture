@@ -87,9 +87,7 @@ class TestBookShelf(unittest.TestCase):
             self.valid_bookshelf.estimate_book_capacity(0)
 
     def test_discount_price(self):
-        self.assertAlmostEqual(
-            self.valid_bookshelf.get_discounted_price(), 300 * 1.18 * 0.9, places=2
-        )
+        self.assertAlmostEqual(self.valid_bookshelf.get_discounted_price(), 300 * 1.18 * 0.9, places=2)
 
     def test_valid_edge_cases(self):
         shelf = BookShelf(

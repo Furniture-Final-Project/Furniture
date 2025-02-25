@@ -12,10 +12,10 @@ class Bed(schema.Furniture):
         dimensions: dict,
         image_filename: str,
         details: dict,  # Stores mattress_type & frame_material
-        stock_quantity : int,
+        stock_quantity: int,
         discount: float = 0.0,
     ):
-        
+
         super().__init__(
             model_num=model_num,
             model_name=model_name,
@@ -26,7 +26,7 @@ class Bed(schema.Furniture):
             details=details,  # Store all bed-specific attributes in details
             category="Bed",  # Ensure this is always set correctly
             image_filename=image_filename,
-            discount=discount
+            discount=discount,
         )
 
     def valid(self) -> bool:
@@ -45,12 +45,11 @@ class Bed(schema.Furniture):
 
         if frame_material not in VALID_FRAME_MATERIALS:
             return False
-        
+
         if "width" not in self.dimensions:
             return False
 
         return True
-
 
     def get_size(self) -> str:
         """Determine the bed size based on its width."""
@@ -64,7 +63,6 @@ class Bed(schema.Furniture):
             return "Queen"
         else:
             return "King"
-        
 
     def is_hypoallergenic(self) -> bool:
         """Check if the mattress material is hypoallergenic."""
