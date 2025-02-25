@@ -128,13 +128,6 @@ class Inventory(InventorySingleton):
             data[model_num] = {"category": category, "quantity": quantity}
 
 
-
-
-
-
-
-
-
 # # Example usage:
 # if __name__ == '__main__':
 #     # Assume that the JSON files are stored under "source/data" folder, so pass that folder path.

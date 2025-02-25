@@ -1,4 +1,7 @@
-from source.models.Furniture.Furniture import Furniture
+# Temporarily remove this if it's causing an import issue
+# from source.models.Furniture.Furniture import Furniture
+
+from schema import Furniture
 
 
 class Chair(Furniture):
@@ -42,9 +45,7 @@ class Chair(Furniture):
         # Validate material type
         valid_materials = {"wood", "metal", "plastic", "leather", "fabric"}
         if value.lower() not in valid_materials:
-            raise ValueError(
-                f"Invalid material '{value}'. Choose from {valid_materials}."
-            )
+            raise ValueError(f"Invalid material '{value}'. Choose from {valid_materials}.")
         self._material = value.lower()
 
     @property

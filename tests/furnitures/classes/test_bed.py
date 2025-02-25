@@ -183,9 +183,7 @@ class TestBed(unittest.TestCase):
 
     def test_str_representation(self):
         """Test the full string representation of the Bed class, including formatted price"""
-        expected_price = "{:.2f}".format(
-            self.valid_bed.get_discounted_price()
-        )  # Ensure correct rounding
+        expected_price = "{:.2f}".format(self.valid_bed.get_discounted_price())  # Ensure correct rounding
         expected_str = (
             f"Bed: COZY BED (Queen size)\n"
             "Description: A comfortable and stylish bed\n"

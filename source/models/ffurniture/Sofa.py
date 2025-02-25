@@ -1,4 +1,7 @@
-from .Furniture import Furniture
+# Temporarily remove this if it's causing an import issue
+# from source.models.Furniture.Furniture import Furniture
+
+from schema import Furniture
 
 
 class Sofa(Furniture):
@@ -54,9 +57,7 @@ class Sofa(Furniture):
         # Validate upholstery material and dimension
         valid_upholstery_types = {"leather", "fabric", "velvet", "synthetic"}
         if value.lower() not in valid_upholstery_types:
-            raise ValueError(
-                f"Invalid upholstery type '{value}'. Choose from {valid_upholstery_types}."
-            )
+            raise ValueError(f"Invalid upholstery type '{value}'. Choose from {valid_upholstery_types}.")
         self._upholstery = value.lower()
 
     @staticmethod

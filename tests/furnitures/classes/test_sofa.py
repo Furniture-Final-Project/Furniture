@@ -114,9 +114,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_str_representation(self):
         """Test the full string representation of the Sofa class, including formatted price"""
-        expected_price = "{:.2f}".format(
-            self.sofa.get_discounted_price()
-        )  # Ensure correct rounding
+        expected_price = "{:.2f}".format(self.sofa.get_discounted_price())  # Ensure correct rounding
         expected_str = (
             f"Sofa: COMFORTABLE SOFA (White, synthetic)\n"
             f"Description: Classic synthetic sofa\n"

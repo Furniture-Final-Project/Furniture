@@ -1,9 +1,5 @@
-from source.models.Furniture import Furniture
 from source.models.inventory import Inventory
 import inspect
-
-# from PIL import Image
-import os
 
 
 # needs tests
@@ -39,7 +35,7 @@ def get_furniture_summary(model_num: str, inventory: Inventory = None) -> str:
         details.append("Hurry up! This item is low in stock.")
 
     # Retrieve and display the image
-    image_path = furniture.get_image_path()
+    # image_path = furniture.get_image_path()
 
     #    if os.path.exists(image_path):  # If it's a local file, show it
     #        img = Image.open(image_path)
@@ -49,7 +45,6 @@ def get_furniture_summary(model_num: str, inventory: Inventory = None) -> str:
     # details.append(f"Image not found: {image_path}")  # Print path if missing
 
     return "\n".join(details)
-
 
 
 # this one is for internal system use - everything should return
@@ -69,12 +64,7 @@ def get_furniture_details(model_num: str, inventory: Inventory = None) -> dict:
 
     details = vars(furniture).copy()
     # Find all property attributes
-    properties = {
-        name: getattr(furniture, name)
-        for name, value in inspect.getmembers(
-            type(furniture), lambda x: isinstance(x, property)
-        )
-    }
+    properties = {name: getattr(furniture, name) for name, value in inspect.getmembers(type(furniture), lambda x: isinstance(x, property))}
 
     details.update(properties)
     details["stock_quantity"] = stock_quantity
