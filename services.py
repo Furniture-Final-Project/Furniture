@@ -2,11 +2,10 @@ import json
 import http
 import schema
 import flask
-from bed import Bed
 from sqlalchemy.orm import Session
 
 
-def add_item(session: Session, item_data: dict) -> str:
+def add_item(session: Session, item_data: dict):
     """
     Adds a new furniture item to the database with validation.
 
@@ -15,25 +14,27 @@ def add_item(session: Session, item_data: dict) -> str:
         item_data (dict): Dictionary containing item details.
 
     Returns:
-        str: Success or error message.
+    # TODO 
     """
-    category = item_data.get("category")
+    # for option 2 with dictionary input in new()
+    # item = schema.new(item_data)
 
-    if category == "Bed":
-        # Instantiate Bed class to validate attributes
-        bed = Bed(
-            model_num=item_data["model_num"],
-            model_name=item_data["model_name"],
-            description=item_data.get("description", ""),
-            price=item_data["price"],
-            dimensions=item_data["dimensions"],
-            stock_quantity=item_data.get("stock_quantity", 0),
-            details=item_data["details"],  # Contains mattress_type & frame_material
-            image_filename=item_data["image_filename"],
-            discount=item_data.get("discount", 0.0)
-        )
-        if not bed.valid():
-            flask.abort(http.HTTPStatus.BAD_REQUEST, "Invalid bed details provided.")
+    item = schema.new(
+                        model_num=item_data["model_num"],
+                        model_name=item_data["model_name"],
+                            description=item_data.get("description", ""),
+                            price=item_data["price"],
+                            dimensions=item_data["dimensions"],
+                            stock_quantity=item_data.get("stock_quantity", 0),
+                            details=item_data["details"], 
+                            image_filename=item_data["image_filename"],
+                            discount=item_data["discount"],
+                            category=item_data.get("category", "")
+                      )
+    
+    if not item.valid():
+        flask.abort(http.HTTPStatus.BAD_REQUEST, "Invalid bed details provided.")
 
-        session.add(bed)
-        session.commit()
+    session.add(item)
+    session.commit()
+

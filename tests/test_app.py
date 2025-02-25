@@ -371,13 +371,13 @@ def test_add_bed_item(client):
         "price": 1500.0,
         "dimensions": {"width": 180, "length": 200, "height": 50},
         "stock_quantity": 10,
-        "category": "Bed",
-        "image_filename": "king_bed.jpg",
-        "discount": 5.0,
         "details": {
             "mattress_type": "memory foam",
             "frame_material": "wood"
-        }
+        },
+        "image_filename": "king_bed.jpg",
+       "discount": 5.0,
+      "category": "Bed",
     }
 
     # Send a POST request to add the item
@@ -407,13 +407,13 @@ def test_add_bed_item_not_correct_values(client):
         "price": 1200.0,
         "dimensions": {"width": 160, "length": 200, "height": 45},
         "stock_quantity": 5,
-        "category": "Bed",
-        "image_filename": "faulty_bed.jpg",
-        "discount": 0.0,
         "details": {
             "mattress_type": "plastic",  # Invalid value!
             "frame_material": "wood"
-        }
+        },
+        "image_filename": "faulty_bed.jpg",
+        "discount": 0.0,
+     "category": "Bed",
     }
 
     # Send a POST request to add invalid item

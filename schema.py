@@ -49,29 +49,30 @@ class Furniture(Base):
     def post_init(self) -> bool:
         pass
     
+
 class Bed(Furniture):
     def post_init(self):
         self.category = "Bed"
 
     def valid(self):
-        """Check if the given details dictionary contains valid mattress type and frame material."""
-        VALID_MATTRESS_TYPES = {"latex", "memory foam", "bamboo", "spring", "hybrid", "cotton"}
-        VALID_FRAME_MATERIALS = {"wood", "metal", "upholstered", "bamboo"}
+        # """Check if the given details dictionary contains valid mattress type and frame material."""
+        # VALID_MATTRESS_TYPES = {"latex", "memory foam", "bamboo", "spring", "hybrid", "cotton"}
+        # VALID_FRAME_MATERIALS = {"wood", "metal", "upholstered", "bamboo"}
 
-        if not isinstance(self.details, dict):
-            return False
+        # if not isinstance(self.details, dict):
+        #     return False
 
-        mattress_type = self.details.get("mattress_type", "").lower()
-        frame_material = self.details.get("frame_material", "").lower()
+        # mattress_type = self.details.get("mattress_type", "").lower()
+        # frame_material = self.details.get("frame_material", "").lower()
 
-        if mattress_type not in VALID_MATTRESS_TYPES:
-            return False
+        # if mattress_type not in VALID_MATTRESS_TYPES:
+        #     return False
 
-        if frame_material not in VALID_FRAME_MATERIALS:
-            return False
+        # if frame_material not in VALID_FRAME_MATERIALS:
+        #     return False
         
-        if "width" not in self.dimensions:
-            return False
+        # if "width" not in self.dimensions:
+        #     return False
 
         return True
     
@@ -177,9 +178,9 @@ class Table(Furniture):     # TODO seating_capacity
             return False
         
         return True
-        
-        
-def new(model_num: str, model_name: str, description: str, price: float, dimensions: dict, stock_quantity: int, details: dict, category: str, image_filename: str, discount: float):
+
+
+def new(model_num: str, model_name: str, description: str, price: float, dimensions: dict, stock_quantity: int, details: dict, image_filename: str, discount: float, category: str):
     class_map = {
         "Bed": Bed,
         "Chair": Chair,
@@ -187,7 +188,7 @@ def new(model_num: str, model_name: str, description: str, price: float, dimensi
         "Sofa": Sofa,
         "Table": Table
     }
-       
+    
     class_ = class_map[category]
     result = class_(
         model_num=model_num,
@@ -201,7 +202,35 @@ def new(model_num: str, model_name: str, description: str, price: float, dimensi
         discount=discount
         )
     result.post_init()
+    # return result   - # i tried to add this but it still not working 
 
+
+# optional: the input is dict
+
+# def new(item_data: dict):
+#     class_map = {
+#         "Bed": Bed,
+#         "Chair": Chair,
+#         "Book Shelf": BookShelf,
+#         "Sofa": Sofa,
+#         "Table": Table
+#     }
+
+#     class_ = class_map[item_data.category]
+#     result = class_(
+#         model_num=item_data.model_num,
+#         model_name=item_data.model_name,
+#         description=item_data.description,
+#         price=item_data.price,
+#         dimensions=item_data.dimensions,
+#         stock_quantity=item_data.stock_quantity,
+#         details=item_data.details,
+#         image_filename=item_data.image_filename,
+#         discount=item_data.discount
+#         )
+    
+#     result.post_init()
+#     return result
 
 _engine = None
 _session_maker = None
