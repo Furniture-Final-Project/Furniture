@@ -1,4 +1,3 @@
-import json
 import http
 import schema
 import flask

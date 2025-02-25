@@ -1,7 +1,6 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 from sqlalchemy import String, Float, Integer, JSON, create_engine
 from typing import Optional, Dict
-import dataclasses
 import copy
 import abc
 

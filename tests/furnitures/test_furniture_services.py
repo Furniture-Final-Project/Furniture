@@ -1,8 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
 from source.models.Furniture import Furniture
-from source.models.inventory import Inventory
-import inspect
 
 from source.services.furniture_service import (
     get_furniture_summary,
