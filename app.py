@@ -81,7 +81,6 @@ def create_app(config: dict):
         return flask.jsonify({})
         
     
-    
     @app.route('/update_item', methods=['POST'])
     def update_item_endpoint():
         """
@@ -98,7 +97,35 @@ def create_app(config: dict):
         s = schema.session()
         services.delete_item(s, data["model_num"])
         return flask.jsonify({})
+    
+    #============== User ====================
+    @app.route('/users', methods=['GET'])
+    def get_users():
+        s = schema.session()
+        query = s.query(schema.User)
 
+        user_id = flask.request.args.get('user_id')
+        if user_id is not None:
+            query = query.filter_by(category=user_id)
+
+        user = query.all()
+        return flask.jsonify({'users': user})
+    
+
+
+
+    @app.route('/add_user', methods=['POST'])
+    def add_users():
+        """
+        API endpoint to add a new furniture item.
+        """
+        data = flask.request.get_json()
+        s = schema.session()  # to make sure it connect to the User database
+
+
+
+   
 
     return app  
+
 

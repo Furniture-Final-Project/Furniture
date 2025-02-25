@@ -205,32 +205,19 @@ def new(model_num: str, model_name: str, description: str, price: float, dimensi
     return result   # i tried to add this but it still not working 
 
 #=====================================================================
-# class User(Base): # TODO - make it fit to user 
-#     __tablename__ = "furniture"
+class User(Base): # TODO - make it fit to user 
+    __tablename__ = "user"
     
-#     model_num: Mapped[str] = mapped_column(String, primary_key=True)
-#     model_name: Mapped[str] = mapped_column(String, nullable=False)
-#     description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-#     price: Mapped[float] = mapped_column(Float, nullable=False)
-#     dimensions: Mapped[Optional[Dict]] = mapped_column(JSON, nullable=True)
-#     stock_quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-#     details: Mapped[Optional[Dict]] = mapped_column(JSON, nullable=True)
-#     category: Mapped[str] = mapped_column(String, nullable=False)
-#     image_filename: Mapped[str] = mapped_column(String, nullable=False)
-#     discount: Mapped[float] = mapped_column(Float, nullable=False)
+    user_id: Mapped[int] = mapped_column(int, primary_key=True)
+    user_name: Mapped[str] = mapped_column(String, nullable=True)
+    adress: Mapped[str] = mapped_column(String, nullable=True)
+    email: Mapped[str] = mapped_column(String, nullable=True)
+    password: Mapped[str] = mapped_column(String, nullable=True)
 
-#     def to_dict(self):
-#         result = Base.to_dict(self)
-#         if self.discount > 0.0:
-#             discount_price = self.price * (1 - self.discount/100)
-#             result['final_price'] = self.apply_tax(discount_price)
-#         else:
-#             result['final_price'] = self.apply_tax(self.price)
-
-#         return result
+    def to_dict(self):
+        result = Base.to_dict(self)
+        return result 
     
-#     def apply_tax(self, final_price: float, tax_rate: float = 18) -> float:
-#         """Apply a tax rate to the price and return the new price."""    
 #============================================================================
 _engine = None
 _session_maker = None
