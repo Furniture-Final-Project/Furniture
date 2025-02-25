@@ -574,3 +574,20 @@ def test_add_Sofa(client):
     assert data["items"]["SF-5005"]["is_available"] == True
 
 # TODO - add: test_add_Sofa_item_not_correct_values(client)
+
+
+def test_update_quantity(client):
+    """Test to update quantity of an item, by its model number"""
+    update_info = {
+        "model_num": "chair-0",
+        "stock_quantity": 0,
+    }
+    response = client.post('/update_item', json=update_info)
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+    # Send a GET request to verify item stock update
+    response = client.get('/items', query_string={"model_num": "chair-0"})
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+    assert data["items"]["chair-0"]["stock_quantity"] == 0
+
