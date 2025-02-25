@@ -16,20 +16,17 @@ def add_item(session: Session, item_data: dict):
     Returns:
     # TODO 
     """
-    # for option 2 with dictionary input in new()
-    # item = schema.new(item_data)
-
     item = schema.new(
                         model_num=item_data["model_num"],
                         model_name=item_data["model_name"],
-                            description=item_data.get("description", ""),
-                            price=item_data["price"],
-                            dimensions=item_data["dimensions"],
-                            stock_quantity=item_data.get("stock_quantity", 0),
-                            details=item_data["details"], 
-                            image_filename=item_data["image_filename"],
-                            discount=item_data["discount"],
-                            category=item_data.get("category", "")
+                        description=item_data.get("description", ""),
+                        price=item_data["price"],
+                        dimensions=item_data["dimensions"],
+                        stock_quantity=item_data.get("stock_quantity", 0),
+                        details=item_data["details"], 
+                        image_filename=item_data["image_filename"],
+                        discount=item_data["discount"],
+                        category=item_data.get("category", "")
                       )
     
     if not item.valid():

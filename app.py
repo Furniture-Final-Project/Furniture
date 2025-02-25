@@ -69,6 +69,7 @@ def create_app(config: dict):
         return flask.jsonify({'items': items})
     
 
+    # TODO - Admin 
     @app.route('/add_item', methods=['POST'])
     def add_item_endpoint():
         """
