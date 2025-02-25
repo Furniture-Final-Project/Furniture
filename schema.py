@@ -55,24 +55,24 @@ class Bed(Furniture):
         self.category = "Bed"
 
     def valid(self):
-        # """Check if the given details dictionary contains valid mattress type and frame material."""
-        # VALID_MATTRESS_TYPES = {"latex", "memory foam", "bamboo", "spring", "hybrid", "cotton"}
-        # VALID_FRAME_MATERIALS = {"wood", "metal", "upholstered", "bamboo"}
+        """Check if the given details dictionary contains valid mattress type and frame material."""
+        VALID_MATTRESS_TYPES = {"latex", "memory foam", "bamboo", "spring", "hybrid", "cotton"}
+        VALID_FRAME_MATERIALS = {"wood", "metal", "upholstered", "bamboo"}
 
-        # if not isinstance(self.details, dict):
-        #     return False
+        if not isinstance(self.details, dict):
+            return False
 
-        # mattress_type = self.details.get("mattress_type", "").lower()
-        # frame_material = self.details.get("frame_material", "").lower()
+        mattress_type = self.details.get("mattress_type", "").lower()
+        frame_material = self.details.get("frame_material", "").lower()
 
-        # if mattress_type not in VALID_MATTRESS_TYPES:
-        #     return False
+        if mattress_type not in VALID_MATTRESS_TYPES:
+            return False
 
-        # if frame_material not in VALID_FRAME_MATERIALS:
-        #     return False
+        if frame_material not in VALID_FRAME_MATERIALS:
+            return False
         
-        # if "width" not in self.dimensions:
-        #     return False
+        if "width" not in self.dimensions:
+            return False
 
         return True
     
@@ -202,36 +202,36 @@ def new(model_num: str, model_name: str, description: str, price: float, dimensi
         discount=discount
         )
     result.post_init()
-    # return result   - # i tried to add this but it still not working 
+    return result   # i tried to add this but it still not working 
 
-
-# optional: the input is dict
-
-# def new(item_data: dict):
-#     class_map = {
-#         "Bed": Bed,
-#         "Chair": Chair,
-#         "Book Shelf": BookShelf,
-#         "Sofa": Sofa,
-#         "Table": Table
-#     }
-
-#     class_ = class_map[item_data.category]
-#     result = class_(
-#         model_num=item_data.model_num,
-#         model_name=item_data.model_name,
-#         description=item_data.description,
-#         price=item_data.price,
-#         dimensions=item_data.dimensions,
-#         stock_quantity=item_data.stock_quantity,
-#         details=item_data.details,
-#         image_filename=item_data.image_filename,
-#         discount=item_data.discount
-#         )
+#=====================================================================
+class User(Base): # TODO - make it fit to user 
+    __tablename__ = "furniture"
     
-#     result.post_init()
-#     return result
+    model_num: Mapped[str] = mapped_column(String, primary_key=True)
+    model_name: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    price: Mapped[float] = mapped_column(Float, nullable=False)
+    dimensions: Mapped[Optional[Dict]] = mapped_column(JSON, nullable=True)
+    stock_quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    details: Mapped[Optional[Dict]] = mapped_column(JSON, nullable=True)
+    category: Mapped[str] = mapped_column(String, nullable=False)
+    image_filename: Mapped[str] = mapped_column(String, nullable=False)
+    discount: Mapped[float] = mapped_column(Float, nullable=False)
 
+    def to_dict(self):
+        result = Base.to_dict(self)
+        if self.discount > 0.0:
+            discount_price = self.price * (1 - self.discount/100)
+            result['final_price'] = self.apply_tax(discount_price)
+        else:
+            result['final_price'] = self.apply_tax(self.price)
+
+        return result
+    
+    def apply_tax(self, final_price: float, tax_rate: float = 18) -> float:
+        """Apply a tax rate to the price and return the new price."""    
+#============================================================================
 _engine = None
 _session_maker = None
 
