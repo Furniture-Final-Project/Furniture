@@ -4,7 +4,7 @@ import schema
 import flask
 from sqlalchemy.orm import Session
 
-
+# TODO- Add functionality to check if the model number already exists. If it does, update only the quantity.
 def add_item(session: Session, item_data: dict):
     """
     Adds a new furniture item to the database with validation.
@@ -41,5 +41,13 @@ def update_item_quantity(session: Session, data):
     if item:
         item.stock_quantity = data["stock_quantity"]
         session.commit()
+
+
+def delete_item(session: Session, model_num: str):
+    item = session.get(schema.Furniture, model_num)
+    if item:
+        session.delete(item)
+        session.commit()
+
 
 

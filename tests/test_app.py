@@ -591,3 +591,23 @@ def test_update_quantity(client):
     assert response.status_code == http.HTTPStatus.OK
     assert data["items"]["chair-0"]["stock_quantity"] == 0
 
+
+def test_delete_item(client):
+    deleted_item = {"model_num": "chair-1"}
+    # Send a POST request to delete the item
+    response = client.post('/delete_item', json=deleted_item)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify item deleted successfully
+    response = client.get('/items', query_string={"model_num": "chair-1"})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    assert data == {'items': {}} 
+
+
+
+
+
+    
+
+    

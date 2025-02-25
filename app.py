@@ -91,7 +91,13 @@ def create_app(config: dict):
         s = schema.session()  # create a new session for DB operations
         services.update_item_quantity(s, data)  # call add_item from services.py
         return flask.jsonify({})
-
+    
+    @app.route('/delete_item', methods=['POST'])
+    def delete_item_endpoint():
+        data = flask.request.get_json()
+        s = schema.session()
+        services.delete_item(s, data["model_num"])
+        return flask.jsonify({})
 
 
     return app  
