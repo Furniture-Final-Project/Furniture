@@ -39,6 +39,33 @@ class Furniture(Base):
     def apply_tax(self, final_price: float, tax_rate: float = 18) -> float:
         """Apply a tax rate to the price and return the new price."""
         return round(final_price * (1 + tax_rate / 100), 1)
+
+    @staticmethod
+    def new(model_num: str, model_name: str, description: str, price: float, dimensions: dict, stock_quantity: int, details: dict, image_filename: str, discount: float, category: str):
+        class_map = {
+            "Bed": Bed,
+            "Chair": Chair,
+            "Book Shelf": BookShelf,
+            "Sofa": Sofa,
+            "Table": Table
+        }
+        
+        class_ = class_map[category]
+        result = class_(
+            model_num=model_num,
+            model_name=model_name,
+            description=description,
+            price=price,
+            dimensions=dimensions,
+            stock_quantity=stock_quantity,
+            details=details,
+            image_filename=image_filename,
+            discount=discount
+            )
+        result.post_init()
+        return result   # i tried to add this but it still not working 
+
+
     
 
     @abc.abstractmethod
@@ -179,30 +206,6 @@ class Table(Furniture):     # TODO seating_capacity
         
         return True
 
-
-def new(model_num: str, model_name: str, description: str, price: float, dimensions: dict, stock_quantity: int, details: dict, image_filename: str, discount: float, category: str):
-    class_map = {
-        "Bed": Bed,
-        "Chair": Chair,
-        "Book Shelf": BookShelf,
-        "Sofa": Sofa,
-        "Table": Table
-    }
-    
-    class_ = class_map[category]
-    result = class_(
-        model_num=model_num,
-        model_name=model_name,
-        description=description,
-        price=price,
-        dimensions=dimensions,
-        stock_quantity=stock_quantity,
-        details=details,
-        image_filename=image_filename,
-        discount=discount
-        )
-    result.post_init()
-    return result   # i tried to add this but it still not working 
 
 #=====================================================================
 class User(Base): # TODO - make it fit to user 
