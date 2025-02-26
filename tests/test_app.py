@@ -581,22 +581,22 @@ def test_get_user_by_id(client):
     }
 
 
-# def test_add_new_user(client):
-#     user_info = {
-#                 "user_id": 207105880,
-#                 "user_name": "Jon Cohen",
-#                 "address": "123 Elm Street, Springfield, IL",
-#                 "email": "johndoe@example.com",
-#                 "password": "securepassword123"
-#             }
-#     response = client.post('/add_user', json=user_info)
-#     assert response.status_code == http.HTTPStatus.OK
+def test_add_new_user(client):
+    user_info = {
+                "user_id": 207105880,
+                "user_name": "Jon Cohen",
+                "address": "123 Elm Street, Springfield, IL",
+                "email": "johndoe@example.com",
+                "password": "securepassword123"
+            }
+    response = client.post('/add_user', json=user_info)
+    assert response.status_code == http.HTTPStatus.OK
 
-#     # Send a GET request to verify user was asses successfully
-#     response = client.get('/users', query_string={"user_id": 207105880})
-#     assert response.status_code == http.HTTPStatus.OK
-#     data = response.get_json()
-#     assert data["users"][207105880]["user_name"] == "Jon Cohen"
+    # Send a GET request to verify user was asses successfully
+    response = client.get('/admin/users', query_string={"user_id": 207105880})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    assert data["users"]['207105880']["user_name"] == "Jon Cohen"
 
 
 # TODO - add test to get user info

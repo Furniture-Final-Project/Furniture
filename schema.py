@@ -217,14 +217,18 @@ class User(Base):  # TODO - make it fit to user
         result = Base.to_dict(self)
         return result
 
-    def new(user_id: int, user_name: str, adress: str, email: str, password: str):
-        result = User(user_id=user_id, user_name=user_name, adress=adress, email=email, password=password)
+    def new(user_id: int, user_name: str, address: str, email: str, password: str):
+        result = User(user_id=user_id, 
+                      user_name=user_name, 
+                      address=address, 
+                      email=email, 
+                      password=password)
         return result
+
 
 
 _engine = None
 _session_maker = None
-
 
 # Database setup
 def create(database_url: str, echo: bool = True):

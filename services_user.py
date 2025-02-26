@@ -6,9 +6,15 @@ import schema
 from sqlalchemy.orm import Session
 
 
-def add_new_user(session: Session, user_id: int, user_name: str, adress: str, email: str, password: str):
+def add_user(session: Session, user_data: dict):
 
-    if session.get(schema.User, user_id) is not None:
-        new_user = schema.User(user_id=user_id, user_name=user_name, adress=adress, email=email, password=password)
-        session.add(new_user)
-        session.commit()
+    new_user = schema.User.new(
+        user_id=user_data["user_id"],
+        user_name=user_data["user_name"],
+        address=user_data["address"],
+        email=user_data["email"],
+        password=user_data["password"]
+    )
+    session.add(new_user)
+    session.commit()
+
