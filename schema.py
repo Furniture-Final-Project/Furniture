@@ -40,6 +40,38 @@ class Furniture(Base):
         """Apply a tax rate to the price and return the new price."""
         return round(final_price * (1 + tax_rate / 100), 1)
 
+
+    @staticmethod
+    def new(
+        model_num: str,
+        model_name: str,
+        description: str,
+        price: float,
+        dimensions: dict,
+        stock_quantity: int,
+        details: dict,
+        image_filename: str,
+        discount: float,
+        category: str,
+    ):
+        class_map = {"Bed": Bed, "Chair": Chair, "Book Shelf": BookShelf, "Sofa": Sofa, "Table": Table}
+
+        class_ = class_map[category]
+        result = class_(
+            model_num=model_num,
+            model_name=model_name,
+            description=description,
+            price=price,
+            dimensions=dimensions,
+            stock_quantity=stock_quantity,
+            details=details,
+            image_filename=image_filename,
+            discount=discount,
+        )
+        result.post_init()
+        return result
+
+
     @abc.abstractmethod
     def valid(self) -> bool:
         pass
@@ -120,6 +152,7 @@ class BookShelf(Furniture):
         if material not in VALID_MATERIALS:
             return False
 
+
         # Validate color
         if "color" not in self.details:
             return False
@@ -174,67 +207,27 @@ class Table(Furniture):  # TODO seating_capacity
         return True
 
 
-def new(
-    model_num: str,
-    model_name: str,
-    description: str,
-    price: float,
-    dimensions: dict,
-    stock_quantity: int,
-    details: dict,
-    image_filename: str,
-    discount: float,
-    category: str,
-):
-    class_map = {"Bed": Bed, "Chair": Chair, "Book Shelf": BookShelf, "Sofa": Sofa, "Table": Table}
+class User(Base):  # TODO - make it fit to user
+    __tablename__ = "users"
 
-    class_ = class_map[category]
-    result = class_(
-        model_num=model_num,
-        model_name=model_name,
-        description=description,
-        price=price,
-        dimensions=dimensions,
-        stock_quantity=stock_quantity,
-        details=details,
-        image_filename=image_filename,
-        discount=discount,
-    )
-    result.post_init()
-    return result  # i tried to add this but it still not working
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_name: Mapped[str] = mapped_column(String, nullable=True)
+    address: Mapped[str] = mapped_column(String, nullable=True)
+    email: Mapped[str] = mapped_column(String, nullable=True)
+    password: Mapped[str] = mapped_column(String, nullable=True)
+
+    def to_dict(self):
+        result = Base.to_dict(self)
+        return result
+
+    def new(user_id: int, user_name: str, adress: str, email: str, password: str):
+        result = User(user_id=user_id, user_name=user_name, adress=adress, email=email, password=password)
+        return result
 
 
-# =====================================================================
-# class User(Base): # TODO - make it fit to user
-#     __tablename__ = "furniture"
-
-#     model_num: Mapped[str] = mapped_column(String, primary_key=True)
-#     model_name: Mapped[str] = mapped_column(String, nullable=False)
-#     description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-#     price: Mapped[float] = mapped_column(Float, nullable=False)
-#     dimensions: Mapped[Optional[Dict]] = mapped_column(JSON, nullable=True)
-#     stock_quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-#     details: Mapped[Optional[Dict]] = mapped_column(JSON, nullable=True)
-#     category: Mapped[str] = mapped_column(String, nullable=False)
-#     image_filename: Mapped[str] = mapped_column(String, nullable=False)
-#     discount: Mapped[float] = mapped_column(Float, nullable=False)
-
-#     def to_dict(self):
-#         result = Base.to_dict(self)
-#         if self.discount > 0.0:
-#             discount_price = self.price * (1 - self.discount/100)
-#             result['final_price'] = self.apply_tax(discount_price)
-#         else:
-#             result['final_price'] = self.apply_tax(self.price)
-
-#         return result
-
-#     def apply_tax(self, final_price: float, tax_rate: float = 18) -> float:
-#         """Apply a tax rate to the price and return the new price."""
-# ============================================================================
+       
 _engine = None
 _session_maker = None
-
 
 # Database setup
 def create(database_url: str, echo: bool = True):

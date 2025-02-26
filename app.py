@@ -65,7 +65,8 @@ def create_app(config: dict):
         return flask.jsonify({'items': items})
 
     # TODO - Admin
-    @app.route('/add_item', methods=['POST'])
+
+    @app.route('/admin/add_item', methods=['POST'])
     def add_item_endpoint():
         """
         API endpoint to add a new furniture item.
@@ -75,7 +76,8 @@ def create_app(config: dict):
         services.add_item(s, data)  # call add_item from services.py
         return flask.jsonify({})
 
-    @app.route('/update_item', methods=['POST'])
+
+    @app.route('/admin/update_item', methods=['POST'])
     def update_item_endpoint():
         """
         API endpoint to add a new furniture item.
@@ -85,11 +87,38 @@ def create_app(config: dict):
         services.update_item_quantity(s, data)  # call add_item from services.py
         return flask.jsonify({})
 
-    @app.route('/delete_item', methods=['POST'])
+
+    @app.route('/admin/delete_item', methods=['POST'])
     def delete_item_endpoint():
         data = flask.request.get_json()
         s = schema.session()
         services.delete_item(s, data["model_num"])
+        return flask.jsonify({})
+
+
+    # ============== User ====================
+    @app.route('/admin/users', methods=['GET'])
+    def get_users():
+        s = schema.session()
+        query = s.query(schema.User)
+
+        user_id = flask.request.args.get('user_id')
+        if user_id is not None:
+            user_id = int(user_id)
+            query = query.filter(schema.User.user_id == user_id)
+
+        results = query.all()
+        users = {result.user_id: result.to_dict() for result in results}
+        return flask.jsonify({'users': users})
+
+    @app.route('/add_user', methods=['POST'])
+    def add_users():
+        """
+        API endpoint to add a new furniture item.
+        """
+        data = flask.request.get_json()
+        s = schema.session()
+        services.add_user(s, data)
         return flask.jsonify({})
 
     return app

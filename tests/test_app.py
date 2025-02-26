@@ -80,7 +80,20 @@ def preprepared_data(application):
         details={"upholstery": "Top-Grain Leather", "color": "Dark Gray", "num_seats": 3},
     )
 
-    session.add_all([chair0, chair1, bed, bookshelf, sofa])
+    user_1 = schema.User(
+        user_id=1002, user_name="JaneSmith", address="456 Oak Avenue, New York, NY", email="janesmith@example.com", password="mypassword456"
+    )
+    user_2 = schema.User(
+        user_id=1003, user_name="MichaelBrown", address="789 Maple Street, Los Angeles, CA", email="michaelbrown@example.com", password="brownieM123"
+    )
+    user_3 = schema.User(
+        user_id=1004, user_name="EmilyDavis", address="101 Pine Road, Austin, TX", email="emilydavis@example.com", password="davisEmily!"
+    )
+    user_4 = schema.User(
+        user_id=1005, user_name="RobertWilson", address="202 Birch Lane, Seattle, WA", email="robertwilson@example.com", password="wilsonRob007"
+    )
+
+    session.add_all([chair0, chair1, bed, bookshelf, sofa, user_1, user_2, user_3, user_4])
     session.commit()
     yield
 
@@ -341,7 +354,7 @@ def test_add_bed_item(client):
     }
 
     # Send a POST request to add the item
-    response = client.post('/add_item', json=new_item)
+    response = client.post('/admin/add_item', json=new_item)
     data = response.get_json()
 
     # Check that the item was added successfully
@@ -374,7 +387,7 @@ def test_add_bed_item_not_correct_values(client):
     }
 
     # Send a POST request to add invalid item
-    response = client.post('/add_item', json=invalid_item)
+    response = client.post('/admin/add_item', json=invalid_item)
     data = response.get_json()
     # Check that the response returns an error
     assert response.status_code == http.HTTPStatus.BAD_REQUEST
@@ -403,7 +416,7 @@ def test_add_chair(client):
         "category": "Chair",
     }
     # Send a POST request to add the item
-    response = client.post('/add_item', json=new_item)
+    response = client.post('/admin/add_item', json=new_item)
     data = response.get_json()
 
     # Check that the item was added successfully
@@ -435,7 +448,7 @@ def test_add_chair_item_not_correct_values(client):
         "category": "Chair",
     }
     # Send a POST request to add invalid item
-    response = client.post('/add_item', json=invalid_item)
+    response = client.post('/admin/add_item', json=invalid_item)
     data = response.get_json()
     # Check that the response returns an error
     assert response.status_code == http.HTTPStatus.BAD_REQUEST
@@ -469,7 +482,7 @@ def test_add_BookShelf(client):
         "category": "Book Shelf",
     }
     # Send a POST request to add the item
-    response = client.post('/add_item', json=new_item)
+    response = client.post('/admin/add_item', json=new_item)
     data = response.get_json()
 
     # Check that the item was added successfully
@@ -504,7 +517,7 @@ def test_add_Sofa(client):
         "category": "Sofa",
     }
     # Send a POST request to add the item
-    response = client.post('/add_item', json=new_item)
+    response = client.post('/admin/add_item', json=new_item)
     data = response.get_json()
 
     # Check that the item was added successfully
@@ -530,7 +543,7 @@ def test_update_quantity(client):
         "model_num": "chair-0",
         "stock_quantity": 0,
     }
-    response = client.post('/update_item', json=update_info)
+    response = client.post('/admin/update_item', json=update_info)
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
     # Send a GET request to verify item stock update
@@ -543,7 +556,7 @@ def test_update_quantity(client):
 def test_delete_item(client):
     deleted_item = {"model_num": "chair-1"}
     # Send a POST request to delete the item
-    response = client.post('/delete_item', json=deleted_item)
+    response = client.post('/admin/delete_item', json=deleted_item)
     assert response.status_code == http.HTTPStatus.OK
 
     # Send a GET request to verify item deleted successfully
@@ -551,3 +564,42 @@ def test_delete_item(client):
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     assert data == {'items': {}}
+
+
+def test_get_user_by_id(client):
+    response = client.get('/admin/users', query_string={"user_id": 1002})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    users = data['users']
+    assert len(users) == 1
+    print(users)
+    assert users['1002'] == {
+        "user_id": 1002,
+        "user_name": "JaneSmith",
+        "address": "456 Oak Avenue, New York, NY",
+        "email": "janesmith@example.com",
+        "password": "mypassword456",
+    }
+
+
+# def test_add_new_user(client):
+#     user_info = {
+#                 "user_id": 207105880,
+#                 "user_name": "Jon Cohen",
+#                 "address": "123 Elm Street, Springfield, IL",
+#                 "email": "johndoe@example.com",
+#                 "password": "securepassword123"
+#             }
+#     response = client.post('/add_user', json=user_info)
+#     assert response.status_code == http.HTTPStatus.OK
+
+#     # Send a GET request to verify user was asses successfully
+#     response = client.get('/users', query_string={"user_id": 207105880})
+#     assert response.status_code == http.HTTPStatus.OK
+#     data = response.get_json()
+#     assert data["users"][207105880]["user_name"] == "Jon Cohen"
+
+
+# TODO - add test to get user info
+
+

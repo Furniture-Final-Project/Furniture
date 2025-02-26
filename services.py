@@ -16,7 +16,7 @@ def add_item(session: Session, item_data: dict):
     Returns:
     # TODO
     """
-    item = schema.new(
+    item = schema.Furniture.new(
         model_num=item_data["model_num"],
         model_name=item_data["model_name"],
         description=item_data.get("description", ""),
