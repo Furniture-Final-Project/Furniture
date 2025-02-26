@@ -1,9 +1,7 @@
-from source.models.Furniture import Furniture
 from source.models.inventory import Inventory
 import inspect
 
-# from PIL import Image
-import os
+
 
 
 # needs tests
