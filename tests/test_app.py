@@ -79,6 +79,7 @@ def preprepared_data(application):
         discount=10.0,
         details={"upholstery": "Top-Grain Leather", "color": "Dark Gray", "num_seats": 3},
     )
+
     user_1 = schema.User(
         user_id=1002, user_name="JaneSmith", address="456 Oak Avenue, New York, NY", email="janesmith@example.com", password="mypassword456"
     )
@@ -600,3 +601,5 @@ def test_get_user_by_id(client):
 
 
 # TODO - add test to get user info
+
+
