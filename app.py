@@ -107,7 +107,6 @@ def create_app(config: dict):
         users = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'users': users})
 
-
     @app.route('/add_user', methods=['POST'])
     def add_users():
         """
