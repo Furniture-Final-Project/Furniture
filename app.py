@@ -70,7 +70,7 @@ def create_app(config: dict):
     
 
     # TODO - Admin 
-    @app.route('/add_item', methods=['POST'])
+    @app.route('/admin/add_item', methods=['POST'])
     def add_item_endpoint():
         """
         API endpoint to add a new furniture item.
@@ -81,7 +81,7 @@ def create_app(config: dict):
         return flask.jsonify({})
         
     
-    @app.route('/update_item', methods=['POST'])
+    @app.route('/admin/update_item', methods=['POST'])
     def update_item_endpoint():
         """
         API endpoint to add a new furniture item.
@@ -91,7 +91,7 @@ def create_app(config: dict):
         services.update_item_quantity(s, data)  # call add_item from services.py
         return flask.jsonify({})
     
-    @app.route('/delete_item', methods=['POST'])
+    @app.route('/admin/delete_item', methods=['POST'])
     def delete_item_endpoint():
         data = flask.request.get_json()
         s = schema.session()
@@ -112,19 +112,16 @@ def create_app(config: dict):
         return flask.jsonify({'users': user})
     
 
-
-
     @app.route('/add_user', methods=['POST'])
     def add_users():
         """
         API endpoint to add a new furniture item.
         """
         data = flask.request.get_json()
-        s = schema.session()  # to make sure it connect to the User database
+        s = schema.session()  # ?? make sure it is connected to the User database
+        return flask.jsonify({'users': user})
 
 
-
-   
 
     return app  
 

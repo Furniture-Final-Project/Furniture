@@ -208,18 +208,18 @@ class Table(Furniture):     # TODO seating_capacity
 
 
 #=====================================================================
-class User(Base): # TODO - make it fit to user 
-    __tablename__ = "user"
+# class User(Base): # TODO - make it fit to user 
+#     __tablename__ = "user"
     
-    user_id: Mapped[int] = mapped_column(int, primary_key=True)
-    user_name: Mapped[str] = mapped_column(String, nullable=True)
-    adress: Mapped[str] = mapped_column(String, nullable=True)
-    email: Mapped[str] = mapped_column(String, nullable=True)
-    password: Mapped[str] = mapped_column(String, nullable=True)
+#     user_id: Mapped[int] = mapped_column(int, primary_key=True)
+#     user_name: Mapped[str] = mapped_column(String, nullable=True)
+#     adress: Mapped[str] = mapped_column(String, nullable=True)
+#     email: Mapped[str] = mapped_column(String, nullable=True)
+#     password: Mapped[str] = mapped_column(String, nullable=True)
 
-    def to_dict(self):
-        result = Base.to_dict(self)
-        return result 
+#     def to_dict(self):
+#         result = Base.to_dict(self)
+#         return result 
     
 #============================================================================
 _engine = None
