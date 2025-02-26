@@ -2,8 +2,6 @@ from source.models.inventory import Inventory
 import inspect
 
 
-
-
 # needs tests
 def get_furniture_summary(model_num: str, inventory: Inventory = None) -> str:
     """Returns summery description of a furniture: model name, the price after tax + discounted price (is discount >0),
@@ -37,7 +35,7 @@ def get_furniture_summary(model_num: str, inventory: Inventory = None) -> str:
         details.append("Hurry up! This item is low in stock.")
 
     # Retrieve and display the image
-    image_path = furniture.get_image_path()
+    # image_path = furniture.get_image_path()
 
     #    if os.path.exists(image_path):  # If it's a local file, show it
     #        img = Image.open(image_path)
