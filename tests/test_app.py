@@ -1,10 +1,4 @@
-import os
-import tempfile
-import json
 import pytest
-import shutil
-import pathlib
-
 import app
 import http
 import schema
@@ -95,10 +89,37 @@ def preprepared_data(application):
                                     "num_seats": 3
                                 }
                             )
+    user_1 = schema.User(
+                                user_id=1002,
+                                user_name="JaneSmith",
+                                address="456 Oak Avenue, New York, NY",
+                                email="janesmith@example.com",
+                                password="mypassword456"
+                        )
+    user_2 = schema.User(
+                                user_id=1003,
+                                user_name="MichaelBrown",
+                                address="789 Maple Street, Los Angeles, CA",
+                                email="michaelbrown@example.com",
+                                password="brownieM123"
+                        )
+    user_3 = schema.User(
+                                user_id=1004,
+                                user_name="EmilyDavis",
+                                address="101 Pine Road, Austin, TX",
+                                email="emilydavis@example.com",
+                                password="davisEmily!"
+                        )
+    user_4 = schema.User(
+                                user_id=1005,
+                                user_name="RobertWilson",
+                                address="202 Birch Lane, Seattle, WA",
+                                email="robertwilson@example.com",
+                                password="wilsonRob007"
+                        )
 
 
-
-    session.add_all([chair0, chair1, bed, bookshelf, sofa])
+    session.add_all([chair0, chair1, bed, bookshelf, sofa, user_1, user_2, user_3, user_4])
     session.commit()
     yield
 
@@ -592,17 +613,33 @@ def test_update_quantity(client):
     assert data["items"]["chair-0"]["stock_quantity"] == 0
 
 
-# def test_delete_item(client):
-#     deleted_item = {"model_num": "chair-1"}
-#     # Send a POST request to delete the item
-#     response = client.post('/admin/delete_item', json=deleted_item)
-#     assert response.status_code == http.HTTPStatus.OK
+def test_delete_item(client):
+    deleted_item = {"model_num": "chair-1"}
+    # Send a POST request to delete the item
+    response = client.post('/admin/delete_item', json=deleted_item)
+    assert response.status_code == http.HTTPStatus.OK
 
-#     # Send a GET request to verify item deleted successfully
-#     response = client.get('/items', query_string={"model_num": "chair-1"})
-#     assert response.status_code == http.HTTPStatus.OK
-#     data = response.get_json()
-#     assert data == {'items': {}} 
+    # Send a GET request to verify item deleted successfully
+    response = client.get('/items', query_string={"model_num": "chair-1"})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    assert data == {'items': {}} 
+
+def test_get_user_by_id(client):
+    response = client.get('/admin/users', query_string={"user_id": 1002})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    users = data['users']
+    assert len(users) == 1
+    print(users)
+    assert users['1002'] == {
+                    "user_id": 1002,
+                    "user_name": "JaneSmith",
+                    "address": "456 Oak Avenue, New York, NY",
+                    "email": "janesmith@example.com",
+                    "password": "mypassword456"
+                    }
+                
 
 
 # def test_add_new_user(client):
@@ -623,6 +660,7 @@ def test_update_quantity(client):
 #     assert data["users"][207105880]["user_name"] == "Jon Cohen"
 
 
+# TODO - add test to get user info  
 
 
 

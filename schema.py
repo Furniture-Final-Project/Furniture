@@ -1,7 +1,6 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 from sqlalchemy import String, Float, Integer, JSON, create_engine
 from typing import Optional, Dict
-import dataclasses
 import copy
 import abc 
 
@@ -63,10 +62,8 @@ class Furniture(Base):
             discount=discount
             )
         result.post_init()
-        return result   # i tried to add this but it still not working 
+        return result   
 
-
-    
 
     @abc.abstractmethod
     def valid(self) -> bool:
@@ -207,21 +204,31 @@ class Table(Furniture):     # TODO seating_capacity
         return True
 
 
-#=====================================================================
-# class User(Base): # TODO - make it fit to user 
-#     __tablename__ = "user"
+class User(Base): # TODO - make it fit to user 
+    __tablename__ = "users"
     
-#     user_id: Mapped[int] = mapped_column(int, primary_key=True)
-#     user_name: Mapped[str] = mapped_column(String, nullable=True)
-#     adress: Mapped[str] = mapped_column(String, nullable=True)
-#     email: Mapped[str] = mapped_column(String, nullable=True)
-#     password: Mapped[str] = mapped_column(String, nullable=True)
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_name: Mapped[str] = mapped_column(String, nullable=True)
+    address: Mapped[str] = mapped_column(String, nullable=True)
+    email: Mapped[str] = mapped_column(String, nullable=True)
+    password: Mapped[str] = mapped_column(String, nullable=True)
 
-#     def to_dict(self):
-#         result = Base.to_dict(self)
-#         return result 
+    def to_dict(self):
+        result = Base.to_dict(self)
+        return result 
     
-#============================================================================
+    def new(user_id: int,  user_name: str, adress: str, email: str, password: str):
+        result = User(
+            user_id=user_id,
+            user_name=user_name,
+            adress=adress,
+            email=email,
+            password=password
+            )
+        return result   
+
+    
+
 _engine = None
 _session_maker = None
 

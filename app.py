@@ -99,18 +99,21 @@ def create_app(config: dict):
         return flask.jsonify({})
     
     #============== User ====================
-    @app.route('/users', methods=['GET'])
+    @app.route('/admin/users', methods=['GET'])
     def get_users():
         s = schema.session()
         query = s.query(schema.User)
 
         user_id = flask.request.args.get('user_id')
         if user_id is not None:
-            query = query.filter_by(category=user_id)
+            user_id = int(user_id)
+            query = query.filter(schema.User.user_id == user_id)
 
-        user = query.all()
-        return flask.jsonify({'users': user})
+        results = query.all()
+        users = { result.user_id: result.to_dict() for result in results}
+        return flask.jsonify({'users': users})
     
+
 
     @app.route('/add_user', methods=['POST'])
     def add_users():
@@ -118,9 +121,10 @@ def create_app(config: dict):
         API endpoint to add a new furniture item.
         """
         data = flask.request.get_json()
-        s = schema.session()  # ?? make sure it is connected to the User database
-        return flask.jsonify({'users': user})
-
+        s = schema.session()
+        services.add_user(s, data)
+        return flask.jsonify({})  
+      
 
 
     return app  
