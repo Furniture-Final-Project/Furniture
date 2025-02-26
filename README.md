@@ -6,26 +6,8 @@ All commands are [assumed to run from the root of the project] - the directory i
 
 ## Installation
 
-This project uses [poetry](https://python-poetry.org/docs/). Install poetry [however you like](https://python-poetry.org/docs/#installation), then run:
+$ pip install -r requirements.txt
 
-    $ poetry install
+## Running pre-commit 
 
-This will setup a Python virtual environment and install ``furniture`` as a package in editable mode, with all its dependencies.
-
-## CLI Entrypoint
-
-You can run the main CLI entry point with:
-
-    $ furniture-cli --help
-
-Or, if you are outside the virtual environment, you can run:
-
-    $ poetry run furniture-cli --help
-
-## Installation from a Wheel file
-
-If you have a wheel distribution of this software, you can install it with `pip`
-
-    $ pip install /path/to/furniture-wheel-file.whl
-
-It will then be available to import as `import furniture` and to run as a command using `furniture-cli`.
+$ pre-commit run --all-files
