@@ -6,8 +6,10 @@ All commands are [assumed to run from the root of the project] - the directory i
 
 ## Installation
 
-$ pip install -r requirements.txt
+    $ pip install -r requirements.txt
 
 ## Running pre-commit
 
-$ pre-commit run --all-files
+
+    $ pre-commit run --all-files
+
