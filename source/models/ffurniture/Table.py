@@ -31,12 +31,8 @@ class Table(Furniture):
         )
 
         # Validate dimensions based on shape
-        if shape == "rectangular" and not all(
-            k in dimension for k in ("length", "width")
-        ):
-            raise ValueError(
-                "Rectangular tables must have 'length' and 'width' in dimensions."
-            )
+        if shape == "rectangular" and not all(k in dimension for k in ("length", "width")):
+            raise ValueError("Rectangular tables must have 'length' and 'width' in dimensions.")
         if shape == "circular" and "diameter" not in dimension:
             raise ValueError("Circular tables must have 'diameter' in dimensions.")
 
@@ -56,9 +52,7 @@ class Table(Furniture):
     def shape(self, value):
         # Validate shape
         if value.lower() not in {"rectangular", "circular"}:
-            raise ValueError(
-                f"Invalid shape '{value}'. Supported shapes: 'rectangular', 'circular'."
-            )
+            raise ValueError(f"Invalid shape '{value}'. Supported shapes: 'rectangular', 'circular'.")
         self._shape = value
 
     @property

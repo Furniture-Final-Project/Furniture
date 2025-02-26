@@ -1,8 +1,8 @@
-import json
 import http
 import schema
 import flask
 from sqlalchemy.orm import Session
+
 
 # TODO- Add functionality to check if the model number already exists. If it does, update only the quantity.
 def add_item(session: Session, item_data: dict):
@@ -14,21 +14,21 @@ def add_item(session: Session, item_data: dict):
         item_data (dict): Dictionary containing item details.
 
     Returns:
-    # TODO 
+    # TODO
     """
     item = schema.Furniture.new(
-                        model_num=item_data["model_num"],
-                        model_name=item_data["model_name"],
-                        description=item_data.get("description", ""),
-                        price=item_data["price"],
-                        dimensions=item_data["dimensions"],
-                        stock_quantity=item_data.get("stock_quantity", 0),
-                        details=item_data["details"], 
-                        image_filename=item_data["image_filename"],
-                        discount=item_data["discount"],
-                        category=item_data.get("category", "")
-                      )
-    
+        model_num=item_data["model_num"],
+        model_name=item_data["model_name"],
+        description=item_data.get("description", ""),
+        price=item_data["price"],
+        dimensions=item_data["dimensions"],
+        stock_quantity=item_data.get("stock_quantity", 0),
+        details=item_data["details"],
+        image_filename=item_data["image_filename"],
+        discount=item_data["discount"],
+        category=item_data.get("category", ""),
+    )
+
     if not item.valid():
         flask.abort(http.HTTPStatus.BAD_REQUEST, "Invalid bed details provided.")
 
@@ -48,6 +48,3 @@ def delete_item(session: Session, model_num: str):
     if item:
         session.delete(item)
         session.commit()
-
-
-

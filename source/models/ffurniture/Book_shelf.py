@@ -35,18 +35,13 @@ class BookShelf(Furniture):
             raise ValueError("Number of shelves must be a positive integer.")
 
         # Validate weight capacity per shelf
-        if (
-            not isinstance(max_capacity_weight_per_shelf, (int, float))
-            or max_capacity_weight_per_shelf <= 0
-        ):
+        if not isinstance(max_capacity_weight_per_shelf, (int, float)) or max_capacity_weight_per_shelf <= 0:
             raise ValueError("Max weight per shelf must be a positive number.")
 
         # Validate material
         valid_materials = {"wood", "metal", "glass", "plastic"}
         if material.lower() not in valid_materials:
-            raise ValueError(
-                f"Invalid material '{material}'. Choose from {valid_materials}."
-            )
+            raise ValueError(f"Invalid material '{material}'. Choose from {valid_materials}.")
 
         self.num_shelves = num_shelves
         self.max_capacity_weight_per_shelf = max_capacity_weight_per_shelf
