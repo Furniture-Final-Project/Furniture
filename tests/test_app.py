@@ -93,7 +93,9 @@ def preprepared_data(application):
         user_id=1005, user_name="RobertWilson", address="202 Birch Lane, Seattle, WA", email="robertwilson@example.com", password="wilsonRob007"
     )
 
-    session.add_all([chair0, chair1, bed, bookshelf, sofa, user_1, user_2, user_3, user_4])
+    shopping_cart1 = schema.ShoppingCart(user_id=1002, items={"BD-5005": (2, 1200.0)})
+
+    session.add_all([chair0, chair1, bed, bookshelf, sofa, user_1, user_2, user_3, user_4, shopping_cart1])
     session.commit()
     yield
 
@@ -599,7 +601,46 @@ def test_get_user_by_id(client):
 #     data = response.get_json()
 #     assert data["users"][207105880]["user_name"] == "Jon Cohen"
 
-
 # TODO - add test to get user info
 
 
+def test_cart_get_all_carts(client):
+    """
+    Test retrieving all shopping carts.
+
+    Sends a GET request to the '/carts' endpoint to fetch the complete list of shopping carts.
+    Verifies that the response status is HTTP 200 OK. Ensures that all expected items are
+    returned, regardless of their stock status.
+
+    The test validates that:
+    - The response contains a 'carts' key.
+    - The number of carts is as expected.
+    - Each cart includes necessary details such as user ID, model number, quantity, price,
+      and total price.
+    """
+    response = client.get('/carts')
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    carts = data['carts']
+    assert len(carts) == 1
+
+    assert carts['1002'] == {'user_id': 1002, 'items': {"BD-5005": [2, 1200.0]}, 'total_price': 2400.0}
+
+
+def test_cart_get_cart_by_userid(client):
+    """
+    Test retrieving a cart by user id.
+
+    send a GET request to the '/carts' with 'user_id' as a query parameter.
+    Verifies the response status is 200 OK and that the returned cart match
+    the specified user id.
+    :param client:
+    :return: Cart
+    """
+    response = client.get('/carts', query_string={"user_id": 1002})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    cart = data['carts']
+    assert len(cart) == 1
+
+    assert cart['1002'] == {'user_id': 1002, 'items': {"BD-5005": [2, 1200.0]}, 'total_price': 2400.0}

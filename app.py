@@ -1,3 +1,5 @@
+# from unicodedata import category
+
 import flask
 import schema
 import services
@@ -76,7 +78,6 @@ def create_app(config: dict):
         services.add_item(s, data)  # call add_item from services.py
         return flask.jsonify({})
 
-
     @app.route('/admin/update_item', methods=['POST'])
     def update_item_endpoint():
         """
@@ -87,14 +88,12 @@ def create_app(config: dict):
         services.update_item_quantity(s, data)  # call add_item from services.py
         return flask.jsonify({})
 
-
     @app.route('/admin/delete_item', methods=['POST'])
     def delete_item_endpoint():
         data = flask.request.get_json()
         s = schema.session()
         services.delete_item(s, data["model_num"])
         return flask.jsonify({})
-
 
     # ============== User ====================
     @app.route('/admin/users', methods=['GET'])
@@ -120,5 +119,20 @@ def create_app(config: dict):
         s = schema.session()
         services.add_user(s, data)
         return flask.jsonify({})
+
+    # ============== Shopping Cart ====================
+    @app.route('/carts', methods=['GET'])
+    def get_carts():
+        s = schema.session()
+        query = s.query(schema.ShoppingCart)
+
+        user_id = flask.request.args.get('user_id')
+
+        if user_id is not None:
+            query = query.filter(schema.ShoppingCart.user_id == user_id)
+
+        results = query.all()
+        carts = {result.user_id: result.to_dict() for result in results}
+        return flask.jsonify({'carts': carts})
 
     return app

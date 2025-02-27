@@ -1,6 +1,6 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 from sqlalchemy import String, Float, Integer, JSON, create_engine
-from typing import Optional, Dict
+from typing import Optional, Dict, Tuple
 import copy
 import abc
 
@@ -40,7 +40,6 @@ class Furniture(Base):
         """Apply a tax rate to the price and return the new price."""
         return round(final_price * (1 + tax_rate / 100), 1)
 
-
     @staticmethod
     def new(
         model_num: str,
@@ -70,7 +69,6 @@ class Furniture(Base):
         )
         result.post_init()
         return result
-
 
     @abc.abstractmethod
     def valid(self) -> bool:
@@ -152,7 +150,6 @@ class BookShelf(Furniture):
         if material not in VALID_MATERIALS:
             return False
 
-
         # Validate color
         if "color" not in self.details:
             return False
@@ -225,9 +222,45 @@ class User(Base):  # TODO - make it fit to user
         return result
 
 
-       
+class ShoppingCart(Base):  # TODO - make it fit to order
+    __tablename__ = "shopping_cart"
+
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    items: Mapped[dict] = mapped_column(JSON, nullable=True)
+
+    def to_dict(self):
+        result = Base.to_dict(self)
+        result['total_price'] = self.calculate_total_price()
+        return result
+
+    def calculate_total_price(self):
+        total_count = 0
+        for model_number, (quantity, price_per_unit) in self.items.items():
+            total_count += quantity * price_per_unit
+        return total_count
+
+    @staticmethod
+    def new(user_id: int, items: Optional[Dict[str, Tuple[int, float]]] = None):
+        """
+        Creates a new shopping cart instance.
+
+        :param user_id: The ID of the user who owns the cart.
+        :param items: A dictionary where the key is the model number (str),
+                      and the value is a tuple (quantity: int, price_per_unit: float).
+        :return: A new instance of ShoppingCart.
+        """
+        if items is None:
+            items = {}  # Ensures a new dictionary is created every time
+        result = ShoppingCart(
+            user_id=user_id,
+            items=items,
+        )
+        return result
+
+
 _engine = None
 _session_maker = None
+
 
 # Database setup
 def create(database_url: str, echo: bool = True):
