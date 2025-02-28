@@ -584,12 +584,12 @@ def test_get_user_by_id(client):
 
 def test_add_new_user(client):
     user_info = {
-                "user_id": 207105880,
-                "user_name": "Jon Cohen",
-                "address": "123 Elm Street, Springfield, IL",
-                "email": "johndoe@example.com",
-                "password": "securepassword123"
-            }
+        "user_id": 207105880,
+        "user_name": "Jon Cohen",
+        "address": "123 Elm Street, Springfield, IL",
+        "email": "johndoe@example.com",
+        "password": "securepassword123",
+    }
     response = client.post('/add_user', json=user_info)
     assert response.status_code == http.HTTPStatus.OK
 
@@ -602,21 +602,13 @@ def test_add_new_user(client):
 
 def test_user_update_address(client):
     """Test to update address of a user, by its user_id"""
-    update_info = {
-        "user_id": 1003,
-        "address": "21 Yaakov Meridor, Tel Aviv"
-    }
+    update_info = {"user_id": 1003, "address": "21 Yaakov Meridor, Tel Aviv"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
 
-    # Send a GET request to verify user details were updated corretly 
+    # Send a GET request to verify user details were updated corretly
     response = client.get('/admin/users', query_string={"user_id": 1003})
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["address"] == "21 Yaakov Meridor, Tel Aviv"
-
-    
-    
-
-

@@ -40,7 +40,6 @@ class Furniture(Base):
         """Apply a tax rate to the price and return the new price."""
         return round(final_price * (1 + tax_rate / 100), 1)
 
-
     @staticmethod
     def new(
         model_num: str,
@@ -70,7 +69,6 @@ class Furniture(Base):
         )
         result.post_init()
         return result
-
 
     @abc.abstractmethod
     def valid(self) -> bool:
@@ -152,7 +150,6 @@ class BookShelf(Furniture):
         if material not in VALID_MATERIALS:
             return False
 
-
         # Validate color
         if "color" not in self.details:
             return False
@@ -221,16 +218,13 @@ class User(Base):  # TODO - make it fit to user
         return result
 
     def new(user_id: int, user_name: str, address: str, email: str, password: str):
-        result = User(user_id=user_id, 
-                      user_name=user_name, 
-                      address=address, 
-                      email=email, 
-                      password=password)
+        result = User(user_id=user_id, user_name=user_name, address=address, email=email, password=password)
         return result
 
-       
+
 _engine = None
 _session_maker = None
+
 
 # Database setup
 def create(database_url: str, echo: bool = True):

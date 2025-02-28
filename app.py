@@ -77,7 +77,6 @@ def create_app(config: dict):
         services.add_item(s, data)  # call add_item from services.py
         return flask.jsonify({})
 
-
     @app.route('/admin/update_item', methods=['POST'])
     def update_item_endpoint():
         """
@@ -88,14 +87,12 @@ def create_app(config: dict):
         services.update_item_quantity(s, data)  # call add_item from services.py
         return flask.jsonify({})
 
-
     @app.route('/admin/delete_item', methods=['POST'])
     def delete_item_endpoint():
         data = flask.request.get_json()
         s = schema.session()
         services.delete_item(s, data["model_num"])
         return flask.jsonify({})
-
 
     # ============== User ====================
     @app.route('/admin/users', methods=['GET'])
@@ -112,7 +109,6 @@ def create_app(config: dict):
         users = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'users': users})
 
-
     @app.route('/add_user', methods=['POST'])
     def add_users():
         """
@@ -122,13 +118,12 @@ def create_app(config: dict):
         s = schema.session()
         services_user.add_user(s, data)
         return flask.jsonify({})
-    
+
     @app.route('/update_user', methods=['POST'])
     def update_user_info():
         data = flask.request.get_json()
         s = schema.session()
         services_user.update_info(s, data)
         return flask.jsonify({})
-
 
     return app
