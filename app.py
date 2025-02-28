@@ -126,4 +126,31 @@ def create_app(config: dict):
         services_user.update_info(s, data)
         return flask.jsonify({})
 
+    # ============== Shopping Cart ====================
+    @app.route('/carts', methods=['GET'])
+    def get_cart_items():
+        s = schema.session()
+        query = s.query(schema.CartItem)
+
+        user_id = flask.request.args.get('user_id')
+
+        if user_id is not None:
+            query = query.filter(schema.CartItem.user_id == user_id)
+            results = query.all()
+            # TODO: add calculation of total cart price
+
+        results = query.all()
+        cart_items = {result.user_id: result.to_dict() for result in results}
+        return flask.jsonify({'carts': cart_items})
+
+    # @app.route('/add_item_to_cart', methods=['POST'])
+    # def add_item_endpoint():
+    #     """
+    #     API endpoint to add a new item to cart for a user - will be called when the user will add the first item to the cart.
+    #     """
+    #     data = flask.request.get_json()  # Get JSON payload from the request
+    #     s = schema.session()  # create a new session for DB operations
+    #     services.cart_manager.add_item_to_cart(s, data)  # call add_item from services.py
+    #     return flask.jsonify({})
+
     return app
