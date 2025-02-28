@@ -121,18 +121,20 @@ def create_app(config: dict):
 
     # ============== Shopping Cart ====================
     @app.route('/carts', methods=['GET'])
-    def get_carts():
+    def get_cart_items():
         s = schema.session()
-        query = s.query(schema.ShoppingCart)
+        query = s.query(schema.CartItem)
 
         user_id = flask.request.args.get('user_id')
 
         if user_id is not None:
-            query = query.filter(schema.ShoppingCart.user_id == user_id)
+            query = query.filter(schema.CartItem.user_id == user_id)
+            results = query.all()
+            # TODO: add calculation of total cart price
 
         results = query.all()
-        carts = {result.user_id: result.to_dict() for result in results}
-        return flask.jsonify({'carts': carts})
+        cart_items = {result.user_id: result.to_dict() for result in results}
+        return flask.jsonify({'carts': cart_items})
 
     # @app.route('/add_new_cart_for_user', methods=['POST'])
     # def add_item_endpoint():
