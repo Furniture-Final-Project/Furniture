@@ -612,3 +612,5 @@ def test_user_update_address(client):
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["address"] == "21 Yaakov Meridor, Tel Aviv"
+
+# TODO- add more functionalities to update user info
