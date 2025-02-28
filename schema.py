@@ -1,5 +1,5 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
-from sqlalchemy import String, Float, Integer, JSON, create_engine
+from sqlalchemy import String, Float, Integer, JSON, create_engine, PrimaryKeyConstraint
 from typing import Optional, Dict
 import copy
 import abc
@@ -220,6 +220,35 @@ class User(Base):  # TODO - make it fit to user
     def new(user_id: int, user_name: str, address: str, email: str, password: str):
         result = User(user_id=user_id, user_name=user_name, address=address, email=email, password=password)
         return result
+
+
+class CartItem(Base):
+    __tablename__ = "CartItem"
+
+    user_id: Mapped[int] = mapped_column(Integer)
+    model_num: Mapped[dict] = mapped_column(String)
+    quantity: Mapped[int] = mapped_column(Integer, nullable=True)
+
+    __table_args__ = (PrimaryKeyConstraint("user_id", "model_num"),)
+
+    def to_dict(self):
+        result = Base.to_dict(self)
+        return result
+
+    @staticmethod
+    def new(user_id: int, model_num: str, quantity: int):
+        """
+        Add new item for a user cart.
+
+        :param user_id: The ID of the user who owns the cart, the model number of the item that has been added to cart.
+        :param model_num: The model number of the item that has been added to cart.
+        :return: A new instance of CartItem.
+        """
+        result = CartItem(user_id=user_id, model_num=model_num, quantity=quantity)
+        return result
+
+    def valid(self):
+        pass  # TODO: validate user id by checking if it's exists in the user table + validate model number by checking if it's exists in the furniture table-- HOW?
 
 
 _engine = None
