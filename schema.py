@@ -257,6 +257,9 @@ class ShoppingCart(Base):  # TODO - make it fit to order
         )
         return result
 
+    def valid(self):
+        pass  # TODO: validate user id by checking if it's exists in the user table -- HOW?
+
 
 _engine = None
 _session_maker = None

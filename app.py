@@ -1,5 +1,4 @@
 # from unicodedata import category
-
 import flask
 import schema
 import services
@@ -135,4 +134,15 @@ def create_app(config: dict):
         carts = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'carts': carts})
 
+    # @app.route('/add_new_cart_for_user', methods=['POST'])
+    # def add_item_endpoint():
+    #     """
+    #     API endpoint to add a shopping cart for a user - will be called when the user will add the first item to the cart.
+    #     """
+    #     data = flask.request.get_json()  # Get JSON payload from the request
+    #     s = schema.session()  # create a new session for DB operations
+    #     services.cart_manager.create_new_cart_for_user(s, data)  # call add_item from services.py
+    #     return flask.jsonify({})
+
+    # do not delete!
     return app

@@ -644,3 +644,26 @@ def test_cart_get_cart_by_userid(client):
     assert len(cart) == 1
 
     assert cart['1002'] == {'user_id': 1002, 'items': {"BD-5005": [2, 1200.0]}, 'total_price': 2400.0}
+
+
+def test_add_cart_for_user(client):
+    """
+    Test adding a shopping cart to a specific user.
+    """
+    user_id = 1003
+
+    # Send a POST request to add the cart for the specific user
+    response = client.post('/add_cart_for_user', json={"user_id": user_id})
+    data = response.get_json()
+
+    # Check that the item was added successfully
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify item exists
+    response = client.get('/items', query_string={user_id: 1003})
+    data = response.get_json()
+
+    # Check that the cart is returned correctly
+    assert response.status_code == http.HTTPStatus.OK
+    assert "1003" in data["carts"]
+    assert data["carts"][1003][1003] == {}
