@@ -92,8 +92,9 @@ def preprepared_data(application):
     user_4 = schema.User(
         user_id=1005, user_name="RobertWilson", address="202 Birch Lane, Seattle, WA", email="robertwilson@example.com", password="wilsonRob007"
     )
+    cart_item1 = schema.CartItem(user_id=1002, model_num='chair-0', quantity=2)
 
-    session.add_all([chair0, chair1, bed, bookshelf, sofa, user_1, user_2, user_3, user_4])
+    session.add_all([chair0, chair1, bed, bookshelf, sofa, user_1, user_2, user_3, user_4, cart_item1])
     session.commit()
     yield
 
