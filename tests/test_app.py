@@ -565,6 +565,7 @@ def test_delete_item(client):
     data = response.get_json()
     assert data == {'items': {}}
 
+#============user=============================
 
 def test_get_user_by_id(client):
     response = client.get('/admin/users', query_string={"user_id": 1002})
@@ -599,6 +600,8 @@ def test_add_new_user(client):
     data = response.get_json()
     assert data["users"]['207105880']["user_name"] == "Jon Cohen"
 
+# TODO - add test to get user info
+
 
 def test_user_update_address(client):
     """Test to update address of a user, by its user_id"""
@@ -613,4 +616,72 @@ def test_user_update_address(client):
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["address"] == "21 Yaakov Meridor, Tel Aviv"
 
-# TODO- add more functionalities to update user info
+#===============cart============================================
+def test_cart_get_all_cart_table(client):
+    """
+    Test retrieving all items in carts.
+
+    Sends a GET request to the '/carts' endpoint to fetch the complete list of shopping cart items.
+    Verifies that the response status is HTTP 200 OK. Ensures that all expected items are
+    returned, regardless of their stock status.
+
+    The test validates that:
+    - The response contains a 'carts' key.
+    - The number of unique items is as expected.
+    - Each cart item includes necessary details such as user ID, model number, and quantity.
+    """
+    response = client.get('/carts')
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    carts = data['carts']
+    assert len(carts) == 1
+
+    assert carts['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2}
+
+
+# TODO: update
+def test_cart_get_cart_by_userid(client):
+    """
+    Test retrieving a cart by user id.
+
+    send a GET request to the '/carts' with 'user_id' as a query parameter.
+    Verifies the response status is 200 OK and that the returned cart match
+    the specified user id.
+    :param client:
+    :return: Cart
+    """
+    response = client.get('/carts', query_string={"user_id": 1002})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    cart = data['carts']
+    assert len(cart) == 1
+
+    assert cart['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2}
+
+
+# def test_add_first_item_to_cart(client):
+#      """
+#      Test adding new item to a specific cart of a specific user.
+#      """
+#      cart_item = {
+#         "user_id": 1002,
+#         "model_num": "chair-1",
+#         "quantity": 1
+#     }
+
+#      # Send a POST request to add the cart for the specific user
+#      response = client.post('/add_item_to_cart', json=cart_item)
+#      data = response.get_json()
+
+#      # Check that the item was added successfully
+#      assert response.status_code == http.HTTPStatus.OK
+
+#      # Send a GET request to verify item exists
+#      response = client.get('/carts', query_string={"user_id": 1003})
+#      data = response.get_json()
+
+#      # Check that the cart is returned correctly
+#      assert response.status_code == http.HTTPStatus.OK
+#      assert "1002" in data["carts"]
+#      assert data["carts"]['1002']['model_num'] == "chair-1"
+#      assert data["carts"]['1002']['quantity'] == 1
