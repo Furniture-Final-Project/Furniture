@@ -600,6 +600,23 @@ def test_add_new_user(client):
     assert data["users"]['207105880']["user_name"] == "Jon Cohen"
 
 
-# TODO - add test to get user info
+def test_user_update_address(client):
+    """Test to update address of a user, by its user_id"""
+    update_info = {
+        "user_id": 1003,
+        "address": "21 Yaakov Meridor, Tel Aviv"
+    }
+    response = client.post('/update_user', json=update_info)
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify user details were updated corretly 
+    response = client.get('/admin/users', query_string={"user_id": 1003})
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+    assert data["users"]['1003']["address"] == "21 Yaakov Meridor, Tel Aviv"
+
+    
+    
 
 

@@ -122,5 +122,13 @@ def create_app(config: dict):
         s = schema.session()
         services_user.add_user(s, data)
         return flask.jsonify({})
+    
+    @app.route('/update_user', methods=['POST'])
+    def update_user_info():
+        data = flask.request.get_json()
+        s = schema.session()
+        services_user.update_info(s, data)
+        return flask.jsonify({})
+
 
     return app
