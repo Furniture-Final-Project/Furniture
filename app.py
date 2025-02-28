@@ -152,7 +152,7 @@ def create_app(config: dict):
         """
         data = flask.request.get_json()  # Get JSON payload from the request
         s = schema.session()  # create a new session for DB operations
-        cart.add_item_to_cart(s, data)  # call add_item from services.py
+        cart.add_cart_item(s, data)  # call add_item from services.py
         return flask.jsonify({})
 
     return app

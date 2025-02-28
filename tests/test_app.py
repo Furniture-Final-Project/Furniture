@@ -665,7 +665,7 @@ def test_add_first_item_to_cart(client):
      Test adding new item to a specific cart of a specific user.
      """
      cart_item = {
-        "user_id": 1002,
+        "user_id": 1003,
         "model_num": "chair-1",
         "quantity": 1
     }
@@ -683,6 +683,6 @@ def test_add_first_item_to_cart(client):
 
      # Check that the cart is returned correctly
      assert response.status_code == http.HTTPStatus.OK
-     assert "1002" in data["carts"]
-     assert data["carts"]['1002']['model_num'] == "chair-1"
-     assert data["carts"]['1002']['quantity'] == 1
+     assert "1003" in data["carts"]
+     assert data["carts"]['1003']['model_num'] == "chair-1"
+     assert data["carts"]['1003']['quantity'] == 1
