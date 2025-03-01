@@ -662,6 +662,7 @@ def test_cart_get_cart_by_userid(client):
     assert len(cart) == 1
 
     assert cart['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}
+    assert data['cart_total_price'] == 236.0
 
 
 def test_add_first_item_to_cart(client):

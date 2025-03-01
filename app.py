@@ -4,6 +4,7 @@ import services
 import services_user
 import source.controller.cart as cart
 
+
 def create_app(config: dict):
     app = flask.Flask(__name__)
 
@@ -137,13 +138,17 @@ def create_app(config: dict):
         if user_id is not None:
             query = query.filter(schema.CartItem.user_id == user_id)
             results = query.all()
+            total_price = 0
+            cart_items = {result.user_id: result.to_dict() for result in results}
+
+            for cart_item in cart_items.values():  # Iterate over dictionary values
+                total_price += cart_item['price']
+            return flask.jsonify({'carts': cart_items, 'cart_total_price': total_price})
             # TODO: add calculation of total cart price
 
         results = query.all()
         cart_items = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'carts': cart_items})
-
-
 
     @app.route('/add_item_to_cart', methods=['POST'])
     def add_cart_endpoint():

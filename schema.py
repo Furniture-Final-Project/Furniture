@@ -235,7 +235,6 @@ class CartItem(Base):
     def to_dict(self):
         result = Base.to_dict(self)
         item_details = cart.get_cart_item_full_details(self.model_num)
-        print(item_details)
         if item_details:
             result['model_name'] = item_details[self.model_num]['model_name']
             result['price_per_unit'] = item_details[self.model_num]['final_price']
