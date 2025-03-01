@@ -12,3 +12,4 @@ All commands are [assumed to run from the root of the project] - the directory i
 
 
     $ pre-commit run --all-files
+

@@ -586,7 +586,7 @@ def test_get_user_by_id(client):
         "password": "mypassword456",
     }
 
-
+    
 def test_add_new_user(client):
     user_info = {
         "user_id": 207105880,
@@ -640,7 +640,6 @@ def test_existing_user(client):
 
     data = response.get_json()
     assert data == {}
-
 
 # TODO - add test to get user info
 

@@ -40,6 +40,7 @@ class Furniture(Base):
         """Apply a tax rate to the price and return the new price."""
         return round(final_price * (1 + tax_rate / 100), 1)
 
+
     @staticmethod
     def new(
         model_num: str,
@@ -150,6 +151,7 @@ class BookShelf(Furniture):
         if material not in VALID_MATERIALS:
             return False
 
+
         # Validate color
         if "color" not in self.details:
             return False
@@ -254,7 +256,6 @@ class CartItem(Base):
 
 _engine = None
 _session_maker = None
-
 
 # Database setup
 def create(database_url: str, echo: bool = True):

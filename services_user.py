@@ -1,10 +1,5 @@
-# import json
-# import http
 import schema
-
-# import flask
 from sqlalchemy.orm import Session
-
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
 
