@@ -248,7 +248,7 @@ class CartItem(Base):
         return result
 
     def valid(self):
-        return True # I changed it to true becuase if not- the test failed in this point 
+        return True  # I changed it to true becuase if not- the test failed in this point
         pass  # TODO: validate user id by checking if it's exists in the user table + validate model number by checking if it's exists in the furniture table-- HOW?
 
 

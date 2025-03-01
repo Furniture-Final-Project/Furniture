@@ -5,7 +5,6 @@ import schema
 from werkzeug.security import check_password_hash
 
 
-
 @pytest.fixture
 def application():
     application = app.create_app({'database_url': f'sqlite:///:memory:'})  # Use in-memory DB for testing
@@ -568,7 +567,9 @@ def test_delete_item(client):
     data = response.get_json()
     assert data == {'items': {}}
 
-#============user=============================
+
+# ============user=============================
+
 
 def test_get_user_by_id(client):
     response = client.get('/admin/users', query_string={"user_id": 1002})
@@ -603,6 +604,7 @@ def test_add_new_user(client):
     data = response.get_json()
     assert data["users"]['207105880']["user_name"] == "Jon Cohen"
 
+
 def test_password_hashing(client):
     user_info = {
         "user_id": 67890,
@@ -623,6 +625,7 @@ def test_password_hashing(client):
     assert hashed_password != user_info["password"]
     assert check_password_hash(hashed_password, user_info["password"])
 
+
 def test_existing_user(client):
     existing_user = {
         "user_id": 1002,
@@ -637,7 +640,6 @@ def test_existing_user(client):
 
     data = response.get_json()
     assert data == {}
-
 
 
 # TODO - add test to get user info
@@ -656,9 +658,10 @@ def test_user_update_address(client):
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["address"] == "21 Yaakov Meridor, Tel Aviv"
 
+
 def test_user_update_user_name(client):
     """Test to update user_name of a user, by its user_id"""
-    update_info = {"user_id": 1003, "user_name": "Michael Cohen" }
+    update_info = {"user_id": 1003, "user_name": "Michael Cohen"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
@@ -668,6 +671,7 @@ def test_user_update_user_name(client):
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["user_name"] == "Michael Cohen"
+
 
 def test_user_update_email(client):
     """Test to update email of a user, by its user_id"""
@@ -683,9 +687,7 @@ def test_user_update_email(client):
     assert data["users"]['1003']["email"] == "MichaelCohen@gmail.com"
 
 
-
-
-#===============cart============================================
+# ===============cart============================================
 def test_cart_get_all_cart_table(client):
     """
     Test retrieving all items in carts.
@@ -729,28 +731,24 @@ def test_cart_get_cart_by_userid(client):
 
 
 def test_add_first_item_to_cart(client):
-     """
-     Test adding new item to a specific cart of a specific user.
-     """
-     cart_item = {
-        "user_id": 1003,
-        "model_num": "chair-1",
-        "quantity": 1
-    }
+    """
+    Test adding new item to a specific cart of a specific user.
+    """
+    cart_item = {"user_id": 1003, "model_num": "chair-1", "quantity": 1}
 
-     # Send a POST request to add the cart for the specific user
-     response = client.post('/add_item_to_cart', json=cart_item)
-     data = response.get_json()
+    # Send a POST request to add the cart for the specific user
+    response = client.post('/add_item_to_cart', json=cart_item)
+    data = response.get_json()
 
-     # Check that the item was added successfully
-     assert response.status_code == http.HTTPStatus.OK
+    # Check that the item was added successfully
+    assert response.status_code == http.HTTPStatus.OK
 
-     # Send a GET request to verify item exists
-     response = client.get('/carts', query_string={"user_id": 1003})
-     data = response.get_json()
+    # Send a GET request to verify item exists
+    response = client.get('/carts', query_string={"user_id": 1003})
+    data = response.get_json()
 
-     # Check that the cart is returned correctly
-     assert response.status_code == http.HTTPStatus.OK
-     assert "1003" in data["carts"]
-     assert data["carts"]['1003']['model_num'] == "chair-1"
-     assert data["carts"]['1003']['quantity'] == 1
+    # Check that the cart is returned correctly
+    assert response.status_code == http.HTTPStatus.OK
+    assert "1003" in data["carts"]
+    assert data["carts"]['1003']['model_num'] == "chair-1"
+    assert data["carts"]['1003']['quantity'] == 1
