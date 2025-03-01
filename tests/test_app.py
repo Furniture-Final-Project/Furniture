@@ -2,6 +2,7 @@ import pytest
 import app
 import http
 import schema
+from services_user import update_info
 
 
 @pytest.fixture
@@ -616,6 +617,22 @@ def test_user_update_address(client):
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["address"] == "21 Yaakov Meridor, Tel Aviv"
+
+def test_user_update_user_name(client):
+    """Test to update address of a user, by its user_id"""
+    update_info = {"user_id": 1003, "user_name": "Michael Cohen" }
+    response = client.posr('/update_user', json=update_info)
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify user details were updated correctly
+    response = client.get('/admin/users', query_string={"user_id": 1003})
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+    assert data["users"]['1003']["user_name"] == "Michael Cohen"
+
+
+
 
 #===============cart============================================
 def test_cart_get_all_cart_table(client):
