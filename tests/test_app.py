@@ -785,9 +785,33 @@ def test_update_quantity_with_item_not_in_cart(client):
 
 
 def test_update_quantity_with_not_enough_units_in_stock(client):
-    """TODO: add"""
+    """
+    Test that updating a cart item is not possible if the item not in stock or do not have enough units in stock.
+    Expecting an error response.
+    """
     update_info = dict(model_num="chair-0", user_id=1004, quantity=5)
 
     with patch("source.controller.cart.get_cart_item_full_details", return_value={update_info["model_num"]: {"stock_quantity": 3}}):
         response = client.post('/user/add_item_to_cart', json=update_info)
         assert response.status_code == http.HTTPStatus.CONFLICT
+
+
+def test_delete_cart_item(client):
+    """Test deleting a cart item from CartItem table"""
+    # Ensure the cart item in the cart
+    response = client.get('/carts', query_string={"user_id": 1002, 'model_num': 'chair-0'})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    cart = data['carts']
+    assert cart['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}
+
+    delete_item = {'model_num': 'chair-0', 'user_id': 1002}
+    # Send a POST request to delete the item
+    response = client.post('/user/delete_cart_item', json=delete_item)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify item deleted successfully
+    response = client.get('/carts', query_string={"user_id": 1002, 'model_num': 'chair-0'})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    assert data['carts'] == {}

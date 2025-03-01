@@ -73,3 +73,10 @@ def update_cart_item_quantity(session: Session, item_data: dict):
     else:
         item.quantity = item_data["quantity"]
         session.commit()
+
+
+def delete_cart_item(session: Session, item_data: dict):
+    item = session.get(schema.CartItem, (item_data["user_id"], item_data["model_num"]))
+    if item:
+        session.delete(item)
+        session.commit()

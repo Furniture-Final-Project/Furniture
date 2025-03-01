@@ -173,4 +173,12 @@ def create_app(config: dict):
         cart.update_cart_item_quantity(s, data)  # call add_item from controller/cart.py
         return flask.jsonify({})
 
+    @app.route('/user/delete_cart_item', methods=['POST'])
+    def delete_cart_item_endpoint():
+        data = flask.request.get_json()
+        s = schema.session()
+        item_data = {"model_num": data["model_num"], "user_id": data["user_id"]}
+        cart.delete_cart_item(s, item_data)
+        return flask.jsonify({})
+
     return app
