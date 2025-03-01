@@ -39,6 +39,7 @@ def add_new_user(session: Session, user_data: dict):
         if existing_user:
             return None
 
+
         # Create a new user with a hashed password
         new_user = schema.User(
         user_id=user_data["user_id"],

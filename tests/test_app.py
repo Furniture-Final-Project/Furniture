@@ -2,6 +2,8 @@ import pytest
 import app
 import http
 import schema
+from werkzeug.security import check_password_hash
+
 
 
 @pytest.fixture
@@ -600,6 +602,43 @@ def test_add_new_user(client):
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     assert data["users"]['207105880']["user_name"] == "Jon Cohen"
+
+def test_password_hashing(client):
+    user_info = {
+        "user_id": 67890,
+        "user_name": "Alice Doe",
+        "address": "789 Oak St, New York, NY",
+        "email": "alicedoe@example.com",
+        "password": "mypassword123",
+    }
+
+    response = client.post('/add_user', json=user_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    response = client.get('/admin/users', query_string={"user_id": 67890})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+
+    hashed_password = data["users"]["67890"]["password"]
+    assert hashed_password != user_info["password"]
+    assert check_password_hash(hashed_password, user_info["password"])
+
+def test_existing_user(client):
+    existing_user = {
+        "user_id": 1002,
+        "user_name": "JaneSmith",
+        "address": "456 Oak Avenue, New York, NY",
+        "email": "janesmith@example.com",
+        "password": "mypassword456",
+    }
+
+    response = client.post('/add_user', json=existing_user)
+    assert response.status_code == http.HTTPStatus.OK
+
+    data = response.get_json()
+    assert data == {}
+
+
 
 # TODO - add test to get user info
 
