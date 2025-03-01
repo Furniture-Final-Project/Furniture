@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import MagicMock
-from source.models.Furniture import Furniture
+# from source.models.Furniture import Furniture
 
-from source.services.furniture_service import (
+from source.controller.furniture_inventory import (
     get_furniture_summary,
     get_furniture_details,
 )
