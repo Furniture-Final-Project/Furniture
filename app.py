@@ -111,15 +111,31 @@ def create_app(config: dict):
         users = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'users': users})
 
+    #@app.route('/add_user', methods=['POST'])
+    #def add_users():
+     #   """
+      #  API endpoint to add a new furniture item.
+       # """
+       #  data = flask.request.get_json()
+       #  s = schema.session()
+       #  services_user.add_user(s, data)
+       #  return flask.jsonify({})
+
     @app.route('/add_user', methods=['POST'])
     def add_users():
         """
-        API endpoint to add a new furniture item.
+        API endpoint to add a new user.
         """
         data = flask.request.get_json()
+        # Validate required fields
+        required_fields = ["user_id", "user_name", "address", "email", "password"]
+        if not all(field in data for field in required_fields):
+            return flask.jsonify({"success": False, "message": "Missing required fields"}), 400
+
         s = schema.session()
-        services_user.add_user(s, data)
+        services_user.add_new_user(s, data)
         return flask.jsonify({})
+
 
     @app.route('/update_user', methods=['POST'])
     def update_user_info():
