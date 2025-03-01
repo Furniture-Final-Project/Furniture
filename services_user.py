@@ -31,5 +31,9 @@ def update_info_user_name(session: Session, user_data: dict):
         user.user_name = user_data["user_name"]
         session.commit()
 
-
+def update_info_email(session: Session, user_data: dict):
+    user = session.get(schema.User, user_data["user_id"])
+    if user:
+        user.email = user_data["email"]
+        session.commit()
 

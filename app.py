@@ -127,10 +127,13 @@ def create_app(config: dict):
         s = schema.session()
         address = data.get("address")
         user_name = data.get("user_name")
+        email = data.get("email")
         if address is not None:
             services_user.update_info_address(s, data)
         if user_name is not None:
             services_user.update_info_user_name(s, data)
+        if email is not None:
+            services_user.update_info_email(s, data)
         return flask.jsonify({})
 
     # ============== Shopping Cart ====================
