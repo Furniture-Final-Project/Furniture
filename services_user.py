@@ -19,8 +19,17 @@ def add_user(session: Session, user_data: dict):
     session.commit()
 
 
-def update_info(session: Session, user_data: dict):
+def update_info_address(session: Session, user_data: dict):
     user = session.get(schema.User, user_data["user_id"])
     if user:
         user.address = user_data["address"]
         session.commit()
+
+def update_info_user_name(session: Session, user_data: dict):
+    user = session.get(schema.User, user_data["user_id"])
+    if user:
+        user.user_name = user_data["user_name"]
+        session.commit()
+
+
+

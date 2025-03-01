@@ -2,7 +2,6 @@ import pytest
 import app
 import http
 import schema
-from services_user import update_info
 
 
 @pytest.fixture
@@ -607,8 +606,8 @@ def test_add_new_user(client):
 
 def test_user_update_address(client):
     """Test to update address of a user, by its user_id"""
-    update_info = {"user_id": 1003, "address": "21 Yaakov Meridor, Tel Aviv"}
-    response = client.post('/update_user', json=update_info)
+    updated_info = {"user_id": 1003, "address": "21 Yaakov Meridor, Tel Aviv"}
+    response = client.post('/update_user', json=updated_info)
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
 
@@ -621,7 +620,7 @@ def test_user_update_address(client):
 def test_user_update_user_name(client):
     """Test to update address of a user, by its user_id"""
     update_info = {"user_id": 1003, "user_name": "Michael Cohen" }
-    response = client.posr('/update_user', json=update_info)
+    response = client.post('/update_user', json=update_info)
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
 
@@ -630,6 +629,8 @@ def test_user_update_user_name(client):
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["user_name"] == "Michael Cohen"
+
+
 
 
 

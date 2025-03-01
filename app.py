@@ -1,4 +1,6 @@
 import flask
+from platformdirs import user_runtime_dir
+
 import schema
 import services
 import services_user
@@ -123,7 +125,12 @@ def create_app(config: dict):
     def update_user_info():
         data = flask.request.get_json()
         s = schema.session()
-        services_user.update_info(s, data)
+        address = data.get("address")
+        user_name = data.get("user_name")
+        if address is not None:
+            services_user.update_info_address(s, data)
+        if user_name is not None:
+            services_user.update_info_user_name(s, data)
         return flask.jsonify({})
 
     # ============== Shopping Cart ====================
