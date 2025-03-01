@@ -254,8 +254,14 @@ class CartItem(Base):
         return result
 
     def valid(self):
-        return True  # I changed it to true becuase if not- the test failed in this point
-        pass  # TODO: validate user id by checking if it's exists in the user table + validate model number by checking if it's exists in the furniture table-- HOW?
+        # Validate model number
+        item = cart.get_cart_item_full_details(self.model_num)
+        user = cart.get_cart_user_details(self.user_id)
+
+        if not item or not user:
+            return False
+        return True
+        # TODO: Test integration
 
 
 _engine = None

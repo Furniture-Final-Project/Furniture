@@ -134,6 +134,7 @@ def create_app(config: dict):
         query = s.query(schema.CartItem)
 
         user_id = flask.request.args.get('user_id')
+        mdoel_num = flask.request.args.get('mdoel_num')
 
         if user_id is not None:
             query = query.filter(schema.CartItem.user_id == user_id)
@@ -144,20 +145,32 @@ def create_app(config: dict):
             for cart_item in cart_items.values():  # Iterate over dictionary values
                 total_price += cart_item['price']
             return flask.jsonify({'carts': cart_items, 'cart_total_price': total_price})
-            # TODO: add calculation of total cart price
+
+        if mdoel_num is not None:
+            query = query.filter(schema.CartItem.user_id == user_id)
 
         results = query.all()
         cart_items = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'carts': cart_items})
 
-    @app.route('/add_item_to_cart', methods=['POST'])
-    def add_cart_endpoint():
+    @app.route('/user/add_item_to_cart', methods=['POST'])
+    def add_cart_item_endpoint():
         """
         API endpoint to add a new item to cart for a user - will be called when the user will add the first item to the cart.
         """
         data = flask.request.get_json()  # Get JSON payload from the request
         s = schema.session()  # create a new session for DB operations
         cart.add_cart_item(s, data)  # call add_item from services.py
+        return flask.jsonify({})
+
+    @app.route('/user/update_cart_item_quantity', methods=['POST'])
+    def update_cart_item_endpoint():
+        """
+        API endpoint to update the item quantity in shopping cart.
+        """
+        data = flask.request.get_json()  # Get JSON payload from the request
+        s = schema.session()  # create a new session for DB operations
+        cart.update_cart_item_quantity(s, data)  # call add_item from controller/cart.py
         return flask.jsonify({})
 
     return app
