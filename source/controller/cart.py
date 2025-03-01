@@ -55,10 +55,16 @@ def get_cart_user_details(user_id):
 
 def update_cart_item_quantity(session: Session, item_data: dict):
     # TODO: Check if item_data["quantity"] == 0 activate delete method
-    # TODO: if the quantity is bigger than before - check if in stock
     # Validate new quantity is not negative
     if item_data["quantity"] < 0:
         flask.abort(http.HTTPStatus.BAD_REQUEST, "quantity cannot be negative")
+
+    if item_data["quantity"] == 0:
+        item = session.get(schema.CartItem, (item_data["user_id"], item_data["model_num"]))
+        if item:
+            session.delete(item)
+            session.commit()
+            return
 
     # Validate the new asked quantity is available in stock
     item_details = get_cart_item_full_details(item_data['model_num'])

@@ -815,3 +815,24 @@ def test_delete_cart_item(client):
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     assert data['carts'] == {}
+
+
+def test_updating_cart_item_quantity_to_0(client):
+    """Test updating a cart item quantity to 0 will delete it from the table"""
+    # Ensure the cart item in the cart
+    response = client.get('/carts', query_string={"user_id": 1002, 'model_num': 'chair-0'})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    cart = data['carts']
+    assert cart['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}
+
+    # update quantity to 0
+    update_info = dict(model_num="chair-0", user_id=1002, quantity=0)
+    response = client.post('/user/update_cart_item_quantity', json=update_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify item deleted successfully
+    response = client.get('/carts', query_string={"user_id": 1002, 'model_num': 'chair-0'})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    assert data['carts'] == {}
