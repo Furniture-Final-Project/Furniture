@@ -1,10 +1,5 @@
-# import json
-# import http
 import schema
-
-# import flask
 from sqlalchemy.orm import Session
-
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
 
@@ -73,4 +68,3 @@ def update_info_email(session: Session, user_data: dict):
     if user:
         user.email = user_data["email"]
         session.commit()
-
