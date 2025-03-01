@@ -4,7 +4,7 @@ import flask
 from sqlalchemy.orm import Session
 
 
-def add_cart_item(session: Session, item_data: dict):  # TODO: varify the item is in Furniture table and the user id in user's table
+def add_cart_item(session: Session, item_data: dict):
     """
     Adds item to cart - add item and user to the CartItem database
     :param session: SQLAlchemy session object.
@@ -14,14 +14,21 @@ def add_cart_item(session: Session, item_data: dict):  # TODO: varify the item i
 
     cart = schema.CartItem.new(user_id=item_data['user_id'], model_num=item_data['model_num'], quantity=item_data['quantity'])
 
+    # Validate user id in users table and model num in Furniture
     if not cart.valid():
         flask.abort(http.HTTPStatus.BAD_REQUEST, "Invalid user id or model number")
 
+    # Validate item is in stock
+    item_details = get_cart_item_full_details(cart.model_num)
+    if item_details[item_data['model_num']]['stock_quantity'] < item_data['quantity']:
+        flask.abort(
+            http.HTTPStatus.CONFLICT, f"Not enough stock available, stock quantity is {item_details[item_data['model_num']]['stock_quantity']}"
+        )
     session.add(cart)
     session.commit()
 
 
-def get_cart_item_full_details(model_num):
+def get_cart_item_full_details(model_num):  # TODO: add integration tests
     s = schema.session()
     query = s.query(schema.Furniture)
     query = query.filter_by(model_num=model_num)
@@ -33,6 +40,7 @@ def get_cart_item_full_details(model_num):
         final_price = result.apply_tax(result.price)
 
     item = {result.model_num: result.to_dict()}
+    print(item)
     item['final_price'] = final_price
     return item
 
@@ -46,8 +54,19 @@ def get_cart_user_details(user_id):
 
 
 def update_cart_item_quantity(session: Session, item_data: dict):
-    # TODO: Check if item_data["quantity"] == 0 activate delete method, if < 0 raise error
+    # TODO: Check if item_data["quantity"] == 0 activate delete method
     # TODO: if the quantity is bigger than before - check if in stock
+    # Validate new quantity is not negative
+    if item_data["quantity"] < 0:
+        flask.abort(http.HTTPStatus.BAD_REQUEST, "quantity cannot be negative")
+
+    # Validate the new asked quantity is available in stock
+    item_details = get_cart_item_full_details(item_data['model_num'])
+    if item_details[item_data['model_num']]['stock_quantity'] < item_data['quantity']:
+        flask.abort(
+            http.HTTPStatus.CONFLICT, f"Not enough stock available, stock quantity is {item_details[item_data['model_num']]['stock_quantity']}"
+        )
+
     item = session.get(schema.CartItem, (item_data["user_id"], item_data["model_num"]))
     if not item:
         flask.abort(http.HTTPStatus.NOT_FOUND, "Item not found in user's cart")

@@ -713,6 +713,17 @@ def test_add_first_item_to_cart(client):
     assert data["carts"]['1003']['quantity'] == 1
 
 
+def test_add_item_to_cart_not_enough_units_in_stock(client):
+    """
+    Test  adding item to cart is not possible if the asked quantity is bigger than stock quantity.
+    Expecting an error response.
+    """
+    cart_item = {"user_id": 1003, "model_num": "chair-2", "quantity": 2}
+    with patch("source.controller.cart.get_cart_item_full_details", return_value={cart_item["model_num"]: {"stock_quantity": 1}}):
+        response = client.post('/user/add_item_to_cart', json=cart_item)
+        assert response.status_code == http.HTTPStatus.CONFLICT
+
+
 def test_add_invalid_cart_item(client):
     """
     Test adding an item to the cart with a non-existent user ID or non-existent model number.
@@ -743,9 +754,11 @@ def test_update_cart_item_quantity(client):
     """
     Test updating a cart item quantity and that the price updates.
     """
+
     update_info = dict(model_num="chair-0", user_id=1002, quantity=4)
-    response = client.post('/user/update_cart_item_quantity', json=update_info)
-    assert response.status_code == http.HTTPStatus.OK
+    with patch("source.controller.cart.get_cart_item_full_details", return_value={update_info["model_num"]: {"stock_quantity": 5}}):
+        response = client.post('/user/update_cart_item_quantity', json=update_info)
+        assert response.status_code == http.HTTPStatus.OK
 
     # Send a GET request to verify item stock update
     response = client.get('/carts', query_string={"user_id": 1002})
@@ -766,6 +779,15 @@ def test_update_cart_item_quantity(client):
 
 def test_update_quantity_with_item_not_in_cart(client):
     """Test that updating a cart item is not possible if the item not in user's cart"""
-    update_info = dict(model_num="chair-0", user_id=1004, quantity=4)
+    update_info = dict(model_num="chair-0", user_id=1004, quantity=1)
     response = client.post('/user/update_cart_item_quantity', json=update_info)
     assert response.status_code == http.HTTPStatus.NOT_FOUND
+
+
+def test_update_quantity_with_not_enough_units_in_stock(client):
+    """TODO: add"""
+    update_info = dict(model_num="chair-0", user_id=1004, quantity=5)
+
+    with patch("source.controller.cart.get_cart_item_full_details", return_value={update_info["model_num"]: {"stock_quantity": 3}}):
+        response = client.post('/user/add_item_to_cart', json=update_info)
+        assert response.status_code == http.HTTPStatus.CONFLICT
