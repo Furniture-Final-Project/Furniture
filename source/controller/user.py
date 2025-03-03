@@ -91,3 +91,10 @@ def update_info_email(session: Session, user_data: dict):
     if user:
         user.email = user_data["email"]
         session.commit()
+
+def get_user_details(user_id):
+    s = schema.session()
+    query = s.query(schema.User)
+    query = query.filter_by(user_id=user_id)
+    result = query.first()
+    return result.to_dict()
