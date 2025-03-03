@@ -1,6 +1,7 @@
 import flask
 
 # from platformdirs import user_runtime_dir
+from http import HTTPStatus
 import schema
 import source.controller.furniture_inventory as furniture_inventory
 import source.controller.user as user
@@ -112,16 +113,6 @@ def create_app(config: dict):
         users = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'users': users})
 
-    # @app.route('/add_user', methods=['POST'])
-    # def add_users():
-    #   """
-    #  API endpoint to add a new furniture item.
-    # """
-    #  data = flask.request.get_json()
-    #  s = schema.session()
-    #  services_user.add_user(s, data)
-    #  return flask.jsonify({})
-
     @app.route('/add_user', methods=['POST'])
     def add_users():
         """
@@ -129,7 +120,7 @@ def create_app(config: dict):
         """
         data = flask.request.get_json()
         # Validate required fields
-        required_fields = ["user_id", "user_name", "address", "email", "password"]
+        required_fields = ["user_id", "user_name", "user_full_name", "user_phone_num", "address", "email", "password"]
         if not all(field in data for field in required_fields):
             return flask.jsonify({"success": False, "message": "Missing required fields"}), 400
 
@@ -144,13 +135,43 @@ def create_app(config: dict):
         address = data.get("address")
         user_name = data.get("user_name")
         email = data.get("email")
+        user_full_name = data.get("user_full_name")
+        user_phone_num = data.get("user_phone_num")
+        password = data.get("password")
         if address is not None:
             user.update_info_address(s, data)
         if user_name is not None:
             user.update_info_user_name(s, data)
+        if user_full_name is not None:
+            user.update_info_user_full_name(s, data)
+        if user_phone_num is not None:
+            user.update_info_user_phone_num(s, data)
         if email is not None:
             user.update_info_email(s, data)
+        if password is not None:
+            user.update_info_password(s, data)
         return flask.jsonify({})
+
+    @app.route('/login', methods=['POST'])
+    def login():
+        data = flask.request.get_json()
+        if "user_name" not in data or "password" not in data:
+            return flask.jsonify({"success": False, "message": "Missing user_name or password"}), HTTPStatus.BAD_REQUEST
+        s = schema.session()
+        result = user.login_user(s, data["user_name"], data["password"])
+
+        # If login_user raised no exception, we have a success dictionary.
+        return flask.jsonify(result), HTTPStatus.OK
+
+    @app.route('/logout', methods=['POST'])
+    def logout():
+        data = flask.request.get_json()
+        if "user_id" not in data:
+            return flask.jsonify({"success": False, "message": "Missing user_id"}), HTTPStatus.BAD_REQUEST
+
+        s = schema.session()
+        result = user.logout_user(data["user_id"])
+        return flask.jsonify(result), (HTTPStatus.OK if result["success"] else HTTPStatus.UNAUTHORIZED)
 
     # ============== Shopping Cart ====================
     @app.route('/carts', methods=['GET'])

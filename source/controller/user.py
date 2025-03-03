@@ -1,24 +1,13 @@
 # import json
-# import http
+import http
 import schema
 
-# import flask
+import flask
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
 
-
-# def add_user(session: Session, user_data: dict):
-#
-#     new_user = schema.User.new(
-#         user_id=user_data["user_id"],
-#         user_name=user_data["user_name"],
-#         address=user_data["address"],
-#         email=user_data["email"],
-#         password=user_data["password"],
-#     )
-#     session.add(new_user)
-#     session.commit()
+# from werkzeug.security import check_password_hash
 
 
 def add_new_user(session: Session, user_data: dict):
@@ -36,7 +25,7 @@ def add_new_user(session: Session, user_data: dict):
         )
 
         if existing_user:
-            return None
+            flask.abort(http.HTTPStatus.BAD_REQUEST, "User already exists in the system.")
 
         # Create a new user with a hashed password
         new_user = schema.User(
@@ -92,9 +81,47 @@ def update_info_email(session: Session, user_data: dict):
         session.commit()
 
 
+def update_info_password(session: Session, user_data: dict):
+    user = session.get(schema.User, user_data["user_id"])
+    if user:
+        # Hash the new password before storing it
+        user.password = generate_password_hash(user_data["password"])
+        session.commit()
+
+
 def get_user_details(user_id):
     s = schema.session()
     query = s.query(schema.User)
     query = query.filter_by(user_id=user_id)
     result = query.first()
-    return result.to_dict()
+
+    if result:
+        user_data = result.to_dict()
+        user_data.pop("password", None)  # Remove data from details- sensitive info
+        return user_data
+
+    return None
+
+
+# def login_user(session: Session, user_name: int, password: str):
+#     user = session.query(schema.User).filter_by(user_name=user_name).first()
+#     if not user:
+#         flask.abort(http.HTTPStatus.UNAUTHORIZED, "User not found, need to register")
+#     if not check_password_hash(user.password, password):
+#         flask.abort(http.HTTPStatus.UNAUTHORIZED, "Incorrect password")
+
+#     flask.session["logged_in"] = True
+#     flask.session["user_name"] = user.user_name
+#     return {"success": True, "message": "Login successful"}
+
+
+# def is_user_logged_in(user_id: int):
+#     return flask.session.get("logged_in", False) and flask.session.get("user_id") == user_id
+
+
+# def logout_user(user_id: int):
+#     if flask.session.get("user_id") == user_id:
+#         flask.session.pop("user_id", None)
+#         flask.session.pop("logged_in", None)
+#         return {"success": True, "message": "User logged out"}
+#     return {"success": False, "message": "Invalid user or not logged in"}

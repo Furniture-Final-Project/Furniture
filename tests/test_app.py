@@ -4,6 +4,8 @@ import app
 import http
 import schema
 from unittest.mock import patch
+from werkzeug.security import check_password_hash, generate_password_hash
+import source.controller.user as user
 from source.models.OrderStatus import OrderStatus
 
 
@@ -84,17 +86,45 @@ def preprepared_data(application):
     )
 
     user_1 = schema.User(
-        user_id=1002, user_name="JaneSmith", address="456 Oak Avenue, New York, NY", email="janesmith@example.com", password="mypassword456"
+        user_id=1002,
+        user_name="JaneSmith",
+        user_full_name="Jane Smith",
+        user_phone_num="555-1234",
+        address="456 Oak Avenue, New York, NY",
+        email="janesmith@example.com",
+        password=generate_password_hash("mypassword456"),
     )
+
     user_2 = schema.User(
-        user_id=1003, user_name="MichaelBrown", address="789 Maple Street, Los Angeles, CA", email="michaelbrown@example.com", password="brownieM123"
+        user_id=1003,
+        user_name="MichaelBrown",
+        user_full_name="Michael Brown",
+        user_phone_num="555-5678",
+        address="789 Maple Street, Los Angeles, CA",
+        email="michaelbrown@example.com",
+        password=generate_password_hash("brownieM123"),
     )
+
     user_3 = schema.User(
-        user_id=1004, user_name="EmilyDavis", address="101 Pine Road, Austin, TX", email="emilydavis@example.com", password="davisEmily!"
+        user_id=1004,
+        user_name="EmilyDavis",
+        user_full_name="Emily Davis",
+        user_phone_num="555-9012",
+        address="101 Pine Road, Austin, TX",
+        email="emilydavis@example.com",
+        password=generate_password_hash("davisEmily!"),
     )
+
     user_4 = schema.User(
-        user_id=1005, user_name="RobertWilson", address="202 Birch Lane, Seattle, WA", email="robertwilson@example.com", password="wilsonRob007"
+        user_id=1005,
+        user_name="RobertWilson",
+        user_full_name="Robert Wilson",
+        user_phone_num="555-3456",
+        address="202 Birch Lane, Seattle, WA",
+        email="robertwilson@example.com",
+        password=generate_password_hash("wilsonRob007"),
     )
+
     cart_item1 = schema.CartItem(user_id=1002, model_num='chair-0', quantity=2)
 
     order1 = schema.Order(
@@ -601,69 +631,72 @@ def test_get_user_by_id(client):
     data = response.get_json()
     users = data['users']
     assert len(users) == 1
-    print(users)
-    assert users['1002'] == {
-        "user_id": 1002,
-        "user_name": "JaneSmith",
-        "address": "456 Oak Avenue, New York, NY",
-        "email": "janesmith@example.com",
-        "password": "mypassword456",
+    assert users['1002']["user_id"] == 1002
+    assert users['1002']["user_name"] == "JaneSmith"
+    assert users['1002']["user_full_name"] == "Jane Smith"
+    assert users['1002']["user_phone_num"] == "555-1234"
+    assert users['1002']["address"] == "456 Oak Avenue, New York, NY"
+    assert users['1002']["email"] == "janesmith@example.com"
+    hashed_password = users['1002']["password"]
+    assert hashed_password != "mypassword456"
+    assert check_password_hash(hashed_password, "mypassword456")
+
+
+def test_add_new_user(client):
+    user_info = {
+        "user_id": 207105880,
+        "user_name": "JonCohen",
+        "user_full_name": "Jon Cohen",
+        "user_phone_num": "555-7824",
+        "address": "123 Elm Street, Springfield, IL",
+        "email": "johndoe@example.com",
+        "password": "securepassword123",
+    }
+    response = client.post('/add_user', json=user_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify user was asses successfully
+    response = client.get('/admin/users', query_string={"user_id": 207105880})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    assert data["users"]['207105880']["user_name"] == "JonCohen"
+
+
+def test_password_hashing(client):
+    user_info = {
+        "user_id": 67890,
+        "user_name": "AliceDoe",
+        "user_full_name": "Alice Doe",
+        "user_phone_num": "555-8821",
+        "address": "789 Oak St, New York, NY",
+        "email": "alicedoe@example.com",
+        "password": "mypassword123",
     }
 
+    response = client.post('/add_user', json=user_info)
+    assert response.status_code == http.HTTPStatus.OK
 
-# def test_add_new_user(client):
-#     user_info = {
-#         "user_id": 207105880,
-#         "user_name": "Jon Cohen",
-#         "address": "123 Elm Street, Springfield, IL",
-#         "email": "johndoe@example.com",
-#         "password": "securepassword123",
-#     }
-#     response = client.post('/add_user', json=user_info)
-#     assert response.status_code == http.HTTPStatus.OK
-#
-#     # Send a GET request to verify user was asses successfully
-#     response = client.get('/admin/users', query_string={"user_id": 207105880})
-#     assert response.status_code == http.HTTPStatus.OK
-#     data = response.get_json()
-#     assert data["users"]['207105880']["user_name"] == "Jon Cohen"
+    response = client.get('/admin/users', query_string={"user_id": 67890})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
 
-# not updated
-# def test_password_hashing(client):
-#     user_info = {
-#         "user_id": 67890,
-#         "user_name": "Alice Doe",
-#         "address": "789 Oak St, New York, NY",
-#         "email": "alicedoe@example.com",
-#         "password": "mypassword123",
-#     }
-#
-#     response = client.post('/add_user', json=user_info)
-#     assert response.status_code == http.HTTPStatus.OK
-#
-#     response = client.get('/admin/users', query_string={"user_id": 67890})
-#     assert response.status_code == http.HTTPStatus.OK
-#     data = response.get_json()
-#
-#     hashed_password = data["users"]["67890"]["password"]
-#     assert hashed_password != user_info["password"]
-#     assert check_password_hash(hashed_password, user_info["password"])
+    hashed_password = data["users"]["67890"]["password"]
+    assert hashed_password != user_info["password"]
+    assert check_password_hash(hashed_password, user_info["password"])
 
 
 def test_existing_user(client):
     existing_user = {
         "user_id": 1002,
         "user_name": "JaneSmith",
+        "user_full_name": "Jane Smith",
+        "user_phone_num": "555-1234",
         "address": "456 Oak Avenue, New York, NY",
         "email": "janesmith@example.com",
         "password": "mypassword456",
     }
-
     response = client.post('/add_user', json=existing_user)
-    assert response.status_code == http.HTTPStatus.OK
-
-    data = response.get_json()
-    assert data == {}
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
 
 # TODO - add test to get user info
@@ -685,7 +718,7 @@ def test_user_update_address(client):
 
 def test_user_update_user_name(client):
     """Test to update user_name of a user, by its user_id"""
-    update_info = {"user_id": 1003, "user_name": "Michael Cohen"}
+    update_info = {"user_id": 1003, "user_name": "Michael_Cohen"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
@@ -694,7 +727,35 @@ def test_user_update_user_name(client):
     response = client.get('/admin/users', query_string={"user_id": 1003})
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
-    assert data["users"]['1003']["user_name"] == "Michael Cohen"
+    assert data["users"]['1003']["user_name"] == "Michael_Cohen"
+
+
+def test_user_update_user_full_name(client):
+    """Test to update user_full_name of a user, by its user_id"""
+    update_info = {"user_id": 1003, "user_full_name": "Michael Levi"}
+    response = client.post('/update_user', json=update_info)
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify user details were updated correctly
+    response = client.get('/admin/users', query_string={"user_id": 1003})
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+    assert data["users"]['1003']["user_full_name"] == "Michael Levi"
+
+
+def test_user_update_user_phone_num(client):
+    """Test to update user_phone_num of a user, by its user_id"""
+    update_info = {"user_id": 1003, "user_phone_num": "555-1094"}
+    response = client.post('/update_user', json=update_info)
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify user details were updated correctly
+    response = client.get('/admin/users', query_string={"user_id": 1003})
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+    assert data["users"]['1003']["user_phone_num"] == "555-1094"
 
 
 def test_user_update_email(client):
@@ -709,6 +770,100 @@ def test_user_update_email(client):
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["email"] == "MichaelCohen@gmail.com"
+
+
+def test_user_update_password(client):
+    """Test to update password of a user and hash it, by its user_id"""
+    update_info = {"user_id": 1003, "password": "NewSecurePass123"}
+    response = client.post('/update_user', json=update_info)
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify user details were updated correctly
+    response = client.get('/admin/users', query_string={"user_id": 1003})
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+    hashed_password = data["users"]['1003']["password"]
+    # Verify that the new password saved as hash password
+    assert hashed_password != "NewSecurePass123"
+    assert check_password_hash(hashed_password, "NewSecurePass123")
+
+
+def test_get_user_details_existing():
+    """Test retrieving details of an existing user from the test database"""
+    user_id = 1003
+    user_data = user.get_user_details(user_id)
+
+    assert user_data["user_id"] == 1003
+    assert user_data["user_name"] == "MichaelBrown"
+    assert user_data["user_full_name"] == "Michael Brown"
+    assert user_data["user_phone_num"] == "555-5678"
+    assert user_data["address"] == "789 Maple Street, Los Angeles, CA"
+    assert user_data["email"] == "michaelbrown@example.com"
+
+
+# TODO - make sure tests for login and log out works for hash password
+
+# def test_user_login(client):
+#     """Test user login with correct credentials"""
+#     login_info = {"user_name":"MichaelBrown", "password": "brownieM123"}
+#     response = client.post('/login', json=login_info)
+#     data = response.get_json()
+#     assert response.status_code == http.HTTPStatus.OK
+#     assert data["success"] is True
+#     assert data["message"] == "Login successful"
+#     assert data["user_name"] == "MichaelBrown"
+
+# def test_user_login_wrong_password(client):
+#     """Test user login with incorrect password"""
+#     login_info = {"user_name":"MichaelBrown", "password": "WrongPass"}
+#     response = client.post('/login', json=login_info)
+#     data = response.get_json()
+#     assert response.status_code == http.HTTPStatus.UNAUTHORIZED
+
+
+# def test_user_login_nonexistent_user(client):
+#     """Test user login with non-existent user ID"""
+#     login_info = {"user_id": 9999, "password": "AnyPassword"}
+#     response = client.post('/login', json=login_info)
+#     data = response.get_json()
+#     assert response.status_code == http.HTTPStatus.UNAUTHORIZED
+
+
+# def test_user_login_and_logout(client):
+#     login_info = {"user_id": 1003, "password": "brownieM123"}
+
+#     response = client.post('/login', json=login_info)
+#     data = response.get_json()
+#     assert response.status_code == http.HTTPStatus.OK
+#     assert data["success"] is True
+#     assert data["message"] == "Login successful"
+#     assert data["user_id"] == 1003
+
+#     response = client.get('/is_logged_in', query_string={"user_id": 1003})
+#     data = response.get_json()
+#     assert response.status_code == http.HTTPStatus.OK
+#     assert data["success"] is True
+#     assert data["logged_in"] is True
+
+#     response = client.get('/admin/users', query_string={"user_id": 1003})
+#     data = response.get_json()
+#     assert response.status_code == http.HTTPStatus.OK
+#     hashed_password = data["users"]["1003"]["password"]
+#     assert hashed_password != "brownieM123"
+#     assert check_password_hash(hashed_password, "brownieM123")
+
+#     logout_info = {"user_id": 1003}
+#     response = client.post('/logout', json=logout_info)
+#     data = response.get_json()
+#     assert response.status_code == http.HTTPStatus.OK
+#     assert data == {"success": True, "message": "User logged out"}
+
+#     response = client.get('/is_logged_in', query_string={"user_id": 1003})
+#     data = response.get_json()
+#     assert response.status_code == http.HTTPStatus.OK
+#     assert data["success"] is True
+#     assert data["logged_in"] is False
 
 
 # ===============cart============================================
