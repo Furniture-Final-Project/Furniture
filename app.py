@@ -160,6 +160,27 @@ def create_app(config: dict):
             user.update_info_password(s, data)
         return flask.jsonify({})
 
+    @app.route('/login', methods=['POST'])
+    def login():
+        data = flask.request.get_json()
+        if "user_id" not in data or "password" not in data:
+            return flask.jsonify({"success": False, "message": "Missing user_id or password"}), 400
+        s = schema.session()
+        result = user.login_user(s, data["user_id"], data["password"])
+        if result["success"]:
+            flask.session["logged_in"] = True
+            flask.session["user_id"] = data["user_id"]
+        return flask.jsonify(result), (200 if result["success"] else 401)
+
+    @app.route('/logout', methods=['POST'])
+    def logout():
+        data = flask.request.get_json()
+        if "user_id" not in data:
+            return flask.jsonify({"success": False, "message": "Missing user_id"}), 400
+
+        result = user.logout_user(data["user_id"])
+        return flask.jsonify(result), (200 if result["success"] else 401)
+
     # ============== Shopping Cart ====================
     @app.route('/carts', methods=['GET'])
     def get_cart_items():
