@@ -99,3 +99,10 @@ def update_info_password(session: Session, user_data: dict):
         # Hash the new password before storing it
         user.password = generate_password_hash(user_data["password"])
         session.commit()
+
+def get_user_details(user_id):
+    s = schema.session()
+    query = s.query(schema.User)
+    query = query.filter_by(user_id=user_id)
+    result = query.first()
+    return result.to_dict()
