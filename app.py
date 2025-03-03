@@ -1,4 +1,5 @@
 import flask
+from platformdirs import user_runtime_dir
 import schema
 import services
 import services_user
@@ -110,21 +111,44 @@ def create_app(config: dict):
         users = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'users': users})
 
+    #@app.route('/add_user', methods=['POST'])
+    #def add_users():
+     #   """
+      #  API endpoint to add a new furniture item.
+       # """
+       #  data = flask.request.get_json()
+       #  s = schema.session()
+       #  services_user.add_user(s, data)
+       #  return flask.jsonify({})
+
     @app.route('/add_user', methods=['POST'])
     def add_users():
         """
-        API endpoint to add a new furniture item.
+        API endpoint to add a new user.
         """
         data = flask.request.get_json()
+        # Validate required fields
+        required_fields = ["user_id", "user_name", "address", "email", "password"]
+        if not all(field in data for field in required_fields):
+            return flask.jsonify({"success": False, "message": "Missing required fields"}), 400
+
         s = schema.session()
-        services_user.add_user(s, data)
+        services_user.add_new_user(s, data)
         return flask.jsonify({})
 
     @app.route('/update_user', methods=['POST'])
     def update_user_info():
         data = flask.request.get_json()
         s = schema.session()
-        services_user.update_info(s, data)
+        address = data.get("address")
+        user_name = data.get("user_name")
+        email = data.get("email")
+        if address is not None:
+            services_user.update_info_address(s, data)
+        if user_name is not None:
+            services_user.update_info_user_name(s, data)
+        if email is not None:
+            services_user.update_info_email(s, data)
         return flask.jsonify({})
 
     # ============== Shopping Cart ====================
@@ -152,6 +176,7 @@ def create_app(config: dict):
         results = query.all()
         cart_items = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'carts': cart_items})
+
 
     @app.route('/user/add_item_to_cart', methods=['POST'])
     def add_cart_item_endpoint():

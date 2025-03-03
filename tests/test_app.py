@@ -3,6 +3,7 @@ import app
 import http
 import schema
 from unittest.mock import patch
+from werkzeug.security import check_password_hash
 
 
 @pytest.fixture
@@ -568,7 +569,7 @@ def test_delete_item(client):
     assert data == {'items': {}}
 
 
-# ============user=============================
+#============user=============================
 
 
 def test_get_user_by_id(client):
@@ -586,7 +587,7 @@ def test_get_user_by_id(client):
         "password": "mypassword456",
     }
 
-
+    
 def test_add_new_user(client):
     user_info = {
         "user_id": 207105880,
@@ -605,13 +606,48 @@ def test_add_new_user(client):
     assert data["users"]['207105880']["user_name"] == "Jon Cohen"
 
 
+def test_password_hashing(client):
+    user_info = {
+        "user_id": 67890,
+        "user_name": "Alice Doe",
+        "address": "789 Oak St, New York, NY",
+        "email": "alicedoe@example.com",
+        "password": "mypassword123",
+    }
+
+    response = client.post('/add_user', json=user_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    response = client.get('/admin/users', query_string={"user_id": 67890})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+
+    hashed_password = data["users"]["67890"]["password"]
+    assert hashed_password != user_info["password"]
+    assert check_password_hash(hashed_password, user_info["password"])
+
+def test_existing_user(client):
+    existing_user = {
+        "user_id": 1002,
+        "user_name": "JaneSmith",
+        "address": "456 Oak Avenue, New York, NY",
+        "email": "janesmith@example.com",
+        "password": "mypassword456",
+    }
+
+    response = client.post('/add_user', json=existing_user)
+    assert response.status_code == http.HTTPStatus.OK
+
+    data = response.get_json()
+    assert data == {}
+
 # TODO - add test to get user info
 
 
 def test_user_update_address(client):
     """Test to update address of a user, by its user_id"""
-    update_info = {"user_id": 1003, "address": "21 Yaakov Meridor, Tel Aviv"}
-    response = client.post('/update_user', json=update_info)
+    updated_info = {"user_id": 1003, "address": "21 Yaakov Meridor, Tel Aviv"}
+    response = client.post('/update_user', json=updated_info)
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
 
@@ -620,9 +656,37 @@ def test_user_update_address(client):
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["address"] == "21 Yaakov Meridor, Tel Aviv"
+    
+  
+def test_user_update_user_name(client):
+    """Test to update user_name of a user, by its user_id"""
+    update_info = {"user_id": 1003, "user_name": "Michael Cohen"}
+    response = client.post('/update_user', json=update_info)
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify user details were updated correctly
+    response = client.get('/admin/users', query_string={"user_id": 1003})
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+    assert data["users"]['1003']["user_name"] == "Michael Cohen"
 
 
-# ===============cart============================================
+def test_user_update_email(client):
+    """Test to update email of a user, by its user_id"""
+    update_info = {"user_id": 1003, "email": "MichaelCohen@gmail.com"}
+    response = client.post('/update_user', json=update_info)
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify user details were updated correctly
+    response = client.get('/admin/users', query_string={"user_id": 1003})
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+    assert data["users"]['1003']["email"] == "MichaelCohen@gmail.com"
+
+    
+#===============cart============================================
 def test_cart_get_all_cart_table(client):
     """
     Test retrieving all items in carts.
@@ -644,7 +708,7 @@ def test_cart_get_all_cart_table(client):
 
     assert carts['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}
 
-
+  
 def test_cart_get_cart_by_userid(client):
     """
     Test retrieving a cart by user id.

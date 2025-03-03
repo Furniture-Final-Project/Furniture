@@ -11,7 +11,7 @@ def add_cart_item(session: Session, item_data: dict):
     :param item_data: Dictionary containing user id.
     :return: None
     """
-
+    
     cart = schema.CartItem.new(user_id=item_data['user_id'], model_num=item_data['model_num'], quantity=item_data['quantity'])
 
     # Validate user id in users table and model num in Furniture
