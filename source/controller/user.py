@@ -105,4 +105,11 @@ def get_user_details(user_id):
     query = s.query(schema.User)
     query = query.filter_by(user_id=user_id)
     result = query.first()
-    return result.to_dict()
+    if result:
+        user_data = result.to_dict()
+        # Remove data from details- sensitive info
+        user_data.pop("password", None)
+        return user_data
+
+    return None
+

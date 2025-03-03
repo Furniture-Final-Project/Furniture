@@ -4,6 +4,7 @@ import http
 import schema
 from unittest.mock import patch
 from werkzeug.security import check_password_hash
+import source.controller.user as user
 
 
 @pytest.fixture
@@ -765,6 +766,17 @@ def test_user_update_password(client):
     assert hashed_password != "NewSecurePass123"
     assert check_password_hash(hashed_password, "NewSecurePass123")
 
+def test_get_user_details_existing():
+    """Test retrieving details of an existing user from the test database"""
+    user_id = 1003
+    user_data = user.get_user_details(user_id)
+
+    assert user_data["user_id"] == 1003
+    assert user_data["user_name"] == "MichaelBrown"
+    assert user_data["user_full_name"] == "Michael Brown"
+    assert user_data["user_phone_num"] == "555-5678"
+    assert user_data["address"] == "789 Maple Street, Los Angeles, CA"
+    assert user_data["email"] == "michaelbrown@example.com"
 
 # ===============cart============================================
 def test_cart_get_all_cart_table(client):
