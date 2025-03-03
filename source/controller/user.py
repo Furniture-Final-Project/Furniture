@@ -22,6 +22,7 @@ from werkzeug.security import generate_password_hash
 #     session.commit()
 
 
+
 def add_new_user(session: Session, user_data: dict):
     """
     Adds a new user to the database, including duplicate checks and password security.
@@ -98,4 +99,3 @@ def update_info_password(session: Session, user_data: dict):
         # Hash the new password before storing it
         user.password = generate_password_hash(user_data["password"])
         session.commit()
-
