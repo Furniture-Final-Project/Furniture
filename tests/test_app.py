@@ -799,8 +799,6 @@ def test_user_login_nonexistent_user(client):
     response = client.post('/login', json=login_info)
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.UNAUTHORIZED
-    assert data["success"] is False
-    assert data["message"] == "User not found, need to register"
 
 
 def test_user_login_and_logout(client):

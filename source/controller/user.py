@@ -103,10 +103,10 @@ def get_user_details(user_id):
 def login_user(session: Session, user_id: int, password: str):
     user = session.get(schema.User, user_id)
     if not user:
-        flask.abort(http.HTTPStatus.BAD_REQUEST, "User not found, need to register")
+        flask.abort(http.HTTPStatus.UNAUTHORIZED, "User not found, need to register")
     if not check_password_hash(user.password, password):
-        flask.abort(http.HTTPStatus.BAD_REQUEST, "Incorrect password")
-        
+        flask.abort(http.HTTPStatus.UNAUTHORIZED, "Incorrect password")
+
     flask.session["logged_in"] = True
     flask.session["user_id"] = user.user_id
     return {"success": True, "message": "Login successful", "user_id": user.user_id}
