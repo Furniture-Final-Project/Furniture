@@ -44,15 +44,6 @@ def get_cart_item_full_details(model_num):  # TODO: add integration tests
     item['final_price'] = final_price
     return item
 
-
-def get_cart_user_details(user_id):
-    s = schema.session()
-    query = s.query(schema.User)
-    query = query.filter_by(user_id=user_id)
-    result = query.first()
-    return result.to_dict()
-
-
 def update_cart_item_quantity(session: Session, item_data: dict):
     # TODO: Check if item_data["quantity"] == 0 activate delete method
     # Validate new quantity is not negative

@@ -70,6 +70,8 @@ def create_app(config: dict):
     # TODO - Admin
 
     @app.route('/admin/add_item', methods=['POST'])
+    @login_required
+    @admin_required
     def add_item_endpoint():
         """
         API endpoint to add a new furniture item.
@@ -80,6 +82,8 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     @app.route('/admin/update_item', methods=['POST'])
+    @login_required
+    @admin_required
     def update_item_endpoint():
         """
         API endpoint to add a new furniture item.
@@ -90,6 +94,8 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     @app.route('/admin/delete_item', methods=['POST'])
+    @login_required
+    @admin_required
     def delete_item_endpoint():
         data = flask.request.get_json()
         s = schema.session()
@@ -98,6 +104,8 @@ def create_app(config: dict):
 
     # ============== User ====================
     @app.route('/admin/users', methods=['GET'])
+    @login_required
+    @admin_required
     def get_users():
         s = schema.session()
         query = s.query(schema.User)
@@ -122,6 +130,7 @@ def create_app(config: dict):
     #  return flask.jsonify({})
 
     @app.route('/add_user', methods=['POST'])
+    @login_required
     def add_users():
         """
         API endpoint to add a new user.
@@ -137,6 +146,7 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     @app.route('/update_user', methods=['POST'])
+    @login_required
     def update_user_info():
         data = flask.request.get_json()
         s = schema.session()
@@ -187,6 +197,7 @@ def create_app(config: dict):
         return flask.jsonify({'carts': cart_items})
 
     @app.route('/user/add_item_to_cart', methods=['POST'])
+    @login_required
     def add_cart_item_endpoint():
         """
         API endpoint to add a new item to cart for a user - will be called when the user will add the first item to the cart.
@@ -197,6 +208,7 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     @app.route('/user/update_cart_item_quantity', methods=['POST'])
+    @login_required
     def update_cart_item_endpoint():
         """
         API endpoint to update the item quantity in shopping cart.
@@ -207,6 +219,7 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     @app.route('/user/delete_cart_item', methods=['POST'])
+    @login_required
     def delete_cart_item_endpoint():
         data = flask.request.get_json()
         s = schema.session()
@@ -215,3 +228,8 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     return app
+
+
+
+# @login_required
+# @admin_required
