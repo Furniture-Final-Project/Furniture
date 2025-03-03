@@ -2,8 +2,8 @@ import pytest
 import app
 import http
 import schema
+from unittest.mock import patch
 from werkzeug.security import check_password_hash
-
 
 
 @pytest.fixture
@@ -568,7 +568,9 @@ def test_delete_item(client):
     data = response.get_json()
     assert data == {'items': {}}
 
+
 #============user=============================
+
 
 def test_get_user_by_id(client):
     response = client.get('/admin/users', query_string={"user_id": 1002})
@@ -602,6 +604,7 @@ def test_add_new_user(client):
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     assert data["users"]['207105880']["user_name"] == "Jon Cohen"
+
 
 def test_password_hashing(client):
     user_info = {
@@ -653,10 +656,11 @@ def test_user_update_address(client):
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["address"] == "21 Yaakov Meridor, Tel Aviv"
-
+    
+  
 def test_user_update_user_name(client):
     """Test to update user_name of a user, by its user_id"""
-    update_info = {"user_id": 1003, "user_name": "Michael Cohen" }
+    update_info = {"user_id": 1003, "user_name": "Michael Cohen"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
@@ -666,6 +670,7 @@ def test_user_update_user_name(client):
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["user_name"] == "Michael Cohen"
+
 
 def test_user_update_email(client):
     """Test to update email of a user, by its user_id"""
@@ -680,9 +685,7 @@ def test_user_update_email(client):
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["email"] == "MichaelCohen@gmail.com"
 
-
-
-
+    
 #===============cart============================================
 def test_cart_get_all_cart_table(client):
     """
@@ -703,10 +706,9 @@ def test_cart_get_all_cart_table(client):
     carts = data['carts']
     assert len(carts) == 1
 
-    assert carts['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2}
+    assert carts['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}
 
-
-# TODO: update
+  
 def test_cart_get_cart_by_userid(client):
     """
     Test retrieving a cart by user id.
@@ -723,32 +725,178 @@ def test_cart_get_cart_by_userid(client):
     cart = data['carts']
     assert len(cart) == 1
 
-    assert cart['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2}
+    assert cart['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}
+    assert data['cart_total_price'] == 236.0
+
+
+@pytest.mark.parametrize(
+    "user_exists, item_exists, expected",
+    [
+        (True, True, True),  # True
+        (False, True, False),  # False
+        (True, False, False),  # False
+        (False, False, False),  # False
+    ],
+)
+def test_valid_method_cartitem(user_exists, item_exists, expected):
+    """
+    Test the valid() function of CartItem.
+    It should return True only if both the user and item exist.
+    """
+    cart_item = schema.CartItem(user_id=9999, model_num="chair-10", quantity=1)
+
+    with (
+        patch("schema.cart.get_cart_user_details", return_value=user_exists),
+        patch("schema.cart.get_cart_item_full_details", return_value=item_exists),
+    ):
+
+        assert cart_item.valid() == expected
 
 
 def test_add_first_item_to_cart(client):
-     """
-     Test adding new item to a specific cart of a specific user.
-     """
-     cart_item = {
-        "user_id": 1003,
-        "model_num": "chair-1",
-        "quantity": 1
+    """
+    Test adding new item to a specific cart of a specific user.
+    """
+    cart_item = {"user_id": 1003, "model_num": "chair-1", "quantity": 1}
+
+    # Send a POST request to add the cart for the specific user
+    response = client.post('/user/add_item_to_cart', json=cart_item)
+    data = response.get_json()
+
+    # Check that the item was added successfully
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify item exists
+    response = client.get('/carts', query_string={"user_id": 1003})
+    data = response.get_json()
+
+    # Check that the cart is returned correctly
+    assert response.status_code == http.HTTPStatus.OK
+    assert "1003" in data["carts"]
+    assert data["carts"]['1003']['model_num'] == "chair-1"
+    assert data["carts"]['1003']['quantity'] == 1
+
+
+def test_add_item_to_cart_not_enough_units_in_stock(client):
+    """
+    Test  adding item to cart is not possible if the asked quantity is bigger than stock quantity.
+    Expecting an error response.
+    """
+    cart_item = {"user_id": 1003, "model_num": "chair-2", "quantity": 2}
+    with patch("source.controller.cart.get_cart_item_full_details", return_value={cart_item["model_num"]: {"stock_quantity": 1}}):
+        response = client.post('/user/add_item_to_cart', json=cart_item)
+        assert response.status_code == http.HTTPStatus.CONFLICT
+
+
+def test_add_invalid_cart_item(client):
+    """
+    Test adding an item to the cart with a non-existent user ID or non-existent model number.
+    Expecting an error response.
+    """
+    cart_item = {"user_id": 9999, "model_num": "chair-1", "quantity": 1}
+
+    with patch("schema.CartItem.valid", return_value=False):
+        response = client.post('/user/add_item_to_cart', json=cart_item)
+
+        assert response.status_code == http.HTTPStatus.BAD_REQUEST
+
+
+def test_get_specific_item_in_cart(client):
+    """
+    Test retrieving an item by model number and user id.
+    """
+    response = client.get('/carts', query_string={"user_id": 1002, 'model_num': 'chair-0'})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    cart = data['carts']
+    assert len(cart) == 1
+
+    assert cart['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}
+
+
+def test_update_cart_item_quantity(client):
+    """
+    Test updating a cart item quantity and that the price updates.
+    """
+
+    update_info = dict(model_num="chair-0", user_id=1002, quantity=4)
+    with patch("source.controller.cart.get_cart_item_full_details", return_value={update_info["model_num"]: {"stock_quantity": 5}}):
+        response = client.post('/user/update_cart_item_quantity', json=update_info)
+        assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify item stock update
+    response = client.get('/carts', query_string={"user_id": 1002})
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+
+    assert data["carts"]["1002"]["quantity"] == 4
+
+    assert data["carts"]['1002'] == {
+        'user_id': 1002,
+        'model_num': 'chair-0',
+        'quantity': 4,
+        'price_per_unit': 118.0,
+        'price': 472.0,
+        'model_name': 'Yosef',
     }
 
-     # Send a POST request to add the cart for the specific user
-     response = client.post('/add_item_to_cart', json=cart_item)
-     data = response.get_json()
 
-     # Check that the item was added successfully
-     assert response.status_code == http.HTTPStatus.OK
+def test_update_quantity_with_item_not_in_cart(client):
+    """Test that updating a cart item is not possible if the item not in user's cart"""
+    update_info = dict(model_num="chair-0", user_id=1004, quantity=1)
+    response = client.post('/user/update_cart_item_quantity', json=update_info)
+    assert response.status_code == http.HTTPStatus.NOT_FOUND
 
-     # Send a GET request to verify item exists
-     response = client.get('/carts', query_string={"user_id": 1003})
-     data = response.get_json()
 
-     # Check that the cart is returned correctly
-     assert response.status_code == http.HTTPStatus.OK
-     assert "1003" in data["carts"]
-     assert data["carts"]['1003']['model_num'] == "chair-1"
-     assert data["carts"]['1003']['quantity'] == 1
+def test_update_quantity_with_not_enough_units_in_stock(client):
+    """
+    Test that updating a cart item is not possible if the item not in stock or do not have enough units in stock.
+    Expecting an error response.
+    """
+    update_info = dict(model_num="chair-0", user_id=1004, quantity=5)
+
+    with patch("source.controller.cart.get_cart_item_full_details", return_value={update_info["model_num"]: {"stock_quantity": 3}}):
+        response = client.post('/user/add_item_to_cart', json=update_info)
+        assert response.status_code == http.HTTPStatus.CONFLICT
+
+
+def test_delete_cart_item(client):
+    """Test deleting a cart item from CartItem table"""
+    # Ensure the cart item in the cart
+    response = client.get('/carts', query_string={"user_id": 1002, 'model_num': 'chair-0'})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    cart = data['carts']
+    assert cart['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}
+
+    delete_item = {'model_num': 'chair-0', 'user_id': 1002}
+    # Send a POST request to delete the item
+    response = client.post('/user/delete_cart_item', json=delete_item)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify item deleted successfully
+    response = client.get('/carts', query_string={"user_id": 1002, 'model_num': 'chair-0'})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    assert data['carts'] == {}
+
+
+def test_updating_cart_item_quantity_to_0(client):
+    """Test updating a cart item quantity to 0 will delete it from the table"""
+    # Ensure the cart item in the cart
+    response = client.get('/carts', query_string={"user_id": 1002, 'model_num': 'chair-0'})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    cart = data['carts']
+    assert cart['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}
+
+    # update quantity to 0
+    update_info = dict(model_num="chair-0", user_id=1002, quantity=0)
+    response = client.post('/user/update_cart_item_quantity', json=update_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify item deleted successfully
+    response = client.get('/carts', query_string={"user_id": 1002, 'model_num': 'chair-0'})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    assert data['carts'] == {}

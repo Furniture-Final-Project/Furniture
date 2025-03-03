@@ -1,10 +1,10 @@
 import flask
 from platformdirs import user_runtime_dir
-
 import schema
 import services
 import services_user
 import source.controller.cart as cart
+
 
 def create_app(config: dict):
     app = flask.Flask(__name__)
@@ -79,7 +79,6 @@ def create_app(config: dict):
         services.add_item(s, data)  # call add_item from services.py
         return flask.jsonify({})
 
-
     @app.route('/admin/update_item', methods=['POST'])
     def update_item_endpoint():
         """
@@ -90,7 +89,6 @@ def create_app(config: dict):
         services.update_item_quantity(s, data)  # call add_item from services.py
         return flask.jsonify({})
 
-      
     @app.route('/admin/delete_item', methods=['POST'])
     def delete_item_endpoint():
         data = flask.request.get_json()
@@ -98,7 +96,6 @@ def create_app(config: dict):
         services.delete_item(s, data["model_num"])
         return flask.jsonify({})
 
-      
     # ============== User ====================
     @app.route('/admin/users', methods=['GET'])
     def get_users():
@@ -113,7 +110,6 @@ def create_app(config: dict):
         results = query.all()
         users = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'users': users})
-
 
     #@app.route('/add_user', methods=['POST'])
     #def add_users():
@@ -140,7 +136,6 @@ def create_app(config: dict):
         services_user.add_new_user(s, data)
         return flask.jsonify({})
 
-
     @app.route('/update_user', methods=['POST'])
     def update_user_info():
         data = flask.request.get_json()
@@ -163,26 +158,52 @@ def create_app(config: dict):
         query = s.query(schema.CartItem)
 
         user_id = flask.request.args.get('user_id')
+        mdoel_num = flask.request.args.get('mdoel_num')
 
         if user_id is not None:
             query = query.filter(schema.CartItem.user_id == user_id)
             results = query.all()
-            # TODO: add calculation of total cart price
+            total_price = 0
+            cart_items = {result.user_id: result.to_dict() for result in results}
+
+            for cart_item in cart_items.values():  # Iterate over dictionary values
+                total_price += cart_item['price']
+            return flask.jsonify({'carts': cart_items, 'cart_total_price': total_price})
+
+        if mdoel_num is not None:
+            query = query.filter(schema.CartItem.user_id == user_id)
 
         results = query.all()
         cart_items = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'carts': cart_items})
 
 
-
-    @app.route('/add_item_to_cart', methods=['POST'])
-    def add_cart_endpoint():
+    @app.route('/user/add_item_to_cart', methods=['POST'])
+    def add_cart_item_endpoint():
         """
         API endpoint to add a new item to cart for a user - will be called when the user will add the first item to the cart.
         """
         data = flask.request.get_json()  # Get JSON payload from the request
         s = schema.session()  # create a new session for DB operations
         cart.add_cart_item(s, data)  # call add_item from services.py
+        return flask.jsonify({})
+
+    @app.route('/user/update_cart_item_quantity', methods=['POST'])
+    def update_cart_item_endpoint():
+        """
+        API endpoint to update the item quantity in shopping cart.
+        """
+        data = flask.request.get_json()  # Get JSON payload from the request
+        s = schema.session()  # create a new session for DB operations
+        cart.update_cart_item_quantity(s, data)  # call add_item from controller/cart.py
+        return flask.jsonify({})
+
+    @app.route('/user/delete_cart_item', methods=['POST'])
+    def delete_cart_item_endpoint():
+        data = flask.request.get_json()
+        s = schema.session()
+        item_data = {"model_num": data["model_num"], "user_id": data["user_id"]}
+        cart.delete_cart_item(s, item_data)
         return flask.jsonify({})
 
     return app

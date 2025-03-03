@@ -3,6 +3,7 @@ from sqlalchemy import String, Float, Integer, JSON, create_engine, PrimaryKeyCo
 from typing import Optional, Dict
 import copy
 import abc
+import source.controller.cart as cart
 
 
 class Base(DeclarativeBase):
@@ -40,7 +41,7 @@ class Furniture(Base):
         """Apply a tax rate to the price and return the new price."""
         return round(final_price * (1 + tax_rate / 100), 1)
 
-
+      
     @staticmethod
     def new(
         model_num: str,
@@ -235,6 +236,11 @@ class CartItem(Base):
 
     def to_dict(self):
         result = Base.to_dict(self)
+        item_details = cart.get_cart_item_full_details(self.model_num)
+        if item_details:
+            result['model_name'] = item_details[self.model_num]['model_name']
+            result['price_per_unit'] = item_details[self.model_num]['final_price']
+            result['price'] = item_details[self.model_num]['final_price'] * result['quantity']
         return result
 
     @staticmethod
@@ -250,8 +256,14 @@ class CartItem(Base):
         return result
 
     def valid(self):
-        return True # I changed it to true becuase if not- the test failed in this point 
-        pass  # TODO: validate user id by checking if it's exists in the user table + validate model number by checking if it's exists in the furniture table-- HOW?
+        # Validate model number
+        item = cart.get_cart_item_full_details(self.model_num)
+        user = cart.get_cart_user_details(self.user_id)
+
+        if not item or not user:
+            return False
+        return True
+        # TODO: Test integration
 
 
 _engine = None
