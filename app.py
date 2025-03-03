@@ -1,9 +1,8 @@
 import flask
-
 # from platformdirs import user_runtime_dir
 import schema
-import services
-import services_user
+import source.controller.furniture_inventory as furniture_inventory
+import source.controller.user as user
 import source.controller.cart as cart
 
 
@@ -77,7 +76,7 @@ def create_app(config: dict):
         """
         data = flask.request.get_json()  # Get JSON payload from the request
         s = schema.session()  # create a new session for DB operations
-        services.add_item(s, data)  # call add_item from services.py
+        furniture_inventory.add_item(s, data)  # call add_item from services.py
         return flask.jsonify({})
 
     @app.route('/admin/update_item', methods=['POST'])
@@ -87,14 +86,14 @@ def create_app(config: dict):
         """
         data = flask.request.get_json()  # Get JSON payload from the request
         s = schema.session()  # create a new session for DB operations
-        services.update_item_quantity(s, data)  # call add_item from services.py
+        furniture_inventory.update_item_quantity(s, data)  # call add_item from services.py
         return flask.jsonify({})
 
     @app.route('/admin/delete_item', methods=['POST'])
     def delete_item_endpoint():
         data = flask.request.get_json()
         s = schema.session()
-        services.delete_item(s, data["model_num"])
+        furniture_inventory.delete_item(s, data["model_num"])
         return flask.jsonify({})
 
     # ============== User ====================
@@ -134,7 +133,7 @@ def create_app(config: dict):
             return flask.jsonify({"success": False, "message": "Missing required fields"}), 400
 
         s = schema.session()
-        services_user.add_new_user(s, data)
+        user.add_new_user(s, data)
         return flask.jsonify({})
 
     @app.route('/update_user', methods=['POST'])
@@ -145,11 +144,11 @@ def create_app(config: dict):
         user_name = data.get("user_name")
         email = data.get("email")
         if address is not None:
-            services_user.update_info_address(s, data)
+            user.update_info_address(s, data)
         if user_name is not None:
-            services_user.update_info_user_name(s, data)
+            user.update_info_user_name(s, data)
         if email is not None:
-            services_user.update_info_email(s, data)
+            user.update_info_email(s, data)
         return flask.jsonify({})
 
     # ============== Shopping Cart ====================
