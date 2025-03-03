@@ -2,6 +2,7 @@ import http
 import schema
 import flask
 from sqlalchemy.orm import Session
+from source.models.OrderStatus import OrderStatus
 
 
 def add_order(session: Session, item_data: dict):
@@ -27,4 +28,24 @@ def add_order(session: Session, item_data: dict):
         flask.abort(http.HTTPStatus.BAD_REQUEST, error_message)  # Return detailed error message
 
     session.add(order)
+    session.commit()
+
+
+def update_order_status(session: Session, item_data: dict):
+    """
+    Update the status of the order.
+    :param new_status: New status to set for the order.
+    :raises ValueError: If new_status is not a valid OrderStatus.
+    """
+    new_status_str = item_data['status']
+    try:
+        new_status = OrderStatus(new_status_str)  # Convert string back to Enum
+    except ValueError:
+        raise ValueError(f"Invalid status: {new_status_str}. Must be a valid OrderStatus value.")
+
+    order = session.get(schema.Order, item_data["order_num"])
+    if not order:
+        flask.abort(http.HTTPStatus.NOT_FOUND, "Order not found")
+
+    order.status = new_status  # Store the Enum instance
     session.commit()

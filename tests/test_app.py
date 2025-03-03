@@ -1186,6 +1186,7 @@ def test_get_order_by_order_num(client):
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     orders = data['orders']
+    assert len(orders) == 1
     assert orders == {
         "2": {
             "order_num": 2,
@@ -1201,3 +1202,26 @@ def test_get_order_by_order_num(client):
             "creation_time": 'Sun, 03 Mar 2024 12:30:00 GMT',
         }
     }
+
+
+def test_update_order_status(client):
+    response = client.get('/orders', query_string={"order_num": 1})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    orders = data['orders']
+    assert orders["1"]["status"] == "PENDING"
+
+    # update order status
+    update_info = dict(order_num=1, status=OrderStatus.SHIPPED.value)  # Convert to string
+    response = client.post('/admin/update_order_status', json=update_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify item stock update
+    response = client.get('/orders', query_string={"order_num": 1})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    orders = data['orders']
+    assert orders["1"]["status"] == "SHIPPED"
+
+
+# TODO: test that invalid status will raise error
