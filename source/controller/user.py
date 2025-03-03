@@ -6,7 +6,7 @@ import flask
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
-from werkzeug.security import check_password_hash
+# from werkzeug.security import check_password_hash
 
 
 def add_new_user(session: Session, user_data: dict):
