@@ -128,7 +128,7 @@ def create_app(config: dict):
         """
         data = flask.request.get_json()
         # Validate required fields
-        required_fields = ["user_id", "user_name", "address", "email", "password"]
+        required_fields = ["user_id", "user_name", "user_full_name", "user_phone_num", "address", "email", "password"]
         if not all(field in data for field in required_fields):
             return flask.jsonify({"success": False, "message": "Missing required fields"}), 400
 
@@ -143,10 +143,16 @@ def create_app(config: dict):
         address = data.get("address")
         user_name = data.get("user_name")
         email = data.get("email")
+        user_full_name = data.get("user_full_name")
+        user_phone_num = data.get("user_phone_num")
         if address is not None:
             user.update_info_address(s, data)
         if user_name is not None:
             user.update_info_user_name(s, data)
+        if user_full_name is not None:
+            user.update_info_user_full_name(s,data)
+        if user_phone_num is not None:
+            user.update_info_user_phone_num(s,data)
         if email is not None:
             user.update_info_email(s, data)
         return flask.jsonify({})

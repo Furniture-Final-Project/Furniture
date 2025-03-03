@@ -610,6 +610,8 @@ def test_get_user_by_id(client):
     assert users['1002'] == {
         "user_id": 1002,
         "user_name": "JaneSmith",
+        "user_full_name": "Jane Smith",
+        "user_phone_num": "555-1234",
         "address": "456 Oak Avenue, New York, NY",
         "email": "janesmith@example.com",
         "password": "mypassword456",
@@ -619,7 +621,9 @@ def test_get_user_by_id(client):
 def test_add_new_user(client):
     user_info = {
         "user_id": 207105880,
-        "user_name": "Jon Cohen",
+        "user_name": "JonCohen",
+        "user_full_name": "Jon Cohen",
+        "user_phone_num": "555-7824",
         "address": "123 Elm Street, Springfield, IL",
         "email": "johndoe@example.com",
         "password": "securepassword123",
@@ -631,13 +635,15 @@ def test_add_new_user(client):
     response = client.get('/admin/users', query_string={"user_id": 207105880})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
-    assert data["users"]['207105880']["user_name"] == "Jon Cohen"
+    assert data["users"]['207105880']["user_name"] == "JonCohen"
 
 
 def test_password_hashing(client):
     user_info = {
         "user_id": 67890,
-        "user_name": "Alice Doe",
+        "user_name": "AliceDoe",
+        "user_full_name": "Alice Doe",
+        "user_phone_num": "555-8821",
         "address": "789 Oak St, New York, NY",
         "email": "alicedoe@example.com",
         "password": "mypassword123",
@@ -659,6 +665,8 @@ def test_existing_user(client):
     existing_user = {
         "user_id": 1002,
         "user_name": "JaneSmith",
+        "user_full_name": "Jane Smith",
+        "user_phone_num": "555-1234",
         "address": "456 Oak Avenue, New York, NY",
         "email": "janesmith@example.com",
         "password": "mypassword456",
@@ -690,7 +698,7 @@ def test_user_update_address(client):
 
 def test_user_update_user_name(client):
     """Test to update user_name of a user, by its user_id"""
-    update_info = {"user_id": 1003, "user_name": "Michael Cohen"}
+    update_info = {"user_id": 1003, "user_name": "Michael_Cohen"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
@@ -699,8 +707,34 @@ def test_user_update_user_name(client):
     response = client.get('/admin/users', query_string={"user_id": 1003})
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
-    assert data["users"]['1003']["user_name"] == "Michael Cohen"
+    assert data["users"]['1003']["user_name"] == "Michael_Cohen"
 
+
+def test_user_update_user_full_name(client):
+    """Test to update user_full_name of a user, by its user_id"""
+    update_info = {"user_id": 1003, "user_full_name": "Michael Levi"}
+    response = client.post('/update_user', json=update_info)
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify user details were updated correctly
+    response = client.get('/admin/users', query_string={"user_id": 1003})
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+    assert data["users"]['1003']["user_full_name"] == "Michael Levi"
+
+def test_user_update_user_phone_num(client):
+    """Test to update user_phone_num of a user, by its user_id"""
+    update_info = {"user_id": 1003, "user_phone_num": "555-1094"}
+    response = client.post('/update_user', json=update_info)
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify user details were updated correctly
+    response = client.get('/admin/users', query_string={"user_id": 1003})
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+    assert data["users"]['1003']["user_phone_num"] == "555-1094"
 
 def test_user_update_email(client):
     """Test to update email of a user, by its user_id"""

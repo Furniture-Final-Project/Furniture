@@ -210,6 +210,8 @@ class User(Base):  # TODO - make it fit to user
 
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_name: Mapped[str] = mapped_column(String, nullable=True)
+    user_full_name: Mapped[str] = mapped_column(String, nullable=True)
+    user_phone_num: Mapped[str] = mapped_column(String, nullable=True)
     address: Mapped[str] = mapped_column(String, nullable=True)
     email: Mapped[str] = mapped_column(String, nullable=True)
     password: Mapped[str] = mapped_column(String, nullable=True)
@@ -218,8 +220,8 @@ class User(Base):  # TODO - make it fit to user
         result = Base.to_dict(self)
         return result
 
-    def new(user_id: int, user_name: str, address: str, email: str, password: str):
-        result = User(user_id=user_id, user_name=user_name, address=address, email=email, password=password)
+    def new(user_id: int, user_name: str, user_full_name: str, user_phone_num: str, address: str, email: str, password: str):
+        result = User(user_id=user_id, user_name=user_name, user_full_name=user_full_name, user_phone_num=user_phone_num, address=address, email=email, password=password)
         return result
 
 
