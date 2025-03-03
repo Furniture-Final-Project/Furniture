@@ -1,9 +1,13 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
-from sqlalchemy import String, Float, Integer, JSON, create_engine, PrimaryKeyConstraint
+from sqlalchemy import String, Float, Integer, JSON, create_engine, PrimaryKeyConstraint, DateTime
 from typing import Optional, Dict
 import copy
 import abc
+from datetime import datetime
 import source.controller.cart as cart
+import source.controller.user as user
+from source.models.OrderStatus import OrderStatus
+from sqlalchemy import Enum as SQLAlchemyEnum
 
 
 class Base(DeclarativeBase):
@@ -220,6 +224,7 @@ class User(Base):  # TODO - make it fit to user
         result = Base.to_dict(self)
         return result
 
+    @staticmethod
     def new(user_id: int, user_name: str, user_full_name: str, user_phone_num: str, address: str, email: str, password: str):
         result = User(
             user_id=user_id,
@@ -266,12 +271,139 @@ class CartItem(Base):
     def valid(self):
         # Validate model number
         item = cart.get_cart_item_full_details(self.model_num)
-        user = cart.get_cart_user_details(self.user_id)
+        client = user.get_user_details(self.user_id)
 
-        if not item or not user:
+        if not item or not client:
             return False
         return True
         # TODO: Test integration
+
+
+# ---------------Order Table----------------
+# -----------------Order Table---------------------
+class Order(Base):
+    __tablename__ = "order"
+
+    order_num: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    user_email: Mapped[str] = mapped_column(String, nullable=True)
+    shipping_address: Mapped[str] = mapped_column(String, nullable=True)
+    items: Mapped[dict] = mapped_column(JSON, nullable=True)
+    total_price: Mapped[float] = mapped_column(Float, nullable=True)
+    status: Mapped[OrderStatus] = mapped_column(SQLAlchemyEnum(OrderStatus), nullable=False)
+    creation_time: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+
+    def to_dict(self):
+        result = Base.to_dict(self)
+        customer = user.get_user_details(self.user_id)
+        result['phone_number'] = customer[self.user_id]['user_phone_num']
+        result['user_name'] = customer[self.user_id]['user_name']
+        result['user_full_name'] = customer[self.user_id]['user_full_name']
+        result['status'] = self.status.name
+
+        return result
+
+    @staticmethod
+    def new(user_id: int, items: dict, user_email: str, user_name: str, shipping_address: str, total_price: float):
+        """
+        Add new order.
+
+        :param user_id: The ID of the user who made the purchase.
+        :param items: Items dictionary, the items that have been purchased in the order [model_num: quantity]
+        :param user_email: The email address of the user who made the purchase.
+        :param shipping_address: The shipping address of the user who made the purchase.
+        :param user_name: The username of the user who made the purchase.
+        :param total_price: The total price of the order.
+        :return: A new instance of CartItem.
+        """
+        new_order = Order(
+            user_id=user_id,
+            items=items,
+            user_email=user_email,
+            shipping_address=shipping_address,
+            total_price=total_price,
+            status=OrderStatus.PENDING,
+            creation_time=datetime.utcnow(),
+        )
+        #  Order num is generated automatic
+
+        return new_order
+
+    def valid(self):
+        """
+        Validate the order and return (True, None) if valid, or (False, error_message) if not.
+        """
+
+        # Validate user ID exists
+        customer = user.get_user_details(self.user_id)
+        if not customer:
+            return False, "Invalid user ID. User does not exist."
+
+        # Validate total price is greater than 0
+        if self.total_price <= 0:
+            return False, "Total price must be greater than zero."
+
+        # Validate items is not an empty dict
+        if not self.items:
+            return False, "Order must contain at least one item."
+
+        # Validate all items exist and have valid quantities
+        for key, value in self.items.items():
+            if not cart.get_cart_item_full_details(key):
+                return False, f"Item with model_num {key} does not exist."
+            if not isinstance(value, (int, float)) or value <= 0:
+                return False, f"Invalid quantity for item {key}. Quantity must be greater than zero."
+
+        return True, None  # No errors
+
+
+# class Order:
+#     def __init__(self, order_id, customer_name, phone, username, email, shipping_address, items, total_price,
+#                  status=OrderStatus.PENDING):
+#         """
+#         Initialize an Order object.
+#
+#         :param order_id: Unique ID for the order.
+#         :param customer_name: Name of the customer.
+#         :param phone: Phone number of the customer.
+#         :param username: Username of the customer.
+#         :param email: Email address of the customer.
+#         :param shipping_address: Address to deliver the order.
+#         :param items: List of purchased items.
+#         :param total_price: Total price of the order.
+#         :param status: Status of the order (default is 'pending').
+#         """
+#         self.order_id = order_id
+#         self.customer_name = customer_name
+#         self.phone = phone
+#         self.username = username
+#         self.email = email
+#         self.shipping_address = shipping_address
+#         self.items = items
+#         self.total_price = total_price
+#         self.status = status
+#
+#     def update_status(self, new_status):
+#         """
+#         Update the status of the order.
+#
+#         :param new_status: New status to set for the order.
+#         :raises ValueError: If new_status is not a valid OrderStatus.
+#         """
+#         if not isinstance(new_status, OrderStatus):
+#             raise ValueError(f"Invalid status: {new_status}. Must be an instance of OrderStatus Enum.")
+#         self.status = new_status
+#
+#     def cancel_order(self):
+#         """
+#         Cancel the order if its status is 'pending'.
+#
+#         raises ValueError: If the order cannot be cancelled.
+#         """
+#         if self.status == OrderStatus.PENDING:
+#             self.status = OrderStatus.CANCELLED
+#         else:
+#             raise ValueError("Order cannot be cancelled as it has already been processed.")
 
 
 _engine = None
