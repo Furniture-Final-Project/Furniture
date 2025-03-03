@@ -1,4 +1,5 @@
 import flask
+
 # from platformdirs import user_runtime_dir
 import schema
 import source.controller.furniture_inventory as furniture_inventory
@@ -204,5 +205,27 @@ def create_app(config: dict):
         item_data = {"model_num": data["model_num"], "user_id": data["user_id"]}
         cart.delete_cart_item(s, item_data)
         return flask.jsonify({})
+
+    # ============== Order ====================
+    @app.route('/orders', methods=['GET'])
+    def get_order_items():
+        s = schema.session()
+        query = s.query(schema.Order)
+
+        user_id = flask.request.args.get('user_id')
+        order_num = flask.request.args.get('order_num')
+
+        if user_id is not None:
+            query = query.filter(schema.Order.user_id == user_id)
+
+        if order_num is not None:
+            query = query.filter(schema.Order.order_num == order_num)
+
+        # Order by creation_time in descending order
+        query = query.order_by(schema.Order.creation_time.desc())
+
+        results = query.all()
+        orders = {result.order_num: result.to_dict() for result in results}
+        return flask.jsonify({'orders': orders})
 
     return app

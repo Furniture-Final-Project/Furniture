@@ -8,7 +8,7 @@ def add_cart_item(session: Session, item_data: dict):
     """
     Adds item to cart - add item and user to the CartItem database
     :param session: SQLAlchemy session object.
-    :param item_data: Dictionary containing user id.
+    :param item_data: Dictionary containing user id, model number and quantity.
     :return: None
     """
 
