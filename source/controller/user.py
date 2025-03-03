@@ -79,12 +79,14 @@ def update_info_email(session: Session, user_data: dict):
         user.email = user_data["email"]
         session.commit()
 
+
 def update_info_password(session: Session, user_data: dict):
     user = session.get(schema.User, user_data["user_id"])
     if user:
         # Hash the new password before storing it
         user.password = generate_password_hash(user_data["password"])
         session.commit()
+
 
 def get_user_details(user_id):
     s = schema.session()
@@ -121,7 +123,3 @@ def get_user_details(user_id):
 #         flask.session.pop("logged_in", None)
 #         return {"success": True, "message": "User logged out"}
 #     return {"success": False, "message": "Invalid user or not logged in"}
-
-
-
-
