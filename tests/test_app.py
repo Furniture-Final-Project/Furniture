@@ -83,17 +83,45 @@ def preprepared_data(application):
     )
 
     user_1 = schema.User(
-        user_id=1002, user_name="JaneSmith", address="456 Oak Avenue, New York, NY", email="janesmith@example.com", password="mypassword456"
+        user_id=1002,
+        user_name="JaneSmith",
+        user_full_name="Jane Smith",
+        user_phone_num="555-1234",
+        address="456 Oak Avenue, New York, NY",
+        email="janesmith@example.com",
+        password="mypassword456"
     )
+
     user_2 = schema.User(
-        user_id=1003, user_name="MichaelBrown", address="789 Maple Street, Los Angeles, CA", email="michaelbrown@example.com", password="brownieM123"
+        user_id=1003,
+        user_name="MichaelBrown",
+        user_full_name="Michael Brown",
+        user_phone_num="555-5678",
+        address="789 Maple Street, Los Angeles, CA",
+        email="michaelbrown@example.com",
+        password="brownieM123"
     )
+
     user_3 = schema.User(
-        user_id=1004, user_name="EmilyDavis", address="101 Pine Road, Austin, TX", email="emilydavis@example.com", password="davisEmily!"
+        user_id=1004,
+        user_name="EmilyDavis",
+        user_full_name="Emily Davis",
+        user_phone_num="555-9012",
+        address="101 Pine Road, Austin, TX",
+        email="emilydavis@example.com",
+        password="davisEmily!"
     )
+
     user_4 = schema.User(
-        user_id=1005, user_name="RobertWilson", address="202 Birch Lane, Seattle, WA", email="robertwilson@example.com", password="wilsonRob007"
+        user_id=1005,
+        user_name="RobertWilson",
+        user_full_name="Robert Wilson",
+        user_phone_num="555-3456",
+        address="202 Birch Lane, Seattle, WA",
+        email="robertwilson@example.com",
+        password="wilsonRob007"
     )
+
     cart_item1 = schema.CartItem(user_id=1002, model_num='chair-0', quantity=2)
 
     session.add_all([chair0, chair1, bed, bookshelf, sofa, user_1, user_2, user_3, user_4, cart_item1])
