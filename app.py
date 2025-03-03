@@ -110,17 +110,7 @@ def create_app(config: dict):
         results = query.all()
         users = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'users': users})
-
-    # @app.route('/add_user', methods=['POST'])
-    # def add_users():
-    #   """
-    #  API endpoint to add a new furniture item.
-    # """
-    #  data = flask.request.get_json()
-    #  s = schema.session()
-    #  services_user.add_user(s, data)
-    #  return flask.jsonify({})
-
+    
     @app.route('/add_user', methods=['POST'])
     def add_users():
         """
@@ -159,6 +149,7 @@ def create_app(config: dict):
         if password is not None:
             user.update_info_password(s, data)
         return flask.jsonify({})
+
 
     @app.route('/login', methods=['POST'])
     def login():

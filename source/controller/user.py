@@ -1,28 +1,13 @@
 # import json
-# import http
+import http
 import schema
 
-# import flask
+import flask
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
-
-
-
-# def add_user(session: Session, user_data: dict):
-#
-#     new_user = schema.User.new(
-#         user_id=user_data["user_id"],
-#         user_name=user_data["user_name"],
-#         address=user_data["address"],
-#         email=user_data["email"],
-#         password=user_data["password"],
-#     )
-#     session.add(new_user)
-#     session.commit()
-
 
 
 def add_new_user(session: Session, user_data: dict):
@@ -40,7 +25,7 @@ def add_new_user(session: Session, user_data: dict):
         )
 
         if existing_user:
-            return None
+            flask.abort(http.HTTPStatus.BAD_REQUEST, "User is already existed in the system.")
 
         # Create a new user with a hashed password
         new_user = schema.User(
@@ -109,8 +94,7 @@ def get_user_details(user_id):
     result = query.first()
     if result:
         user_data = result.to_dict()
-        # Remove data from details- sensitive info
-        user_data.pop("password", None)
+        user_data.pop("password", None)  # Remove data from details- sensitive info
         return user_data
 
     return None

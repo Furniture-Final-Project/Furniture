@@ -673,11 +673,11 @@ def test_existing_user(client):
     }
 
     response = client.post('/add_user', json=existing_user)
-    assert response.status_code == http.HTTPStatus.OK
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
-    data = response.get_json()
-    assert data == {}
-
+    # data = response.get_json()
+    # assert data == {}  
+    # TODO - it needs to be clear that the user was not created because it already exist. 
 
 # TODO - add test to get user info
 
