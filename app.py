@@ -1,4 +1,5 @@
 import flask
+
 # from platformdirs import user_runtime_dir
 from http import HTTPStatus
 import schema
@@ -111,7 +112,7 @@ def create_app(config: dict):
         results = query.all()
         users = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'users': users})
-    
+
     @app.route('/add_user', methods=['POST'])
     def add_users():
         """
@@ -142,15 +143,14 @@ def create_app(config: dict):
         if user_name is not None:
             user.update_info_user_name(s, data)
         if user_full_name is not None:
-            user.update_info_user_full_name(s,data)
+            user.update_info_user_full_name(s, data)
         if user_phone_num is not None:
-            user.update_info_user_phone_num(s,data)
+            user.update_info_user_phone_num(s, data)
         if email is not None:
             user.update_info_email(s, data)
         if password is not None:
             user.update_info_password(s, data)
         return flask.jsonify({})
-
 
     @app.route('/login', methods=['POST'])
     def login():
@@ -163,13 +163,12 @@ def create_app(config: dict):
         # If login_user raised no exception, we have a success dictionary.
         return flask.jsonify(result), HTTPStatus.OK
 
-
     @app.route('/logout', methods=['POST'])
     def logout():
         data = flask.request.get_json()
         if "user_id" not in data:
             return flask.jsonify({"success": False, "message": "Missing user_id"}), HTTPStatus.BAD_REQUEST
-        
+
         s = schema.session()
         result = user.logout_user(data["user_id"])
         return flask.jsonify(result), (HTTPStatus.OK if result["success"] else HTTPStatus.UNAUTHORIZED)

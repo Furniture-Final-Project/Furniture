@@ -90,7 +90,7 @@ def preprepared_data(application):
         user_phone_num="555-1234",
         address="456 Oak Avenue, New York, NY",
         email="janesmith@example.com",
-        password=generate_password_hash("mypassword456")
+        password=generate_password_hash("mypassword456"),
     )
 
     user_2 = schema.User(
@@ -100,7 +100,7 @@ def preprepared_data(application):
         user_phone_num="555-5678",
         address="789 Maple Street, Los Angeles, CA",
         email="michaelbrown@example.com",
-        password=generate_password_hash("brownieM123")
+        password=generate_password_hash("brownieM123"),
     )
 
     user_3 = schema.User(
@@ -110,7 +110,7 @@ def preprepared_data(application):
         user_phone_num="555-9012",
         address="101 Pine Road, Austin, TX",
         email="emilydavis@example.com",
-        password=generate_password_hash("davisEmily!")
+        password=generate_password_hash("davisEmily!"),
     )
 
     user_4 = schema.User(
@@ -120,7 +120,7 @@ def preprepared_data(application):
         user_phone_num="555-3456",
         address="202 Birch Lane, Seattle, WA",
         email="robertwilson@example.com",
-        password=generate_password_hash("wilsonRob007")
+        password=generate_password_hash("wilsonRob007"),
     )
 
     cart_item1 = schema.CartItem(user_id=1002, model_num='chair-0', quantity=2)
@@ -674,6 +674,7 @@ def test_existing_user(client):
     response = client.post('/add_user', json=existing_user)
     assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
+
 # TODO - add test to get user info
 
 
@@ -718,6 +719,7 @@ def test_user_update_user_full_name(client):
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["user_full_name"] == "Michael Levi"
 
+
 def test_user_update_user_phone_num(client):
     """Test to update user_phone_num of a user, by its user_id"""
     update_info = {"user_id": 1003, "user_phone_num": "555-1094"}
@@ -731,6 +733,7 @@ def test_user_update_user_phone_num(client):
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["user_phone_num"] == "555-1094"
 
+
 def test_user_update_email(client):
     """Test to update email of a user, by its user_id"""
     update_info = {"user_id": 1003, "email": "MichaelCohen@gmail.com"}
@@ -743,6 +746,7 @@ def test_user_update_email(client):
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["email"] == "MichaelCohen@gmail.com"
+
 
 def test_user_update_password(client):
     """Test to update password of a user and hash it, by its user_id"""
@@ -760,6 +764,7 @@ def test_user_update_password(client):
     assert hashed_password != "NewSecurePass123"
     assert check_password_hash(hashed_password, "NewSecurePass123")
 
+
 def test_get_user_details_existing():
     """Test retrieving details of an existing user from the test database"""
     user_id = 1003
@@ -771,6 +776,7 @@ def test_get_user_details_existing():
     assert user_data["user_phone_num"] == "555-5678"
     assert user_data["address"] == "789 Maple Street, Los Angeles, CA"
     assert user_data["email"] == "michaelbrown@example.com"
+
 
 # TODO - make sure tests for login and log out works for hash password
 

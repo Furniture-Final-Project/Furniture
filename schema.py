@@ -221,7 +221,15 @@ class User(Base):  # TODO - make it fit to user
         return result
 
     def new(user_id: int, user_name: str, user_full_name: str, user_phone_num: str, address: str, email: str, password: str):
-        result = User(user_id=user_id, user_name=user_name, user_full_name=user_full_name, user_phone_num=user_phone_num, address=address, email=email, password=password)
+        result = User(
+            user_id=user_id,
+            user_name=user_name,
+            user_full_name=user_full_name,
+            user_phone_num=user_phone_num,
+            address=address,
+            email=email,
+            password=password,
+        )
         return result
 
 
