@@ -2,8 +2,8 @@ flask
 sqlalchemy
 
 # dev dependencies
-pytest
-pytest-cov
+pytest>=7.0
+pytest-cov>=4.0
 black
 ptpython
 pre-commit
