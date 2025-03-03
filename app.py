@@ -1,5 +1,6 @@
 import flask
 # from platformdirs import user_runtime_dir
+from http import HTTPStatus
 import schema
 import source.controller.furniture_inventory as furniture_inventory
 import source.controller.user as user
@@ -155,22 +156,24 @@ def create_app(config: dict):
     def login():
         data = flask.request.get_json()
         if "user_id" not in data or "password" not in data:
-            return flask.jsonify({"success": False, "message": "Missing user_id or password"}), 400
+            return flask.jsonify({"success": False, "message": "Missing user_id or password"}), HTTPStatus.BAD_REQUEST
         s = schema.session()
         result = user.login_user(s, data["user_id"], data["password"])
         if result["success"]:
             flask.session["logged_in"] = True
             flask.session["user_id"] = data["user_id"]
-        return flask.jsonify(result), (200 if result["success"] else 401)
+        return flask.jsonify(result), (HTTPStatus.OK if result["success"] else HTTPStatus.UNAUTHORIZED)
+
 
     @app.route('/logout', methods=['POST'])
     def logout():
         data = flask.request.get_json()
         if "user_id" not in data:
-            return flask.jsonify({"success": False, "message": "Missing user_id"}), 400
-
+            return flask.jsonify({"success": False, "message": "Missing user_id"}), HTTPStatus.BAD_REQUEST
+        
+        s = schema.session()
         result = user.logout_user(data["user_id"])
-        return flask.jsonify(result), (200 if result["success"] else 401)
+        return flask.jsonify(result), (HTTPStatus.OK if result["success"] else HTTPStatus.UNAUTHORIZED)
 
     # ============== Shopping Cart ====================
     @app.route('/carts', methods=['GET'])
