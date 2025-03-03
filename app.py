@@ -159,10 +159,9 @@ def create_app(config: dict):
             return flask.jsonify({"success": False, "message": "Missing user_name or password"}), HTTPStatus.BAD_REQUEST
         s = schema.session()
         result = user.login_user(s, data["user_name"], data["password"])
-        if result["success"]:
-            flask.session["logged_in"] = True
-            flask.session["user_name"] = data["user_name"]
-        return flask.jsonify(result), (HTTPStatus.OK if result["success"] else HTTPStatus.UNAUTHORIZED)
+
+        # If login_user raised no exception, we have a success dictionary.
+        return flask.jsonify(result), HTTPStatus.OK
 
 
     @app.route('/logout', methods=['POST'])
