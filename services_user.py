@@ -1,6 +1,7 @@
 # import json
 # import http
 import schema
+
 # import flask
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import Session
@@ -19,6 +20,7 @@ from werkzeug.security import generate_password_hash
 #     )
 #     session.add(new_user)
 #     session.commit()
+
 
 def add_new_user(session: Session, user_data: dict):
     """
@@ -53,12 +55,13 @@ def add_new_user(session: Session, user_data: dict):
         # Rollback transaction in case of a database integrity error (for example: duplicate user ID)
         session.rollback()
 
-      
+
 def update_info_address(session: Session, user_data: dict):
     user = session.get(schema.User, user_data["user_id"])
     if user:
         user.address = user_data["address"]
         session.commit()
+
 
 def update_info_user_name(session: Session, user_data: dict):
     user = session.get(schema.User, user_data["user_id"])
@@ -66,9 +69,9 @@ def update_info_user_name(session: Session, user_data: dict):
         user.user_name = user_data["user_name"]
         session.commit()
 
+
 def update_info_email(session: Session, user_data: dict):
     user = session.get(schema.User, user_data["user_id"])
     if user:
         user.email = user_data["email"]
         session.commit()
-

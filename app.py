@@ -1,5 +1,5 @@
 import flask
-from platformdirs import user_runtime_dir
+# from platformdirs import user_runtime_dir
 import schema
 import services
 import services_user
@@ -111,15 +111,15 @@ def create_app(config: dict):
         users = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'users': users})
 
-    #@app.route('/add_user', methods=['POST'])
-    #def add_users():
-     #   """
-      #  API endpoint to add a new furniture item.
-       # """
-       #  data = flask.request.get_json()
-       #  s = schema.session()
-       #  services_user.add_user(s, data)
-       #  return flask.jsonify({})
+    # @app.route('/add_user', methods=['POST'])
+    # def add_users():
+    #   """
+    #  API endpoint to add a new furniture item.
+    # """
+    #  data = flask.request.get_json()
+    #  s = schema.session()
+    #  services_user.add_user(s, data)
+    #  return flask.jsonify({})
 
     @app.route('/add_user', methods=['POST'])
     def add_users():
@@ -176,7 +176,6 @@ def create_app(config: dict):
         results = query.all()
         cart_items = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'carts': cart_items})
-
 
     @app.route('/user/add_item_to_cart', methods=['POST'])
     def add_cart_item_endpoint():
