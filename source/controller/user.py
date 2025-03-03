@@ -100,16 +100,16 @@ def get_user_details(user_id):
     return None
 
 
-def login_user(session: Session, user_id: int, password: str):
-    user = session.get(schema.User, user_id)
+def login_user(session: Session, user_name: int, password: str):
+    user = session.get(schema.User, user_name)
     if not user:
         flask.abort(http.HTTPStatus.UNAUTHORIZED, "User not found, need to register")
     if not check_password_hash(user.password, password):
         flask.abort(http.HTTPStatus.UNAUTHORIZED, "Incorrect password")
 
     flask.session["logged_in"] = True
-    flask.session["user_id"] = user.user_id
-    return {"success": True, "message": "Login successful", "user_id": user.user_id}
+    flask.session["user_name"] = user.user_name
+    return {"success": True, "message": "Login successful", "user_name": user.user_name}
 
 def is_user_logged_in(user_id: int):
     return flask.session.get("logged_in", False) and flask.session.get("user_id") == user_id

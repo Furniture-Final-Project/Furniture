@@ -155,13 +155,13 @@ def create_app(config: dict):
     @app.route('/login', methods=['POST'])
     def login():
         data = flask.request.get_json()
-        if "user_id" not in data or "password" not in data:
-            return flask.jsonify({"success": False, "message": "Missing user_id or password"}), HTTPStatus.BAD_REQUEST
+        if "user_name" not in data or "password" not in data:
+            return flask.jsonify({"success": False, "message": "Missing user_name or password"}), HTTPStatus.BAD_REQUEST
         s = schema.session()
-        result = user.login_user(s, data["user_id"], data["password"])
+        result = user.login_user(s, data["user_name"], data["password"])
         if result["success"]:
             flask.session["logged_in"] = True
-            flask.session["user_id"] = data["user_id"]
+            flask.session["user_name"] = data["user_name"]
         return flask.jsonify(result), (HTTPStatus.OK if result["success"] else HTTPStatus.UNAUTHORIZED)
 
 

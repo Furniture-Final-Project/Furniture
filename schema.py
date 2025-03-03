@@ -209,7 +209,7 @@ class User(Base):  # TODO - make it fit to user
     __tablename__ = "users"
 
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_name: Mapped[str] = mapped_column(String, nullable=True)
+    user_name: Mapped[str] = mapped_column(String, unique=True, nullable=True)
     user_full_name: Mapped[str] = mapped_column(String, nullable=True)
     user_phone_num: Mapped[str] = mapped_column(String, nullable=True)
     address: Mapped[str] = mapped_column(String, nullable=True)
