@@ -6,8 +6,7 @@ import flask
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
-
-# from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash
 
 
 def add_new_user(session: Session, user_data: dict):
@@ -103,16 +102,25 @@ def get_user_details(user_id):
     return None
 
 
-# def login_user(session: Session, user_name: int, password: str):
-#     user = session.query(schema.User).filter_by(user_name=user_name).first()
-#     if not user:
-#         flask.abort(http.HTTPStatus.UNAUTHORIZED, "User not found, need to register")
-#     if not check_password_hash(user.password, password):
-#         flask.abort(http.HTTPStatus.UNAUTHORIZED, "Incorrect password")
+def login_user(session: Session, user_name: str, password: str):
+    user = session.query(schema.User).filter_by(user_name=user_name).first()
+    if not user:
+        flask.abort(http.HTTPStatus.UNAUTHORIZED, "User not found, need to register")
+    if not check_password_hash(user.password, password):
+        flask.abort(http.HTTPStatus.UNAUTHORIZED, "Incorrect password")
 
-#     flask.session["logged_in"] = True
-#     flask.session["user_name"] = user.user_name
-#     return {"success": True, "message": "Login successful"}
+    flask.session["logged_in"] = True
+    flask.session["user_name"] = user.user_name
+    return {}
+
+
+
+
+
+
+
+
+
 
 
 # def is_user_logged_in(user_id: int):

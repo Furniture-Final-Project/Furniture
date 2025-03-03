@@ -152,6 +152,7 @@ def create_app(config: dict):
             user.update_info_password(s, data)
         return flask.jsonify({})
 
+#===================login====================
     @app.route('/login', methods=['POST'])
     def login():
         data = flask.request.get_json()
@@ -163,15 +164,15 @@ def create_app(config: dict):
         # If login_user raised no exception, we have a success dictionary.
         return flask.jsonify(result), HTTPStatus.OK
 
-    @app.route('/logout', methods=['POST'])
-    def logout():
-        data = flask.request.get_json()
-        if "user_id" not in data:
-            return flask.jsonify({"success": False, "message": "Missing user_id"}), HTTPStatus.BAD_REQUEST
+    # @app.route('/logout', methods=['POST'])
+    # def logout():
+    #     data = flask.request.get_json()
+    #     if "user_id" not in data:
+    #         return flask.jsonify({"success": False, "message": "Missing user_id"}), HTTPStatus.BAD_REQUEST
 
-        s = schema.session()
-        result = user.logout_user(data["user_id"])
-        return flask.jsonify(result), (HTTPStatus.OK if result["success"] else HTTPStatus.UNAUTHORIZED)
+    #     s = schema.session()
+    #     result = user.logout_user(data["user_id"])
+    #     return flask.jsonify(result), (HTTPStatus.OK if result["success"] else HTTPStatus.UNAUTHORIZED)
 
     # ============== Shopping Cart ====================
     @app.route('/carts', methods=['GET'])
