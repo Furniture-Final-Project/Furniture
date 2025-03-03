@@ -145,6 +145,7 @@ def create_app(config: dict):
         email = data.get("email")
         user_full_name = data.get("user_full_name")
         user_phone_num = data.get("user_phone_num")
+        password = data.get("password")
         if address is not None:
             user.update_info_address(s, data)
         if user_name is not None:
@@ -155,6 +156,8 @@ def create_app(config: dict):
             user.update_info_user_phone_num(s,data)
         if email is not None:
             user.update_info_email(s, data)
+        if password is not None:
+            user.update_info_password(s, data)
         return flask.jsonify({})
 
     # ============== Shopping Cart ====================

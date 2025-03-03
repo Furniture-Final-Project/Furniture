@@ -749,6 +749,22 @@ def test_user_update_email(client):
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["email"] == "MichaelCohen@gmail.com"
 
+def test_user_update_password(client):
+    """Test to update password of a user and hash it, by its user_id"""
+    update_info = {"user_id": 1003, "password": "NewSecurePass123"}
+    response = client.post('/update_user', json=update_info)
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify user details were updated correctly
+    response = client.get('/admin/users', query_string={"user_id": 1003})
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+    hashed_password = data["users"]['1003']["password"]
+    # Verify that the new password saved as hash password
+    assert hashed_password != "NewSecurePass123"
+    assert check_password_hash(hashed_password, "NewSecurePass123")
+
 
 # ===============cart============================================
 def test_cart_get_all_cart_table(client):

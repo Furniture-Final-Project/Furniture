@@ -91,3 +91,11 @@ def update_info_email(session: Session, user_data: dict):
     if user:
         user.email = user_data["email"]
         session.commit()
+
+def update_info_password(session: Session, user_data: dict):
+    user = session.get(schema.User, user_data["user_id"])
+    if user:
+        # Hash the new password before storing it
+        user.password = generate_password_hash(user_data["password"])
+        session.commit()
+
