@@ -3,7 +3,6 @@ import http
 import schema
 
 import flask
-from flask import session
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
@@ -101,31 +100,3 @@ def get_user_details(user_id):
 
     return None
 
-
-# def is_user_logged_in() -> bool:
-#     """
-#     Checks if a user is currently logged in based on the 'user_id' in the session.
-
-#     Returns:
-#         bool: True if 'user_id' is found in the session, False otherwise.
-#     """
-#     return 'user_id' in session
-
-
-# def is_specific_user_logged_in(user_id: int) -> bool:
-#     """
-#     Checks if a *specific user* is currently logged in based on the 'user_id' in the session.
-#     """
-#     return session.get('user_id') == user_id
-
-
-# def is_user_logged_in(user_id: int):
-#     return flask.session.get("logged_in", False) and flask.session.get("user_id") == user_id
-
-
-# def logout_user(user_id: int):
-#     if flask.session.get("user_id") == user_id:
-#         flask.session.pop("user_id", None)
-#         flask.session.pop("logged_in", None)
-#         return {"success": True, "message": "User logged out"}
-#     return {"success": False, "message": "Invalid user or not logged in"}
