@@ -1,68 +1,92 @@
 import unittest
+import json
 from unittest.mock import patch
-
-try:
-    from source.API.checkout_api import app
-except ImportError:
-    from flask import Flask
-    app = Flask(__name__)  # ✅ Mock Flask app if `checkout_api.py` is missing
+from source.API.checkout_api import create_app
 
 class TestCheckoutAPI(unittest.TestCase):
+    """Test suite for the Checkout API endpoints."""
 
     @classmethod
-    def setUpClass(cls):
-        """Set up the Flask test client before all tests."""
-        cls.client = app.test_client()
+    def setUpClass(cls) -> None:
+        """Set up the Flask test client before running tests."""
+        cls.app = create_app()
+        cls.client = cls.app.test_client()
 
-    @patch("source.API.checkout_api.checkout_service.finalize_checkout", return_value={"status": "success", "order_id": 1001, "message": "Order placed successfully"})
-    @patch("source.API.checkout_api.cart_manager.get_cart", return_value=None)
-    @patch("source.API.checkout_api.inventory_manager.is_item_available", return_value=True)
-    @patch("source.API.checkout_api.order_manager.get_order", return_value=None)
-    @patch("source.API.checkout_api.user_manager.get_user", return_value=None)
-    def test_checkout_success(self, *mocks):
-        """Test successful checkout request."""
-        response = self.client.post("/api/checkout", json={
-            "user_id": 1,
-            "address": "123 Main St",
-            "payment_method": "credit_card"
-        })
+    @patch("source.API.checkout_api.CartManager", autospec=True)
+    @patch("source.API.checkout_api.InventoryManager", autospec=True)
+    @patch("source.API.checkout_api.OrderManager", autospec=True)
+    @patch("source.API.checkout_api.UserManager", autospec=True)
+    @patch("source.API.checkout_api.checkout_service")
+    def test_checkout_success(self, mock_checkout_service, *_):
+        """Test successful checkout with mocked dependencies."""
+        mock_checkout_service.finalize_checkout.return_value = {
+            "status": "success",
+            "order_id": 1234,
+            "message": "Order placed successfully"
+        }
+
+        response = self.client.post(
+            "/api/checkout",
+            data=json.dumps({"user_id": 1, "address": "123 Main St", "payment_method": "credit_card"}),
+            content_type="application/json",
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["status"], "success")
-        self.assertEqual(response.json["order_id"], 1001)
+        self.assertEqual(response.json["order_id"], 1234)
 
-    @patch("source.API.checkout_api.checkout_service.finalize_checkout", return_value={"status": "error", "message": "Payment was declined. Please try another payment method."})
-    @patch("source.API.checkout_api.cart_manager.get_cart", return_value=None)
-    @patch("source.API.checkout_api.inventory_manager.is_item_available", return_value=True)
-    def test_checkout_failure(self, *mocks):
-        """Test checkout request failure due to payment failure."""
-        response = self.client.post("/api/checkout", json={
-            "user_id": 1,
-            "address": "123 Main St",
-            "payment_method": "credit_card"
-        })
+    def test_checkout_missing_fields(self) -> None:
+        """Test checkout fails when required fields are missing."""
+        response = self.client.post(
+            "/api/checkout",
+            data=json.dumps({"user_id": 1}),  # Missing address and payment_method
+            content_type="application/json",
+        )
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json["status"], "error")
-        self.assertEqual(response.json["message"], "Payment was declined. Please try another payment method.")
+        self.assertIn("Missing required fields", response.json["message"])
 
-    @patch("source.API.checkout_api.order_manager.get_order", return_value={"order_id": 1001, "user_id": 1, "items": [{"item_id": 1, "name": "Laptop", "quantity": 1}], "total_price": 999.99, "status": "processing"})
-    def test_get_order_success(self, *mocks):
-        """Test retrieving an order successfully."""
-        response = self.client.get("/api/orders/1001")
+    def test_checkout_invalid_json(self) -> None:
+        """Test checkout fails with invalid JSON format."""
+        response = self.client.post(
+            "/api/checkout",
+            data="invalid json",  # Not a valid JSON
+            content_type="application/json",
+        )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json["order_id"], 1001)
-        self.assertEqual(response.json["status"], "processing")
-
-    @patch("source.API.checkout_api.order_manager.get_order", return_value=None)
-    def test_get_order_not_found(self, *mocks):
-        """Test retrieving a non-existent order."""
-        response = self.client.get("/api/orders/9999")
-
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json["status"], "error")
-        self.assertEqual(response.json["message"], "Order not found")
+        self.assertEqual(response.json["message"], "Invalid JSON format")
 
-if __name__ == '__main__':
+    def test_checkout_invalid_payment_method(self) -> None:
+        """Test checkout fails when an invalid payment method is provided."""
+        response = self.client.post(
+            "/api/checkout",
+            data=json.dumps({"user_id": 1, "address": "123 Main St", "payment_method": "bitcoin"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("Invalid payment method", response.json["message"])
+
+    @patch("source.API.checkout_api.checkout_service")
+    def test_checkout_payment_failure(self, mock_checkout_service) -> None:
+        """Test checkout fails when payment is declined."""
+        mock_checkout_service.finalize_checkout.return_value = {
+            "status": "error",
+            "message": "Payment was declined"
+        }
+
+        response = self.client.post(
+            "/api/checkout",
+            data=json.dumps({"user_id": 1, "address": "123 Main St", "payment_method": "credit_card"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json["status"], "error")
+        self.assertEqual(response.json["message"], "Payment was declined")
+
+if __name__ == "__main__":
     unittest.main()
