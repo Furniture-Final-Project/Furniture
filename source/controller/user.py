@@ -33,7 +33,8 @@ def add_new_user(session: Session, user_data: dict):
             user_phone_num=user_data["user_phone_num"],
             address=user_data["address"],
             email=user_data["email"],
-            password=generate_password_hash(user_data["password"]),  # Hashing the password
+            password=generate_password_hash(user_data["password"]), # Hashing the password
+            role=user_data["role"]   
         )
 
         session.add(new_user)
