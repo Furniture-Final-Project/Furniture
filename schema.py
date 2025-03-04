@@ -219,13 +219,14 @@ class User(Base):  # TODO - make it fit to user
     address: Mapped[str] = mapped_column(String, nullable=True)
     email: Mapped[str] = mapped_column(String, nullable=True)
     password: Mapped[str] = mapped_column(String, nullable=True)
+    role: Mapped[str] = mapped_column(String, nullable=False, default="user")
 
     def to_dict(self):
         result = Base.to_dict(self)
         return result
 
     @staticmethod
-    def new(user_id: int, user_name: str, user_full_name: str, user_phone_num: str, address: str, email: str, password: str):
+    def new(user_id: int, user_name: str, user_full_name: str, user_phone_num: str, address: str, email: str, password: str, role: str):
         result = User(
             user_id=user_id,
             user_name=user_name,
@@ -234,6 +235,7 @@ class User(Base):  # TODO - make it fit to user
             address=address,
             email=email,
             password=password,
+            role=role
         )
         return result
 
