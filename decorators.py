@@ -3,13 +3,16 @@ from flask import session
 from http import HTTPStatus
 import schema
 
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
             return '', HTTPStatus.UNAUTHORIZED
         return f(*args, **kwargs)
+
     return decorated_function
+
 
 # def admin_required(f):
 #     @wraps(f)

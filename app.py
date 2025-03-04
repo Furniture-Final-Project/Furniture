@@ -1,5 +1,6 @@
 from flask import session, request
 import flask
+
 # from platformdirs import user_runtime_dir
 from http import HTTPStatus
 import schema
@@ -156,45 +157,34 @@ def create_app(config: dict):
             user.update_info_password(s, data)
         return flask.jsonify({})
 
-#===================login====================
+    # ===================login====================
     @app.route('/login', methods=['POST'])
     def login():
         data = flask.request.get_json()
         if not data:
             return '', HTTPStatus.BAD_REQUEST
-        
+
         username = data.get("user_name")
         password = data.get("password")
         if not username or not password:
             return '', HTTPStatus.BAD_REQUEST
-        
+
         s = schema.session()
         user = s.query(schema.User).filter_by(user_name=username).first()
 
         if not user:
             return '', HTTPStatus.UNAUTHORIZED
-        
+
         if check_password_hash(user.password, password):
             session['user_id'] = user.user_id
             return '', HTTPStatus.OK
         else:
             return '', HTTPStatus.UNAUTHORIZED
-        
 
     @app.route('/logout', methods=['POST'])
     def logout():
         session.pop('user_id', None)
         return '', HTTPStatus.OK
-
-
-
-
-
-
-
-
-
-
 
     # @app.route('/logout', methods=['POST'])
     # def logout():

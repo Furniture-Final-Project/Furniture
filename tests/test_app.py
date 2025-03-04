@@ -9,6 +9,7 @@ import source.controller.user as user
 from source.models.OrderStatus import OrderStatus
 import source.controller.user as user
 
+
 @pytest.fixture
 def application():
     application = app.create_app({'database_url': f'sqlite:///:memory:'})  # Use in-memory DB for testing
@@ -804,25 +805,28 @@ def test_get_user_details_existing():
 
 def test_user_login(client):
     """Test user login with correct credentials"""
-    login_info = {"user_name":"MichaelBrown", "password": "brownieM123"}
+    login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
+
 
 # TODO- התחברות עם שם משתמש לא קיים (אמור להחזיר 401 UNAUTHORIZED).
 # TODO- התחברות עם סיסמה שגויה (401).
 # TODO- שליחת בקשת התחברות ללא פרמטרים (400).
 # TODO- שליחת בקשת התחברות עם מבנה JSON שגוי (400).
 
+
 def test_user_logout(client):
     """Test user logout with correct credentials"""
-    # Login first 
-    login_info = {"user_name":"JaneSmith", "password": "mypassword456"}
+    # Login first
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
-    assert response.status_code == http.HTTPStatus.OK 
+    assert response.status_code == http.HTTPStatus.OK
 
-    # Logout 
+    # Logout
     response = client.post('/logout')
-    assert response.status_code == http.HTTPStatus.OK 
+    assert response.status_code == http.HTTPStatus.OK
+
 
 # TODO: Add a test for logging out when the user is not logged in.
 # Even if 'user_id' is missing in the session, session.pop('user_id', None)
@@ -835,6 +839,7 @@ def test_user_logout(client):
 # 1) Log in
 # 2) Log out
 # 3) Call the protected endpoint -> expect HTTPStatus.UNAUTHORIZED
+
 
 def test_add_item_to_cart_requires_login(client):
     """
@@ -859,7 +864,6 @@ def test_add_item_to_cart_requires_login(client):
     response = client.post('/user/add_item_to_cart', json={"user_id": 1003, "model_num": "chair-1", "quantity": 1})
     # Expect a success code (200 OK, 201 CREATED, etc.), depending on your implementation
     assert response.status_code == http.HTTPStatus.OK
-
 
 
 # def test_user_login_nonexistent_user(client):
@@ -1012,7 +1016,6 @@ def test_add_item_to_cart_not_enough_units_in_stock(client):
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
-    
     cart_item = {"user_id": 1003, "model_num": "chair-2", "quantity": 2}
     with patch("source.controller.cart.get_cart_item_full_details", return_value={cart_item["model_num"]: {"stock_quantity": 1}}):
         response = client.post('/user/add_item_to_cart', json=cart_item)

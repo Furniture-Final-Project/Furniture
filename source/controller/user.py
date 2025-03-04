@@ -9,7 +9,6 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
 
 
-
 def add_new_user(session: Session, user_data: dict):
     """
     Adds a new user to the database, including duplicate checks and password security.
@@ -118,9 +117,6 @@ def get_user_details(user_id):
 #     Checks if a *specific user* is currently logged in based on the 'user_id' in the session.
 #     """
 #     return session.get('user_id') == user_id
-
-
-
 
 
 # def is_user_logged_in(user_id: int):

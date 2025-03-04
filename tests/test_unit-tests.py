@@ -161,8 +161,8 @@ def test_valid_method_cartitem(user_exists, item_exists, expected):
     assert is_valid == expected
 
 
-#=====================cart unit tests=========================
-# mocking instead of the login process is required 
+# =====================cart unit tests=========================
+# mocking instead of the login process is required
 
 # def test_update_quantity_with_not_enough_units_in_stock(client):
 #     """
@@ -176,7 +176,6 @@ def test_valid_method_cartitem(user_exists, item_exists, expected):
 #     with patch("source.controller.cart.get_cart_item_full_details", return_value={update_info["model_num"]: {"stock_quantity": 3}}):
 #         response = client.post('/user/add_item_to_cart', json=update_info)
 #         assert response.status_code == http.HTTPStatus.CONFLICT
-
 
 
 # def test_add_invalid_cart_item(client):
@@ -231,4 +230,3 @@ def test_valid_method_cartitem(user_exists, item_exists, expected):
 #     assert "1003" in data["carts"]
 #     assert data["carts"]['1003']['model_num'] == "chair-1"
 #     assert data["carts"]['1003']['quantity'] == 1
-
