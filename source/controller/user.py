@@ -7,8 +7,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
 
-# from werkzeug.security import check_password_hash
-
 
 def add_new_user(session: Session, user_data: dict):
     """
@@ -36,6 +34,7 @@ def add_new_user(session: Session, user_data: dict):
             address=user_data["address"],
             email=user_data["email"],
             password=generate_password_hash(user_data["password"]),  # Hashing the password
+            role=user_data["role"],
         )
 
         session.add(new_user)
@@ -101,27 +100,3 @@ def get_user_details(user_id):
         return user_data
 
     return None
-
-
-# def login_user(session: Session, user_name: int, password: str):
-#     user = session.query(schema.User).filter_by(user_name=user_name).first()
-#     if not user:
-#         flask.abort(http.HTTPStatus.UNAUTHORIZED, "User not found, need to register")
-#     if not check_password_hash(user.password, password):
-#         flask.abort(http.HTTPStatus.UNAUTHORIZED, "Incorrect password")
-
-#     flask.session["logged_in"] = True
-#     flask.session["user_name"] = user.user_name
-#     return {"success": True, "message": "Login successful"}
-
-
-# def is_user_logged_in(user_id: int):
-#     return flask.session.get("logged_in", False) and flask.session.get("user_id") == user_id
-
-
-# def logout_user(user_id: int):
-#     if flask.session.get("user_id") == user_id:
-#         flask.session.pop("user_id", None)
-#         flask.session.pop("logged_in", None)
-#         return {"success": True, "message": "User logged out"}
-#     return {"success": False, "message": "Invalid user or not logged in"}

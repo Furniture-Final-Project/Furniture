@@ -159,3 +159,74 @@ def test_valid_method_cartitem(user_exists, item_exists, expected):
         is_valid = cart_item.valid()
 
     assert is_valid == expected
+
+
+# =====================cart unit tests=========================
+# mocking instead of the login process is required
+
+# def test_update_quantity_with_not_enough_units_in_stock(client):
+#     """
+#     Test that updating a cart item is not possible if the item not in stock or do not have enough units in stock.
+#     Expecting an error response.
+#     """
+#     # TODO: MOCKING -Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
+
+#     update_info = dict(model_num="chair-0", user_id=1004, quantity=5)
+
+#     with patch("source.controller.cart.get_cart_item_full_details", return_value={update_info["model_num"]: {"stock_quantity": 3}}):
+#         response = client.post('/user/add_item_to_cart', json=update_info)
+#         assert response.status_code == http.HTTPStatus.CONFLICT
+
+
+# def test_add_invalid_cart_item(client):
+#     """
+#     Test adding an item to the cart with a non-existent user ID or non-existent model number.
+#     Expecting an error response.
+#     """
+#     # TODO: MOCKING -Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
+
+#     cart_item = {"user_id": 9999, "model_num": "chair-1", "quantity": 1}
+
+#     with patch("schema.CartItem.valid", return_value=False):
+#         response = client.post('/user/add_item_to_cart', json=cart_item)
+
+#         assert response.status_code == http.HTTPStatus.BAD_REQUEST
+
+
+# def test_add_item_to_cart_not_enough_units_in_stock(client):
+#     """
+#     Test  adding item to cart is not possible if the asked quantity is bigger than stock quantity.
+#     Expecting an error response.
+#     """
+#     # TODO: MOCKING -Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
+
+#     cart_item = {"user_id": 1003, "model_num": "chair-2", "quantity": 2}
+#     with patch("source.controller.cart.get_cart_item_full_details", return_value={cart_item["model_num"]: {"stock_quantity": 1}}):
+#         response = client.post('/user/add_item_to_cart', json=cart_item)
+#         assert response.status_code == http.HTTPStatus.CONFLICT
+
+
+# def test_add_first_item_to_cart(client):
+#     """
+#     Test adding new item to a specific cart of a specific user.
+#     """
+#     # TODO: MOCKING -Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
+
+#     cart_item = {"user_id": 1003, "model_num": "chair-1", "quantity": 1}
+
+#     # Send a POST request to add the cart for the specific user
+#     response = client.post('/user/add_item_to_cart', json=cart_item)
+#     data = response.get_json()
+
+#     # Check that the item was added successfully
+#     assert response.status_code == http.HTTPStatus.OK
+
+#     # Send a GET request to verify item exists
+#     response = client.get('/carts', query_string={"user_id": 1003})
+#     data = response.get_json()
+
+#     # Check that the cart is returned correctly
+#     assert response.status_code == http.HTTPStatus.OK
+#     assert "1003" in data["carts"]
+#     assert data["carts"]['1003']['model_num'] == "chair-1"
+#     assert data["carts"]['1003']['quantity'] == 1
