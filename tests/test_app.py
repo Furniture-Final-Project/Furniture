@@ -93,6 +93,7 @@ def preprepared_data(application):
         address="456 Oak Avenue, New York, NY",
         email="janesmith@example.com",
         password=generate_password_hash("mypassword456"),
+        role="user",
     )
 
     user_2 = schema.User(
@@ -103,6 +104,7 @@ def preprepared_data(application):
         address="789 Maple Street, Los Angeles, CA",
         email="michaelbrown@example.com",
         password=generate_password_hash("brownieM123"),
+        role="user",
     )
 
     user_3 = schema.User(
@@ -113,6 +115,7 @@ def preprepared_data(application):
         address="101 Pine Road, Austin, TX",
         email="emilydavis@example.com",
         password=generate_password_hash("davisEmily!"),
+        role="user",
     )
 
     user_4 = schema.User(
@@ -123,6 +126,7 @@ def preprepared_data(application):
         address="202 Birch Lane, Seattle, WA",
         email="robertwilson@example.com",
         password=generate_password_hash("wilsonRob007"),
+        role="admin",
     )
 
     cart_item1 = schema.CartItem(user_id=1002, model_num='chair-0', quantity=2)
@@ -637,6 +641,7 @@ def test_get_user_by_id(client):
     assert users['1002']["user_phone_num"] == "555-1234"
     assert users['1002']["address"] == "456 Oak Avenue, New York, NY"
     assert users['1002']["email"] == "janesmith@example.com"
+    assert users['1002']["role"] == "user"
     hashed_password = users['1002']["password"]
     assert hashed_password != "mypassword456"
     assert check_password_hash(hashed_password, "mypassword456")
@@ -651,6 +656,7 @@ def test_add_new_user(client):
         "address": "123 Elm Street, Springfield, IL",
         "email": "johndoe@example.com",
         "password": "securepassword123",
+        "role": "user",
     }
     response = client.post('/add_user', json=user_info)
     assert response.status_code == http.HTTPStatus.OK
@@ -671,6 +677,7 @@ def test_password_hashing(client):
         "address": "789 Oak St, New York, NY",
         "email": "alicedoe@example.com",
         "password": "mypassword123",
+        "role": "user",
     }
 
     response = client.post('/add_user', json=user_info)
@@ -694,6 +701,7 @@ def test_existing_user(client):
         "address": "456 Oak Avenue, New York, NY",
         "email": "janesmith@example.com",
         "password": "mypassword456",
+        "role": "user",
     }
     response = client.post('/add_user', json=existing_user)
     assert response.status_code == http.HTTPStatus.BAD_REQUEST
@@ -800,6 +808,7 @@ def test_get_user_details_existing():
     assert user_data["user_phone_num"] == "555-5678"
     assert user_data["address"] == "789 Maple Street, Los Angeles, CA"
     assert user_data["email"] == "michaelbrown@example.com"
+    assert user_data["role"] == "user"
 
 
 def test_user_login(client):
