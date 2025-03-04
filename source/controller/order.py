@@ -3,6 +3,7 @@ import schema
 import flask
 from sqlalchemy.orm import Session
 from source.models.OrderStatus import OrderStatus
+from source.controller.furniture_inventory import system_update_item_quantity
 
 
 def add_order(session: Session, item_data: dict):
@@ -49,3 +50,7 @@ def update_order_status(session: Session, item_data: dict):
 
     order.status = new_status  # Store the Enum instance
     session.commit()
+
+    if new_status == OrderStatus.CANCELLED:
+        for key, value in order.items:
+            system_update_item_quantity(model_num=key, quantity_to_add=value)

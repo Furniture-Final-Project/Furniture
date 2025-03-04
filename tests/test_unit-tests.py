@@ -1,27 +1,55 @@
 from unittest.mock import MagicMock, patch
 from sqlalchemy.orm import Session
-import schema
-import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-from schema import Base
+from datetime import datetime
 from source.controller.order import add_order
+import pytest
+import app
+import schema
+
+# from unittest.mock import patch
+from source.models.OrderStatus import OrderStatus
 
 
-# Create a temporary in-memory SQLite database
-@pytest.fixture(scope="function")
-def test_db():
-    engine = create_engine("sqlite:///:memory:", echo=True)
-    TestingSessionLocal = sessionmaker(bind=engine)
+@pytest.fixture
+def application():
+    application = app.create_app({'database_url': f'sqlite:///:memory:'})  # Use in-memory DB for testing
+    yield application
 
-    # Create tables
-    Base.metadata.create_all(engine)
 
-    # Provide a new session per test
-    session = TestingSessionLocal()
-    yield session
-    session.close()
+@pytest.fixture
+def client(application):
+    with application.test_client() as client:
+        yield client
+
+
+@pytest.fixture(autouse=True)
+def preprepared_data(application):
+    session = schema.session()
+    order1 = schema.Order(
+        order_num=1,
+        user_id=1002,
+        user_email="janesmith@example.com",
+        shipping_address="123 Main St, Springfield",
+        items={"chair-0": 2, "SF-3003": 1},
+        total_price=1750.1,
+        status=OrderStatus.PENDING,
+        creation_time=datetime(2024, 3, 4, 12, 45, 0),
+    )
+
+    order2 = schema.Order(
+        order_num=2,
+        user_id=1003,
+        user_email="michaelbrown@example.com",
+        shipping_address="789 Maple Street, Los Angeles, CA",
+        items={"BS-4004": 1, "SF-3003": 1},
+        total_price=2500.0,
+        status=OrderStatus.DELIVERED,
+        creation_time=datetime(2024, 3, 3, 12, 30, 0),
+    )
+
+    session.add_all([order1, order2])
+    session.commit()
+    yield
 
 
 # def test_create_order_object(test_db):
@@ -48,23 +76,29 @@ def test_db():
 #     assert added_order.shipping_address == "123 Test Street"
 
 
-def test_add_order_invalid(test_db):
-    # Sample invalid order data (empty items list)
+def test_add_order_invalid(client):
+    """
+    Test Invalid order can not be created in the table.
+    The order is invalid since the dict is empty.
+    """
     order_data = {
         "user_id": 2,
-        "items": {},
+        "items": {},  # Invalid: empty dict
         "user_email": "test2@example.com",
         "user_name": "Jane Doe",
         "shipping_address": "456 Test Avenue",
         "total_price": 75.00,
     }
 
-    # Expect an exception (Flask abort)
-    with pytest.raises(Exception):
-        add_order(test_db, order_data)
+    # Send request to API endpoint
+    response = client.post("/orders", json=order_data)
 
-    # Ensure order was not added
-    added_order = test_db.query(schema.Order).filter_by(user_id=2).first()
+    # Ensure the correct error message is returned
+    assert response.status_code == 405
+
+    # Ensure order was not added to the database
+    session = schema.session()
+    added_order = session.query(schema.Order).filter_by(user_id=2).first()
     assert added_order is None
 
 
@@ -94,7 +128,7 @@ def test_add_order_to_table():
     mock_session.commit.assert_called_once()  # Ensure the order was committed
 
 
-def test_add_order_invalid_items():
+def test_add_order_invalid_items(client):
     # Mock session
     mock_session = MagicMock(spec=Session)
 
@@ -121,7 +155,7 @@ def test_add_order_invalid_items():
     mock_session.commit.assert_not_called()
 
 
-def test_add_order_negative_price(test_db):
+def test_add_order_negative_price(client):
     """Test order with a negative price."""
     order_data = {
         "user_id": 4,
@@ -133,7 +167,7 @@ def test_add_order_negative_price(test_db):
     }
 
     with pytest.raises(Exception):
-        add_order(test_db, order_data)
+        add_order(client, order_data)
 
 
 @pytest.mark.parametrize(
@@ -159,3 +193,12 @@ def test_valid_method_cartitem(user_exists, item_exists, expected):
         is_valid = cart_item.valid()
 
     assert is_valid == expected
+
+
+def test_order_cancel(client):
+    """
+    Test that when order is cancelled the function to restore the inventory will be called
+    :param test_db:
+    """
+
+    # schema.Order.new.assert_called_once_with(**order_data)

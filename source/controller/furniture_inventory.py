@@ -1,4 +1,7 @@
 import http
+
+# from requests import session
+
 import schema
 import flask
 from sqlalchemy.orm import Session
@@ -41,6 +44,14 @@ def update_item_quantity(session: Session, data):
     if item:
         item.stock_quantity = data["stock_quantity"]
         session.commit()
+
+
+def system_update_item_quantity(model_num: str, quantity_to_add: int):
+    s = schema.session()
+    item = s.get(schema.Furniture, model_num)
+    if item:
+        item.stock_quantity += quantity_to_add
+    s.commit()
 
 
 def delete_item(session: Session, model_num: str):
