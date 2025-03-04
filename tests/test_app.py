@@ -836,30 +836,29 @@ def test_user_logout(client):
 # 2) Log out
 # 3) Call the protected endpoint -> expect HTTPStatus.UNAUTHORIZED
 
-def test_function_is_user_logged_in(client):
+def test_add_item_to_cart_requires_login(client):
     """
-    Tests whether the 'is_user_logged_in()' function in user.py accurately reflects
-    the login status before and after a user logs in and then logs out.
+    Verifies that the /user/add_item_to_cart endpoint is protected by @login_required.
+    1) Without logging in, the request should return 401 UNAUTHORIZED.
+    2) After logging in successfully, the request should return 200 OK.
     """
-    with client: 
-        # Before logging in, 'is_user_logged_in()' should return False  
-        assert user.is_user_logged_in() is False
 
-        # Log in with valid credentials 
-        login_info = {"user_name":"JaneSmith", "password": "mypassword456"}
-        response = client.post('/login', json=login_info)
-        assert response.status_code == http.HTTPStatus.OK 
+    # 1) Attempt to add item to cart without logging in
+    cart_item = {"user_id": 1003, "model_num": "chair-1", "quantity": 1}
 
-        # After logging in, 'is_user_logged_in()' should return True 
-        assert user.is_user_logged_in() is True 
+    # Send a POST request to add the cart for the specific user
+    response = client.post('/user/add_item_to_cart', json=cart_item)
+    assert response.status_code == http.HTTPStatus.UNAUTHORIZED
 
-        # Log out
-        response = client.post('/logout')
-        assert response.status_code == http.HTTPStatus.OK 
+    # 2) Log in with valid credentials
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
 
-        # After logging out, 'is_user_logged_in()' should return False
-        assert user.is_user_logged_in() is False 
-
+    # 3) Now that we're logged in, try again
+    response = client.post('/user/add_item_to_cart', json={"user_id": 1003, "model_num": "chair-1", "quantity": 1})
+    # Expect a success code (200 OK, 201 CREATED, etc.), depending on your implementation
+    assert response.status_code == http.HTTPStatus.OK
 
 
 
@@ -978,6 +977,11 @@ def test_add_first_item_to_cart(client):
     """
     Test adding new item to a specific cart of a specific user.
     """
+    # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     cart_item = {"user_id": 1003, "model_num": "chair-1", "quantity": 1}
 
     # Send a POST request to add the cart for the specific user
@@ -1003,6 +1007,12 @@ def test_add_item_to_cart_not_enough_units_in_stock(client):
     Test  adding item to cart is not possible if the asked quantity is bigger than stock quantity.
     Expecting an error response.
     """
+    # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    
     cart_item = {"user_id": 1003, "model_num": "chair-2", "quantity": 2}
     with patch("source.controller.cart.get_cart_item_full_details", return_value={cart_item["model_num"]: {"stock_quantity": 1}}):
         response = client.post('/user/add_item_to_cart', json=cart_item)
@@ -1014,6 +1024,11 @@ def test_add_invalid_cart_item(client):
     Test adding an item to the cart with a non-existent user ID or non-existent model number.
     Expecting an error response.
     """
+    # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     cart_item = {"user_id": 9999, "model_num": "chair-1", "quantity": 1}
 
     with patch("schema.CartItem.valid", return_value=False):
@@ -1074,6 +1089,11 @@ def test_update_quantity_with_not_enough_units_in_stock(client):
     Test that updating a cart item is not possible if the item not in stock or do not have enough units in stock.
     Expecting an error response.
     """
+    # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     update_info = dict(model_num="chair-0", user_id=1004, quantity=5)
 
     with patch("source.controller.cart.get_cart_item_full_details", return_value={update_info["model_num"]: {"stock_quantity": 3}}):

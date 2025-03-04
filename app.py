@@ -6,6 +6,7 @@ import schema
 import source.controller.furniture_inventory as furniture_inventory
 import source.controller.user as user
 import source.controller.cart as cart
+from decorators import login_required
 import os
 from werkzeug.security import check_password_hash
 
@@ -232,6 +233,7 @@ def create_app(config: dict):
         return flask.jsonify({'carts': cart_items})
 
     @app.route('/user/add_item_to_cart', methods=['POST'])
+    @login_required
     def add_cart_item_endpoint():
         """
         API endpoint to add a new item to cart for a user - will be called when the user will add the first item to the cart.
