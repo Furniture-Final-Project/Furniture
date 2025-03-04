@@ -706,6 +706,7 @@ def test_add_existing_user(client):
     response = client.post('/add_user', json=existing_user)
     assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
+
 def test_add_admin_user(client):
     user_info = {
         "user_id": 207105881,
@@ -725,6 +726,7 @@ def test_add_admin_user(client):
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     assert data["users"]['207105881']["user_name"] == "RonCohen"
+
 
 def test_add_admin_user_invalid(client):
     """
@@ -750,29 +752,30 @@ def test_add_admin_user_invalid(client):
     data = response.get_json()
     assert data["users"] == {}
 
+
 def test_add_user_invalid_role(client):
-        """
+    """
         Ensures '/add_user' returns 400 BAD REQUEST if 'role' is 'admin',
     and verifies no user is created.
-        """
-        user_info = {
-            "user_id": 207105881,
-            "user_name": "RonCohen",
-            "user_full_name": "Ron Cohen",
-            "user_phone_num": "555-7824",
-            "address": "120 Elm Street, Springfield, IL",
-            "email": "johndoe@example.com",
-            "password": "securepassword123",
-            "role": "admin",
-        }
-        response = client.post('/add_user', json=user_info)
-        assert response.status_code == http.HTTPStatus.BAD_REQUEST
+    """
+    user_info = {
+        "user_id": 207105881,
+        "user_name": "RonCohen",
+        "user_full_name": "Ron Cohen",
+        "user_phone_num": "555-7824",
+        "address": "120 Elm Street, Springfield, IL",
+        "email": "johndoe@example.com",
+        "password": "securepassword123",
+        "role": "admin",
+    }
+    response = client.post('/add_user', json=user_info)
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
-        # Send a GET request to verify user was asses successfully
-        response = client.get('/admin/users', query_string={"user_id": 207105881})
-        assert response.status_code == http.HTTPStatus.OK
-        data = response.get_json()
-        assert data["users"] == {}
+    # Send a GET request to verify user was asses successfully
+    response = client.get('/admin/users', query_string={"user_id": 207105881})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    assert data["users"] == {}
 
 
 # TODO - add test to get user info
@@ -940,6 +943,14 @@ def test_add_item_to_cart_requires_login(client):
     response = client.post('/user/add_item_to_cart', json={"user_id": 1003, "model_num": "chair-1", "quantity": 1})
     # Expect a success code (200 OK, 201 CREATED, etc.), depending on your implementation
     assert response.status_code == http.HTTPStatus.OK
+
+
+# def test_admin_required_operator(client):
+#     # log in as the regular user
+#     login_info = {"user_name": "JaneSmith", "password": "mypassword456"} #jane has "user" role
+#     response = client.post('/login', json=login_info)
+#     assert response.status_code == http.HTTPStatus.OK
+# # TODO : ROTEM should continue from here
 
 
 # def test_user_login_nonexistent_user(client):

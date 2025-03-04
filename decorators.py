@@ -2,7 +2,7 @@ from functools import wraps
 from flask import session
 from http import HTTPStatus
 
-# import schema
+import schema
 
 
 def login_required(f):
@@ -15,19 +15,20 @@ def login_required(f):
     return decorated_function
 
 
-# def admin_required(f):
-#     @wraps(f)
-#     def decorated_function(*args, **kwargs):
-#         user_id = session.get('user_id')
-#         if not user_id:
-#             # לא מחובר בכלל
-#             return '', HTTPStatus.UNAUTHORIZED
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        user_id = session.get('user_id')
+        if not user_id:
+            # user mot logged in
+            return '', HTTPStatus.UNAUTHORIZED
 
-#         # עכשיו נבדוק האם המשתמש אדמין
-#         db_session = schema.session()
-#         user = db_session.query(schema.User).get(user_id)
-#         if not user or not user.is_admin:  # בדוק כאן את התנאי המתאים
-#             return '', HTTPStatus.FORBIDDEN
+        # check if the user is an admin type
+        s = schema.session()
+        current_user = s.query(schema.User).get(user_id)
+        if not current_user or current_user.role != "admin":
+            return '', HTTPStatus.FORBIDDEN
 
-#         return f(*args, **kwargs)
-#     return decorated_function
+        return f(*args, **kwargs)
+
+    return decorated_function

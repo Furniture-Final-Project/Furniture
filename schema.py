@@ -235,7 +235,7 @@ class User(Base):  # TODO - make it fit to user
             address=address,
             email=email,
             password=password,
-            role=role
+            role=role,
         )
         return result
 
