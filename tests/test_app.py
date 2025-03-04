@@ -692,7 +692,7 @@ def test_password_hashing(client):
     assert check_password_hash(hashed_password, user_info["password"])
 
 
-def test_existing_user(client):
+def test_add_existing_user(client):
     existing_user = {
         "user_id": 1002,
         "user_name": "JaneSmith",
@@ -705,6 +705,74 @@ def test_existing_user(client):
     }
     response = client.post('/add_user', json=existing_user)
     assert response.status_code == http.HTTPStatus.BAD_REQUEST
+
+def test_add_admin_user(client):
+    user_info = {
+        "user_id": 207105881,
+        "user_name": "RonCohen",
+        "user_full_name": "Ron Cohen",
+        "user_phone_num": "555-7824",
+        "address": "120 Elm Street, Springfield, IL",
+        "email": "johndoe@example.com",
+        "password": "securepassword123",
+        "role": "admin",
+    }
+    response = client.post('/add_admin_user', json=user_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify user was asses successfully
+    response = client.get('/admin/users', query_string={"user_id": 207105881})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    assert data["users"]['207105881']["user_name"] == "RonCohen"
+
+def test_add_admin_user_invalid(client):
+    """
+    Ensures '/add_admin_user' returns 400 BAD REQUEST if 'role' is 'user',
+    and verifies no user is created.
+    """
+    user_info = {
+        "user_id": 207105881,
+        "user_name": "RonCohen",
+        "user_full_name": "Ron Cohen",
+        "user_phone_num": "555-7824",
+        "address": "120 Elm Street, Springfield, IL",
+        "email": "johndoe@example.com",
+        "password": "securepassword123",
+        "role": "user",
+    }
+    response = client.post('/add_admin_user', json=user_info)
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
+
+    # Send a GET request to verify user was asses successfully
+    response = client.get('/admin/users', query_string={"user_id": 207105881})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    assert data["users"] == {}
+
+def test_add_user_invalid_role(client):
+        """
+        Ensures '/add_user' returns 400 BAD REQUEST if 'role' is 'admin',
+    and verifies no user is created.
+        """
+        user_info = {
+            "user_id": 207105881,
+            "user_name": "RonCohen",
+            "user_full_name": "Ron Cohen",
+            "user_phone_num": "555-7824",
+            "address": "120 Elm Street, Springfield, IL",
+            "email": "johndoe@example.com",
+            "password": "securepassword123",
+            "role": "admin",
+        }
+        response = client.post('/add_user', json=user_info)
+        assert response.status_code == http.HTTPStatus.BAD_REQUEST
+
+        # Send a GET request to verify user was asses successfully
+        response = client.get('/admin/users', query_string={"user_id": 207105881})
+        assert response.status_code == http.HTTPStatus.OK
+        data = response.get_json()
+        assert data["users"] == {}
 
 
 # TODO - add test to get user info

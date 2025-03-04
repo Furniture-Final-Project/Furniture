@@ -125,13 +125,31 @@ def create_app(config: dict):
         """
         data = flask.request.get_json()
         # Validate required fields
-        required_fields = ["user_id", "user_name", "user_full_name", "user_phone_num", "address", "email", "password"]
-        if not all(field in data for field in required_fields):
-            return flask.jsonify({"success": False, "message": "Missing required fields"}), 400
+        required_fields = ["user_id", "user_name", "user_full_name", "user_phone_num", "address", "email", "password", "role"]
+        role = data.get("role")
+        if not all(field in data for field in required_fields) or role != "user":
+            return flask.jsonify({"success": False, "message": "Either one or more required fields are missing, or 'role' is not set to 'user'."}), HTTPStatus.BAD_REQUEST
 
         s = schema.session()
         user.add_new_user(s, data)
         return flask.jsonify({})
+    
+    @app.route('/add_admin_user', methods=['POST'])
+    def add_admin_users():
+        """
+        API endpoint to add a new admin user.
+        """
+        data = flask.request.get_json()
+        # Validate required fields
+        required_fields = ["user_id", "user_name", "user_full_name", "user_phone_num", "address", "email", "password", "role"]
+        role = data.get("role")
+        if not all(field in data for field in required_fields) or role != "admin":
+            return flask.jsonify({"success": False, "message": "Either one or more required fields are missing, or 'role' is not set to 'admin'."}), HTTPStatus.BAD_REQUEST
+
+        s = schema.session()
+        user.add_new_user(s, data)
+        return flask.jsonify({})
+
 
     @app.route('/update_user', methods=['POST'])
     def update_user_info():
