@@ -99,4 +99,3 @@ def get_user_details(user_id):
         return user_data
 
     return None
-

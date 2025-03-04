@@ -1,7 +1,7 @@
 from functools import wraps
 from flask import session
 from http import HTTPStatus
-import schema
+# import schema
 
 
 def login_required(f):

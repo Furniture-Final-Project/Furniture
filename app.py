@@ -1,4 +1,4 @@
-from flask import session, request
+from flask import session
 import flask
 
 # from platformdirs import user_runtime_dir
@@ -185,17 +185,6 @@ def create_app(config: dict):
     def logout():
         session.pop('user_id', None)
         return '', HTTPStatus.OK
-
-    # @app.route('/logout', methods=['POST'])
-    # def logout():
-    #     data = flask.request.get_json()
-    #     if "user_id" not in data:
-    #         return flask.jsonify({"success": False, "message": "Missing user_id"}), HTTPStatus.BAD_REQUEST
-
-    #     s = schema.session()
-    #     result = user.logout_user(data["user_id"])
-    #     return flask.jsonify(result), (HTTPStatus.OK if result["success"] else HTTPStatus.UNAUTHORIZED)
-
     # ============== Shopping Cart ====================
     @app.route('/carts', methods=['GET'])
     def get_cart_items():

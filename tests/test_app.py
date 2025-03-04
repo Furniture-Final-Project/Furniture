@@ -5,7 +5,6 @@ import http
 import schema
 from unittest.mock import patch
 from werkzeug.security import check_password_hash, generate_password_hash
-import source.controller.user as user
 from source.models.OrderStatus import OrderStatus
 import source.controller.user as user
 
