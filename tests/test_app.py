@@ -7,7 +7,7 @@ from unittest.mock import patch
 from werkzeug.security import check_password_hash, generate_password_hash
 import source.controller.user as user
 from source.models.OrderStatus import OrderStatus
-
+import source.controller.user as user
 
 @pytest.fixture
 def application():
@@ -835,6 +835,31 @@ def test_user_logout(client):
 # 1) Log in
 # 2) Log out
 # 3) Call the protected endpoint -> expect HTTPStatus.UNAUTHORIZED
+
+def test_function_is_user_logged_in(client):
+    """
+    Tests whether the 'is_user_logged_in()' function in user.py accurately reflects
+    the login status before and after a user logs in and then logs out.
+    """
+    with client: 
+        # Before logging in, 'is_user_logged_in()' should return False  
+        assert user.is_user_logged_in() is False
+
+        # Log in with valid credentials 
+        login_info = {"user_name":"JaneSmith", "password": "mypassword456"}
+        response = client.post('/login', json=login_info)
+        assert response.status_code == http.HTTPStatus.OK 
+
+        # After logging in, 'is_user_logged_in()' should return True 
+        assert user.is_user_logged_in() is True 
+
+        # Log out
+        response = client.post('/logout')
+        assert response.status_code == http.HTTPStatus.OK 
+
+        # After logging out, 'is_user_logged_in()' should return False
+        assert user.is_user_logged_in() is False 
+
 
 
 

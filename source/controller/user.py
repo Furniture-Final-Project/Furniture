@@ -3,9 +3,11 @@ import http
 import schema
 
 import flask
+from flask import session
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
+
 
 
 def add_new_user(session: Session, user_data: dict):
@@ -101,22 +103,21 @@ def get_user_details(user_id):
     return None
 
 
-def login_user(session: Session, user_name: str, password: str):
-    user = session.query(schema.User).filter_by(user_name=user_name).first()
-    if not user:
-        flask.abort(http.HTTPStatus.UNAUTHORIZED, "User not found, need to register")
-    if not check_password_hash(user.password, password):
-        flask.abort(http.HTTPStatus.UNAUTHORIZED, "Incorrect password")
+# def is_user_logged_in() -> bool:
+#     """
+#     Checks if a user is currently logged in based on the 'user_id' in the session.
 
-    flask.session["logged_in"] = True
-    flask.session["user_name"] = user.user_name
-    return {"success": True, "message": "Login successful", "user_name": user.user_name}
+#     Returns:
+#         bool: True if 'user_id' is found in the session, False otherwise.
+#     """
+#     return 'user_id' in session
 
 
-
-
-
-
+# def is_specific_user_logged_in(user_id: int) -> bool:
+#     """
+#     Checks if a *specific user* is currently logged in based on the 'user_id' in the session.
+#     """
+#     return session.get('user_id') == user_id
 
 
 
