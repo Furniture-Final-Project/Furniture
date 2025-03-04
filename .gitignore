@@ -4,3 +4,4 @@ __pycache__/
 furniture-venv/
 *.log
 venv/
+.coverage
