@@ -185,6 +185,7 @@ def create_app(config: dict):
     def logout():
         session.pop('user_id', None)
         return '', HTTPStatus.OK
+
     # ============== Shopping Cart ====================
     @app.route('/carts', methods=['GET'])
     def get_cart_items():
