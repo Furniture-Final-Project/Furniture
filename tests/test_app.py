@@ -802,13 +802,39 @@ def test_get_user_details_existing():
     assert user_data["email"] == "michaelbrown@example.com"
 
 
-# TODO - make sure tests for login and log out works for hash password
-
 def test_user_login(client):
     """Test user login with correct credentials"""
     login_info = {"user_name":"MichaelBrown", "password": "brownieM123"}
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
+
+# TODO- התחברות עם שם משתמש לא קיים (אמור להחזיר 401 UNAUTHORIZED).
+# TODO- התחברות עם סיסמה שגויה (401).
+# TODO- שליחת בקשת התחברות ללא פרמטרים (400).
+# TODO- שליחת בקשת התחברות עם מבנה JSON שגוי (400).
+
+def test_user_logout(client):
+    """Test user logout with correct credentials"""
+    # Login first 
+    login_info = {"user_name":"JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK 
+
+    # Logout 
+    response = client.post('/logout')
+    assert response.status_code == http.HTTPStatus.OK 
+
+# TODO: Add a test for logging out when the user is not logged in.
+# Even if 'user_id' is missing in the session, session.pop('user_id', None)
+# will simply return None and not raise an error.
+# The logout endpoint still returns HTTPStatus.OK with an empty response body.
+
+# TODO: After implementing @login_required, make a request to an endpoint that requires login
+# and expect HTTPStatus.UNAUTHORIZED. This verifies that the session was successfully cleared
+# during the logout process. A recommended test sequence would be:
+# 1) Log in
+# 2) Log out
+# 3) Call the protected endpoint -> expect HTTPStatus.UNAUTHORIZED
 
 
 

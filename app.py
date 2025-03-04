@@ -178,6 +178,12 @@ def create_app(config: dict):
             return '', HTTPStatus.OK
         else:
             return '', HTTPStatus.UNAUTHORIZED
+        
+
+    @app.route('/logout', methods=['POST'])
+    def logout():
+        session.pop('user_id', None)
+        return '', HTTPStatus.OK
 
 
 
@@ -232,7 +238,7 @@ def create_app(config: dict):
         """
         data = flask.request.get_json()  # Get JSON payload from the request
         s = schema.session()  # create a new session for DB operations
-        cart.add_cart_item(s, data)  # call add_item from services.py
+        cart.add_cart_item(s, data)  # call add_item from cart.py
         return flask.jsonify({})
 
     @app.route('/user/update_cart_item_quantity', methods=['POST'])
