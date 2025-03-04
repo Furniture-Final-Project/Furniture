@@ -808,18 +808,8 @@ def test_user_login(client):
     """Test user login with correct credentials"""
     login_info = {"user_name":"MichaelBrown", "password": "brownieM123"}
     response = client.post('/login', json=login_info)
-    data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
-    assert data["success"] is True
-    assert data["message"] == "Login successful"
-    assert data["user_name"] == "MichaelBrown"
 
-# def test_user_login_wrong_password(client):
-#     """Test user login with incorrect password"""
-#     login_info = {"user_name":"MichaelBrown", "password": "WrongPass"}
-#     response = client.post('/login', json=login_info)
-#     data = response.get_json()
-#     assert response.status_code == http.HTTPStatus.UNAUTHORIZED
 
 
 # def test_user_login_nonexistent_user(client):

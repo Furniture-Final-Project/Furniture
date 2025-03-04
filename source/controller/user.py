@@ -5,8 +5,7 @@ import schema
 import flask
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from werkzeug.security import generate_password_hash
-from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 def add_new_user(session: Session, user_data: dict):
@@ -111,7 +110,7 @@ def login_user(session: Session, user_name: str, password: str):
 
     flask.session["logged_in"] = True
     flask.session["user_name"] = user.user_name
-    return {}
+    return {"success": True, "message": "Login successful", "user_name": user.user_name}
 
 
 

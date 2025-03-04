@@ -1,15 +1,18 @@
+from flask import session, request
 import flask
-
 # from platformdirs import user_runtime_dir
 from http import HTTPStatus
 import schema
 import source.controller.furniture_inventory as furniture_inventory
 import source.controller.user as user
 import source.controller.cart as cart
+import os
+from werkzeug.security import check_password_hash
 
 
 def create_app(config: dict):
     app = flask.Flask(__name__)
+    app.secret_key = os.urandom(24)
 
     schema.create(config['database_url'])
 
@@ -156,13 +159,35 @@ def create_app(config: dict):
     @app.route('/login', methods=['POST'])
     def login():
         data = flask.request.get_json()
-        if "user_name" not in data or "password" not in data:
-            return flask.jsonify({"success": False, "message": "Missing user_name or password"}), HTTPStatus.BAD_REQUEST
+        if not data:
+            return '', HTTPStatus.BAD_REQUEST
+        
+        username = data.get("user_name")
+        password = data.get("password")
+        if not username or not password:
+            return '', HTTPStatus.BAD_REQUEST
+        
         s = schema.session()
-        result = user.login_user(s, data["user_name"], data["password"])
+        user = s.query(schema.User).filter_by(user_name=username).first()
 
-        # If login_user raised no exception, we have a success dictionary.
-        return flask.jsonify(result), HTTPStatus.OK
+        if not user:
+            return '', HTTPStatus.UNAUTHORIZED
+        
+        if check_password_hash(user.password, password):
+            session['user_id'] = user.user_id
+            return '', HTTPStatus.OK
+        else:
+            return '', HTTPStatus.UNAUTHORIZED
+
+
+
+
+
+
+
+
+
+
 
     # @app.route('/logout', methods=['POST'])
     # def logout():
