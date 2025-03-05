@@ -1,3 +1,4 @@
+from flask import session
 import flask
 
 # from platformdirs import user_runtime_dir
@@ -7,10 +8,15 @@ import source.controller.furniture_inventory as furniture_inventory
 import source.controller.user as user
 import source.controller.cart as cart
 import source.controller.order as order
+from decorators import login_required
+import os
+from werkzeug.security import check_password_hash
+
 
 
 def create_app(config: dict):
     app = flask.Flask(__name__)
+    app.secret_key = os.urandom(24)
 
     schema.create(config['database_url'])
 
@@ -121,9 +127,32 @@ def create_app(config: dict):
         """
         data = flask.request.get_json()
         # Validate required fields
-        required_fields = ["user_id", "user_name", "user_full_name", "user_phone_num", "address", "email", "password"]
-        if not all(field in data for field in required_fields):
-            return flask.jsonify({"success": False, "message": "Missing required fields"}), 400
+        required_fields = ["user_id", "user_name", "user_full_name", "user_phone_num", "address", "email", "password", "role"]
+        role = data.get("role")
+        if not all(field in data for field in required_fields) or role != "user":
+            return (
+                flask.jsonify({"success": False, "message": "Either one or more required fields are missing, or 'role' is not set to 'user'."}),
+                HTTPStatus.BAD_REQUEST,
+            )
+
+        s = schema.session()
+        user.add_new_user(s, data)
+        return flask.jsonify({})
+
+    @app.route('/add_admin_user', methods=['POST'])
+    def add_admin_users():
+        """
+        API endpoint to add a new admin user.
+        """
+        data = flask.request.get_json()
+        # Validate required fields
+        required_fields = ["user_id", "user_name", "user_full_name", "user_phone_num", "address", "email", "password", "role"]
+        role = data.get("role")
+        if not all(field in data for field in required_fields) or role != "admin":
+            return (
+                flask.jsonify({"success": False, "message": "Either one or more required fields are missing, or 'role' is not set to 'admin'."}),
+                HTTPStatus.BAD_REQUEST,
+            )
 
         s = schema.session()
         user.add_new_user(s, data)
@@ -153,16 +182,29 @@ def create_app(config: dict):
             user.update_info_password(s, data)
         return flask.jsonify({})
 
+    # ===================login====================
     @app.route('/login', methods=['POST'])
     def login():
         data = flask.request.get_json()
-        if "user_name" not in data or "password" not in data:
-            return flask.jsonify({"success": False, "message": "Missing user_name or password"}), HTTPStatus.BAD_REQUEST
-        s = schema.session()
-        result = user.login_user(s, data["user_name"], data["password"])
+        if not data:
+            return '', HTTPStatus.BAD_REQUEST
 
-        # If login_user raised no exception, we have a success dictionary.
-        return flask.jsonify(result), HTTPStatus.OK
+        username = data.get("user_name")
+        password = data.get("password")
+        if not username or not password:
+            return '', HTTPStatus.BAD_REQUEST
+
+        s = schema.session()
+        user = s.query(schema.User).filter_by(user_name=username).first()
+
+        if not user:
+            return '', HTTPStatus.UNAUTHORIZED
+
+        if check_password_hash(user.password, password):
+            session['user_id'] = user.user_id
+            return '', HTTPStatus.OK
+        else:
+            return '', HTTPStatus.UNAUTHORIZED
 
     @app.route('/logout', methods=['POST'])
     def logout():
@@ -173,6 +215,9 @@ def create_app(config: dict):
         # s = schema.session()
         result = user.logout_user(data["user_id"])
         return flask.jsonify(result), (HTTPStatus.OK if result["success"] else HTTPStatus.UNAUTHORIZED)
+
+        session.pop('user_id', None)
+        return '', HTTPStatus.OK
 
     # ============== Shopping Cart ====================
     @app.route('/carts', methods=['GET'])
@@ -201,13 +246,14 @@ def create_app(config: dict):
         return flask.jsonify({'carts': cart_items})
 
     @app.route('/user/add_item_to_cart', methods=['POST'])
+    @login_required
     def add_cart_item_endpoint():
         """
         API endpoint to add a new item to cart for a user - will be called when the user will add the first item to the cart.
         """
         data = flask.request.get_json()  # Get JSON payload from the request
         s = schema.session()  # create a new session for DB operations
-        cart.add_cart_item(s, data)  # call add_item from services.py
+        cart.add_cart_item(s, data)  # call add_item from cart.py
         return flask.jsonify({})
 
     @app.route('/user/update_cart_item_quantity', methods=['POST'])

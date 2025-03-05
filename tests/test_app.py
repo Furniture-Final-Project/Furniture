@@ -5,8 +5,8 @@ import http
 import schema
 from unittest.mock import patch
 from werkzeug.security import check_password_hash, generate_password_hash
-import source.controller.user as user
 from source.models.OrderStatus import OrderStatus
+import source.controller.user as user
 
 
 @pytest.fixture
@@ -93,6 +93,7 @@ def preprepared_data(application):
         address="456 Oak Avenue, New York, NY",
         email="janesmith@example.com",
         password=generate_password_hash("mypassword456"),
+        role="user",
     )
 
     user_2 = schema.User(
@@ -103,6 +104,7 @@ def preprepared_data(application):
         address="789 Maple Street, Los Angeles, CA",
         email="michaelbrown@example.com",
         password=generate_password_hash("brownieM123"),
+        role="user",
     )
 
     user_3 = schema.User(
@@ -113,6 +115,7 @@ def preprepared_data(application):
         address="101 Pine Road, Austin, TX",
         email="emilydavis@example.com",
         password=generate_password_hash("davisEmily!"),
+        role="user",
     )
 
     user_4 = schema.User(
@@ -123,6 +126,7 @@ def preprepared_data(application):
         address="202 Birch Lane, Seattle, WA",
         email="robertwilson@example.com",
         password=generate_password_hash("wilsonRob007"),
+        role="admin",
     )
 
     cart_item1 = schema.CartItem(user_id=1002, model_num='chair-0', quantity=2)
@@ -637,6 +641,7 @@ def test_get_user_by_id(client):
     assert users['1002']["user_phone_num"] == "555-1234"
     assert users['1002']["address"] == "456 Oak Avenue, New York, NY"
     assert users['1002']["email"] == "janesmith@example.com"
+    assert users['1002']["role"] == "user"
     hashed_password = users['1002']["password"]
     assert hashed_password != "mypassword456"
     assert check_password_hash(hashed_password, "mypassword456")
@@ -651,6 +656,7 @@ def test_add_new_user(client):
         "address": "123 Elm Street, Springfield, IL",
         "email": "johndoe@example.com",
         "password": "securepassword123",
+        "role": "user",
     }
     response = client.post('/add_user', json=user_info)
     assert response.status_code == http.HTTPStatus.OK
@@ -671,6 +677,7 @@ def test_password_hashing(client):
         "address": "789 Oak St, New York, NY",
         "email": "alicedoe@example.com",
         "password": "mypassword123",
+        "role": "user",
     }
 
     response = client.post('/add_user', json=user_info)
@@ -685,7 +692,7 @@ def test_password_hashing(client):
     assert check_password_hash(hashed_password, user_info["password"])
 
 
-def test_existing_user(client):
+def test_add_existing_user(client):
     existing_user = {
         "user_id": 1002,
         "user_name": "JaneSmith",
@@ -694,9 +701,81 @@ def test_existing_user(client):
         "address": "456 Oak Avenue, New York, NY",
         "email": "janesmith@example.com",
         "password": "mypassword456",
+        "role": "user",
     }
     response = client.post('/add_user', json=existing_user)
     assert response.status_code == http.HTTPStatus.BAD_REQUEST
+
+
+def test_add_admin_user(client):
+    user_info = {
+        "user_id": 207105881,
+        "user_name": "RonCohen",
+        "user_full_name": "Ron Cohen",
+        "user_phone_num": "555-7824",
+        "address": "120 Elm Street, Springfield, IL",
+        "email": "johndoe@example.com",
+        "password": "securepassword123",
+        "role": "admin",
+    }
+    response = client.post('/add_admin_user', json=user_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify user was asses successfully
+    response = client.get('/admin/users', query_string={"user_id": 207105881})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    assert data["users"]['207105881']["user_name"] == "RonCohen"
+
+
+def test_add_admin_user_invalid(client):
+    """
+    Ensures '/add_admin_user' returns 400 BAD REQUEST if 'role' is 'user',
+    and verifies no user is created.
+    """
+    user_info = {
+        "user_id": 207105881,
+        "user_name": "RonCohen",
+        "user_full_name": "Ron Cohen",
+        "user_phone_num": "555-7824",
+        "address": "120 Elm Street, Springfield, IL",
+        "email": "johndoe@example.com",
+        "password": "securepassword123",
+        "role": "user",
+    }
+    response = client.post('/add_admin_user', json=user_info)
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
+
+    # Send a GET request to verify user was asses successfully
+    response = client.get('/admin/users', query_string={"user_id": 207105881})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    assert data["users"] == {}
+
+
+def test_add_user_invalid_role(client):
+    """
+        Ensures '/add_user' returns 400 BAD REQUEST if 'role' is 'admin',
+    and verifies no user is created.
+    """
+    user_info = {
+        "user_id": 207105881,
+        "user_name": "RonCohen",
+        "user_full_name": "Ron Cohen",
+        "user_phone_num": "555-7824",
+        "address": "120 Elm Street, Springfield, IL",
+        "email": "johndoe@example.com",
+        "password": "securepassword123",
+        "role": "admin",
+    }
+    response = client.post('/add_user', json=user_info)
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
+
+    # Send a GET request to verify user was asses successfully
+    response = client.get('/admin/users', query_string={"user_id": 207105881})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    assert data["users"] == {}
 
 
 # TODO - add test to get user info
@@ -800,26 +879,78 @@ def test_get_user_details_existing():
     assert user_data["user_phone_num"] == "555-5678"
     assert user_data["address"] == "789 Maple Street, Los Angeles, CA"
     assert user_data["email"] == "michaelbrown@example.com"
+    assert user_data["role"] == "user"
 
 
-# TODO - make sure tests for login and log out works for hash password
+def test_user_login(client):
+    """Test user login with correct credentials"""
+    login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
 
-# def test_user_login(client):
-#     """Test user login with correct credentials"""
-#     login_info = {"user_name":"MichaelBrown", "password": "brownieM123"}
+
+# TODO- התחברות עם שם משתמש לא קיים (אמור להחזיר 401 UNAUTHORIZED).
+# TODO- התחברות עם סיסמה שגויה (401).
+# TODO- שליחת בקשת התחברות ללא פרמטרים (400).
+# TODO- שליחת בקשת התחברות עם מבנה JSON שגוי (400).
+
+
+def test_user_logout(client):
+    """Test user logout with correct credentials"""
+    # Login first
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Logout
+    response = client.post('/logout')
+    assert response.status_code == http.HTTPStatus.OK
+
+
+# TODO: Add a test for logging out when the user is not logged in.
+# Even if 'user_id' is missing in the session, session.pop('user_id', None)
+# will simply return None and not raise an error.
+# The logout endpoint still returns HTTPStatus.OK with an empty response body.
+
+# TODO: After implementing @login_required, make a request to an endpoint that requires login
+# and expect HTTPStatus.UNAUTHORIZED. This verifies that the session was successfully cleared
+# during the logout process. A recommended test sequence would be:
+# 1) Log in
+# 2) Log out
+# 3) Call the protected endpoint -> expect HTTPStatus.UNAUTHORIZED
+
+
+def test_add_item_to_cart_requires_login(client):
+    """
+    Verifies that the /user/add_item_to_cart endpoint is protected by @login_required.
+    1) Without logging in, the request should return 401 UNAUTHORIZED.
+    2) After logging in successfully, the request should return 200 OK.
+    """
+
+    # 1) Attempt to add item to cart without logging in
+    cart_item = {"user_id": 1003, "model_num": "chair-1", "quantity": 1}
+
+    # Send a POST request to add the cart for the specific user
+    response = client.post('/user/add_item_to_cart', json=cart_item)
+    assert response.status_code == http.HTTPStatus.UNAUTHORIZED
+
+    # 2) Log in with valid credentials
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # 3) Now that we're logged in, try again
+    response = client.post('/user/add_item_to_cart', json={"user_id": 1003, "model_num": "chair-1", "quantity": 1})
+    # Expect a success code (200 OK, 201 CREATED, etc.), depending on your implementation
+    assert response.status_code == http.HTTPStatus.OK
+
+
+# def test_admin_required_operator(client):
+#     # log in as the regular user
+#     login_info = {"user_name": "JaneSmith", "password": "mypassword456"} #jane has "user" role
 #     response = client.post('/login', json=login_info)
-#     data = response.get_json()
 #     assert response.status_code == http.HTTPStatus.OK
-#     assert data["success"] is True
-#     assert data["message"] == "Login successful"
-#     assert data["user_name"] == "MichaelBrown"
-
-# def test_user_login_wrong_password(client):
-#     """Test user login with incorrect password"""
-#     login_info = {"user_name":"MichaelBrown", "password": "WrongPass"}
-#     response = client.post('/login', json=login_info)
-#     data = response.get_json()
-#     assert response.status_code == http.HTTPStatus.UNAUTHORIZED
+# # TODO : ROTEM should continue from here
 
 
 # def test_user_login_nonexistent_user(client):
@@ -937,6 +1068,11 @@ def test_add_first_item_to_cart(client):
     """
     Test adding new item to a specific cart of a specific user.
     """
+    # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     cart_item = {"user_id": 1003, "model_num": "chair-1", "quantity": 1}
 
     # Send a POST request to add the cart for the specific user
@@ -962,6 +1098,11 @@ def test_add_item_to_cart_not_enough_units_in_stock(client):
     Test  adding item to cart is not possible if the asked quantity is bigger than stock quantity.
     Expecting an error response.
     """
+    # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     cart_item = {"user_id": 1003, "model_num": "chair-2", "quantity": 2}
     with patch("source.controller.cart.get_cart_item_full_details", return_value={cart_item["model_num"]: {"stock_quantity": 1}}):
         response = client.post('/user/add_item_to_cart', json=cart_item)
@@ -973,6 +1114,11 @@ def test_add_invalid_cart_item(client):
     Test adding an item to the cart with a non-existent user ID or non-existent model number.
     Expecting an error response.
     """
+    # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     cart_item = {"user_id": 9999, "model_num": "chair-1", "quantity": 1}
 
     with patch("schema.CartItem.valid", return_value=False):
@@ -1033,6 +1179,11 @@ def test_update_quantity_with_not_enough_units_in_stock(client):
     Test that updating a cart item is not possible if the item not in stock or do not have enough units in stock.
     Expecting an error response.
     """
+    # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     update_info = dict(model_num="chair-0", user_id=1004, quantity=5)
 
     with patch("source.controller.cart.get_cart_item_full_details", return_value={update_info["model_num"]: {"stock_quantity": 3}}):
