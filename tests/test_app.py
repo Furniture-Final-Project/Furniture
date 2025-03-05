@@ -967,17 +967,16 @@ def test_user_login(client):
 # TODO- שליחת בקשת התחברות עם מבנה JSON שגוי (400).
 
 
-# Didn't work for me - delete when merging with updated main:
-# def test_user_logout(client):
-#     """Test user logout with correct credentials"""
-#     # Login first
-#     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
-#     response = client.post('/login', json=login_info)
-#     assert response.status_code == http.HTTPStatus.OK
-#
-#     # Logout
-#     response = client.post('/logout')
-#     assert response.status_code == http.HTTPStatus.OK
+def test_user_logout(client):
+    """Test user logout with correct credentials"""
+    # Login first
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Logout
+    response = client.post('/logout')
+    assert response.status_code == http.HTTPStatus.OK
 
 
 # TODO: Add a test for logging out when the user is not logged in.
@@ -1031,9 +1030,6 @@ def test_admin_required_operator(client):
     hashed_password = data["users"]["1005"]["password"]
     assert hashed_password != "wilsonRob007"
     assert check_password_hash(hashed_password, "wilsonRob007")
-
-
-# # TODO : ROTEM should continue from here
 
 
 # def test_user_login_nonexistent_user(client):
