@@ -54,7 +54,6 @@ def get_cart_user_details(user_id):
 
 
 def update_cart_item_quantity(session: Session, item_data: dict):
-    # TODO: Check if item_data["quantity"] == 0 activate delete method
     # Validate new quantity is not negative
     if item_data["quantity"] < 0:
         flask.abort(http.HTTPStatus.BAD_REQUEST, "quantity cannot be negative")

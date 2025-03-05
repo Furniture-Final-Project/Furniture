@@ -1245,43 +1245,78 @@ def test_order_view_all_orders(client):
     - The number of unique items is as expected.
     - Each order item includes necessary details such as order ID, user ID, model number, items, .
     """
+    #
+    # def mock_get_user_details(user_id):
+    #     if user_id == 1002:
+    #         return {
+    #             1002: {
+    #                 "user_id": 1002,
+    #                 "user_name": "JaneSmith",
+    #                 "user_full_name": "Jane Smith",
+    #                 "address": "456 Oak Avenue, New York, NY",
+    #                 "shipping_address": "123 Main St, Springfield",
+    #                 "email": "janesmith@example.com",
+    #                 "user_phone_num": "052-2541024",
+    #             }
+    #         }
+    #
+    #     elif user_id == 1003:
+    #         return {
+    #             1003: {
+    #                 "user_id": 1003,
+    #                 "user_name": "MichaelBrown",
+    #                 "user_full_name": "Michael Brown",
+    #                 "address": "789 Maple Street, Los Angeles, CA",
+    #                 "shipping_address": "789 Maple Street, Los Angeles, CA",
+    #                 "email": "michaelbrown@example.com",
+    #                 "user_phone_num": "052-2541025",
+    #             }
+    #         }
+    #     return {}
+    #
+    # with patch("source.controller.user.get_user_details", side_effect=mock_get_user_details):
+    response = client.get('/orders')
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    orders = data['orders']
+    assert len(orders) == 2
 
-    def mock_get_user_details(user_id):
-        if user_id == 1002:
-            return {
-                1002: {
-                    "user_id": 1002,
-                    "user_name": "JaneSmith",
-                    "user_full_name": "Jane Smith",
-                    "address": "456 Oak Avenue, New York, NY",
-                    "shipping_address": "123 Main St, Springfield",
-                    "email": "janesmith@example.com",
-                    "user_phone_num": "052-2541024",
-                }
-            }
+    assert orders["1"] == {
+        "order_num": 1,
+        "user_id": 1002,
+        "items": {"chair-0": 2, "SF-3003": 1},
+        "user_email": "janesmith@example.com",
+        "shipping_address": "123 Main St, Springfield",
+        "status": "PENDING",
+        "total_price": 1750.1,
+        "user_name": "JaneSmith",
+        "phone_number": "555-1234",
+        "user_full_name": "Jane Smith",
+        "creation_time": 'Mon, 04 Mar 2024 12:45:00 GMT',
+    }
 
-        elif user_id == 1003:
-            return {
-                1003: {
-                    "user_id": 1003,
-                    "user_name": "MichaelBrown",
-                    "user_full_name": "Michael Brown",
-                    "address": "789 Maple Street, Los Angeles, CA",
-                    "shipping_address": "789 Maple Street, Los Angeles, CA",
-                    "email": "michaelbrown@example.com",
-                    "user_phone_num": "052-2541025",
-                }
-            }
-        return {}
+    assert orders["2"] == {
+        "order_num": 2,
+        "user_id": 1003,
+        "items": {"BS-4004": 1, "SF-3003": 1},
+        "user_email": "michaelbrown@example.com",
+        "shipping_address": "789 Maple Street, Los Angeles, CA",
+        "status": "DELIVERED",
+        "total_price": 2500.0,
+        "user_name": "MichaelBrown",
+        "phone_number": '555-5678',
+        "user_full_name": "Michael Brown",
+        "creation_time": 'Sun, 03 Mar 2024 12:30:00 GMT',
+    }
 
-    with patch("source.controller.user.get_user_details", side_effect=mock_get_user_details):
-        response = client.get('/orders')
-        assert response.status_code == http.HTTPStatus.OK
-        data = response.get_json()
-        orders = data['orders']
-        assert len(orders) == 2
 
-        assert orders["1"] == {
+def test_get_order_by_user_id(client):
+    response = client.get('/orders', query_string={"user_id": 1002})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    orders = data['orders']
+    assert orders == {
+        "1": {
             "order_num": 1,
             "user_id": 1002,
             "items": {"chair-0": 2, "SF-3003": 1},
@@ -1290,12 +1325,21 @@ def test_order_view_all_orders(client):
             "status": "PENDING",
             "total_price": 1750.1,
             "user_name": "JaneSmith",
-            "phone_number": "052-2541024",
+            "phone_number": "555-1234",
             "user_full_name": "Jane Smith",
             "creation_time": 'Mon, 04 Mar 2024 12:45:00 GMT',
         }
+    }
 
-        assert orders["2"] == {
+
+def test_get_order_by_order_num(client):
+    response = client.get('/orders', query_string={"order_num": 2})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    orders = data['orders']
+    assert len(orders) == 1
+    assert orders == {
+        "2": {
             "order_num": 2,
             "user_id": 1003,
             "items": {"BS-4004": 1, "SF-3003": 1},
@@ -1304,9 +1348,31 @@ def test_order_view_all_orders(client):
             "status": "DELIVERED",
             "total_price": 2500.0,
             "user_name": "MichaelBrown",
-            "phone_number": "052-2541025",
+            "phone_number": '555-5678',
             "user_full_name": "Michael Brown",
             "creation_time": 'Sun, 03 Mar 2024 12:30:00 GMT',
         }
+    }
 
-    # TODO: add tests to test the order of the get orders results.
+
+def test_update_order_status(client):
+    response = client.get('/orders', query_string={"order_num": 1})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    orders = data['orders']
+    assert orders["1"]["status"] == "PENDING"
+
+    # update order status
+    update_info = dict(order_num=1, status=OrderStatus.SHIPPED.value)  # Convert to string
+    response = client.post('/admin/update_order_status', json=update_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify item stock update
+    response = client.get('/orders', query_string={"order_num": 1})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    orders = data['orders']
+    assert orders["1"]["status"] == "SHIPPED"
+
+
+# TODO: test that invalid status will raise error

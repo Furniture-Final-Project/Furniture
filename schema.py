@@ -298,9 +298,9 @@ class Order(Base):
     def to_dict(self):
         result = Base.to_dict(self)
         customer = user.get_user_details(self.user_id)
-        result['phone_number'] = customer[self.user_id]['user_phone_num']
-        result['user_name'] = customer[self.user_id]['user_name']
-        result['user_full_name'] = customer[self.user_id]['user_full_name']
+        result['phone_number'] = customer['user_phone_num']
+        result['user_name'] = customer['user_name']
+        result['user_full_name'] = customer['user_full_name']
         result['status'] = self.status.name
 
         return result

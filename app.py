@@ -7,9 +7,11 @@ import schema
 import source.controller.furniture_inventory as furniture_inventory
 import source.controller.user as user
 import source.controller.cart as cart
+import source.controller.order as order
 from decorators import login_required
 import os
 from werkzeug.security import check_password_hash
+
 
 
 def create_app(config: dict):
@@ -206,6 +208,14 @@ def create_app(config: dict):
 
     @app.route('/logout', methods=['POST'])
     def logout():
+        data = flask.request.get_json()
+        if "user_id" not in data:
+            return flask.jsonify({"success": False, "message": "Missing user_id"}), HTTPStatus.BAD_REQUEST
+
+        # s = schema.session()
+        result = user.logout_user(data["user_id"])
+        return flask.jsonify(result), (HTTPStatus.OK if result["success"] else HTTPStatus.UNAUTHORIZED)
+
         session.pop('user_id', None)
         return '', HTTPStatus.OK
 
@@ -285,5 +295,26 @@ def create_app(config: dict):
         results = query.all()
         orders = {result.order_num: result.to_dict() for result in results}
         return flask.jsonify({'orders': orders})
+
+    #
+    # @app.route('/add_order', methods=['POST'])
+    # def add_cart_item_endpoint():
+    #     """
+    #     API endpoint to add a new item to order for a user - will be called when the checkout is done by the system.
+    #     """
+    #     data = flask.request.get_json()  # Get JSON payload from the request
+    #     s = schema.session()  # create a new session for DB operations
+    #     order.add_order(s, data)  # call add_order from services.py
+    #     return flask.jsonify({})
+
+    @app.route('/admin/update_order_status', methods=['POST'])
+    def update_order_status_endpoint():
+        """
+        API endpoint to update the status of an order.
+        """
+        data = flask.request.get_json()  # Get JSON payload from the request
+        s = schema.session()  # create a new session for DB operations
+        order.update_order_status(s, data)
+        return flask.jsonify({})
 
     return app
