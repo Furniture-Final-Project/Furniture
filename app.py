@@ -216,6 +216,7 @@ def create_app(config: dict):
 
     # ============== Shopping Cart ====================
     @app.route('/carts', methods=['GET'])
+    @login_required
     def get_cart_items():
         s = schema.session()
         query = s.query(schema.CartItem)
@@ -240,6 +241,16 @@ def create_app(config: dict):
         cart_items = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'carts': cart_items})
 
+
+    @app.route('/admin/carts', methods=['GET'])
+    @admin_required
+    def get_all_cart_items():
+        s = schema.session()
+        query = s.query(schema.CartItem)
+        results = query.all()
+        cart_items = {result.user_id: result.to_dict() for result in results}
+        return flask.jsonify({'carts': cart_items})
+
     @app.route('/user/add_item_to_cart', methods=['POST'])
     @login_required
     def add_cart_item_endpoint():
@@ -252,6 +263,7 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     @app.route('/user/update_cart_item_quantity', methods=['POST'])
+    @login_required
     def update_cart_item_endpoint():
         """
         API endpoint to update the item quantity in shopping cart.
