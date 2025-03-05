@@ -1,8 +1,8 @@
 # import source.controller.user as user
 
 
-# # unit test: test_get_user_details_existing - it was in test_app.py and moved here 
-# # we need to make sure it runs correctly  
+# # unit test: test_get_user_details_existing - it was in test_app.py and moved here
+# # we need to make sure it runs correctly
 # def test_get_user_details_existing():
 #     """Test retrieving details of an existing user from the test database"""
 #     user_id = 1003
@@ -16,10 +16,10 @@
 #     assert user_data["email"] == "michaelbrown@example.com"
 #     assert user_data["role"] == "user"
 
-#========================================================================================
+# ========================================================================================
 # def test_get_user_by_id(client):
 #     # TODO: mock for admin
-    
+
 #     response = client.get('/admin/users', query_string={"user_id": 1002})
 #     assert response.status_code == http.HTTPStatus.OK
 #     data = response.get_json()
@@ -164,8 +164,8 @@
 
 
 # def test_user_update_address(client):
-# TODO: add loggin mock for the specific user - 1003 
-# its login_info = {"user_name": "MichaelBrown", "password": "brownieM123"} 
+# TODO: add loggin mock for the specific user - 1003
+# its login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}
 
 #     """Test to update address of a user, by its user_id"""
 #     updated_info = {"user_id": 1003, "address": "21 Yaakov Meridor, Tel Aviv"}
@@ -173,7 +173,7 @@
 #     data = response.get_json()
 #     assert response.status_code == http.HTTPStatus.OK
 
-#     # TODO: mock for admin 
+#     # TODO: mock for admin
 
 #     # Send a GET request to verify user details were updated corretly
 #     response = client.get('/admin/users', query_string={"user_id": 1003})
@@ -184,15 +184,15 @@
 
 # def test_user_update_user_name(client):
 #     """Test to update user_name of a user, by its user_id"""
-# TODO: add loggin mock for the specific user - 1003 
-# its login_info = {"user_name": "MichaelBrown", "password": "brownieM123"} 
+# TODO: add loggin mock for the specific user - 1003
+# its login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}
 
 #     update_info = {"user_id": 1003, "user_name": "Michael_Cohen"}
 #     response = client.post('/update_user', json=update_info)
 #     data = response.get_json()
 #     assert response.status_code == http.HTTPStatus.OK
 
-#     # TODO: mock for admin 
+#     # TODO: mock for admin
 
 #     # Send a GET request to verify user details were updated correctly
 #     response = client.get('/admin/users', query_string={"user_id": 1003})
@@ -203,15 +203,15 @@
 
 # def test_user_update_user_full_name(client):
 #     """Test to update user_full_name of a user, by its user_id"""
-# TODO: add loggin mock for the specific user - 1003 
-# its login_info = {"user_name": "MichaelBrown", "password": "brownieM123"} 
+# TODO: add loggin mock for the specific user - 1003
+# its login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}
 
 #     update_info = {"user_id": 1003, "user_full_name": "Michael Levi"}
 #     response = client.post('/update_user', json=update_info)
 #     data = response.get_json()
 #     assert response.status_code == http.HTTPStatus.OK
 
-#     # TODO: mock for admin 
+#     # TODO: mock for admin
 
 #     # Send a GET request to verify user details were updated correctly
 #     response = client.get('/admin/users', query_string={"user_id": 1003})
@@ -222,15 +222,15 @@
 
 # def test_user_update_user_phone_num(client):
 #     """Test to update user_phone_num of a user, by its user_id"""
-# TODO: add loggin mock for the specific user - 1003 
-# its login_info = {"user_name": "MichaelBrown", "password": "brownieM123"} 
+# TODO: add loggin mock for the specific user - 1003
+# its login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}
 
 #     update_info = {"user_id": 1003, "user_phone_num": "555-1094"}
 #     response = client.post('/update_user', json=update_info)
 #     data = response.get_json()
 #     assert response.status_code == http.HTTPStatus.OK
 
-      # TODO: mock for admin 
+# TODO: mock for admin
 
 #     # Send a GET request to verify user details were updated correctly
 #     response = client.get('/admin/users', query_string={"user_id": 1003})
@@ -240,15 +240,15 @@
 
 # def test_user_update_email(client):
 #     """Test to update email of a user, by its user_id"""
-# TODO: add loggin mock for the specific user - 1003 
-# its login_info = {"user_name": "MichaelBrown", "password": "brownieM123"} 
+# TODO: add loggin mock for the specific user - 1003
+# its login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}
 
 #     update_info = {"user_id": 1003, "email": "MichaelCohen@gmail.com"}
 #     response = client.post('/update_user', json=update_info)
 #     data = response.get_json()
 #     assert response.status_code == http.HTTPStatus.OK
 
-      # TODO: mock for admin 
+# TODO: mock for admin
 
 #     # Send a GET request to verify user details were updated correctly
 #     response = client.get('/admin/users', query_string={"user_id": 1003})
@@ -260,15 +260,15 @@
 # def test_user_update_password(client):
 #     """Test to update password of a user and hash it, by its user_id"""
 
-# TODO: add loggin mock for the specific user - 1003 
-# its login_info = {"user_name": "MichaelBrown", "password": "brownieM123"} 
+# TODO: add loggin mock for the specific user - 1003
+# its login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}
 
 #     update_info = {"user_id": 1003, "password": "NewSecurePass123"}
 #     response = client.post('/update_user', json=update_info)
 #     data = response.get_json()
 #     assert response.status_code == http.HTTPStatus.OK
 
-      # TODO: mock for admin 
+# TODO: mock for admin
 
 #     # Send a GET request to verify user details were updated correctly
 #     response = client.get('/admin/users', query_string={"user_id": 1003})

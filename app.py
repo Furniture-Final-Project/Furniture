@@ -13,7 +13,6 @@ import os
 from werkzeug.security import check_password_hash
 
 
-
 def create_app(config: dict):
     app = flask.Flask(__name__)
     app.secret_key = os.urandom(24)
@@ -208,7 +207,6 @@ def create_app(config: dict):
         else:
             return '', HTTPStatus.UNAUTHORIZED
 
-
     @app.route('/logout', methods=['POST'])
     def logout():
         session.pop('user_id', None)
@@ -240,7 +238,6 @@ def create_app(config: dict):
         results = query.all()
         cart_items = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'carts': cart_items})
-
 
     @app.route('/admin/carts', methods=['GET'])
     @admin_required
@@ -303,7 +300,6 @@ def create_app(config: dict):
         results = query.all()
         orders = {result.order_num: result.to_dict() for result in results}
         return flask.jsonify({'orders': orders})
-    
 
     @app.route('/admin/update_order_status', methods=['POST'])
     def update_order_status_endpoint():

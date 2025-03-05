@@ -9,22 +9,23 @@ try:
     from source.services.user_manager import UserManager
     from source.services.checkout_service import CheckoutService
 except ImportError:
+
     class CartManager:
         def get_cart(self, user_id: int):
             return None  # Mock response
-    
+
     class InventoryManager:
         def is_item_available(self, item_id: int, quantity: int) -> bool:
             return True  # Mock response
-    
+
     class OrderManager:
         def get_order(self, order_id: int):
             return None  # Mock response
-    
+
     class UserManager:
         def get_user(self, user_id: int):
             return None  # Mock response
-    
+
     class CheckoutService:
         def __init__(self, cart_manager, inventory_manager, order_manager, user_manager):
             self.cart_manager = cart_manager
@@ -35,12 +36,14 @@ except ImportError:
         def finalize_checkout(self, user_id: int, address: str, payment_method: str):
             return {"status": "error", "message": "Mock CheckoutService - Not Implemented"}
 
+
 # Initialize services
 cart_manager = CartManager()
 inventory_manager = InventoryManager()
 order_manager = OrderManager()
 user_manager = UserManager()
 checkout_service = CheckoutService(cart_manager, inventory_manager, order_manager, user_manager)
+
 
 # Flask app factory
 def create_app() -> Flask:
@@ -71,7 +74,8 @@ def create_app() -> Flask:
 
     return app
 
+
 # Run Flask app
 if __name__ == '__main__':
     app = create_app()
-    app.run(debug=True) 
+    app.run(debug=True)

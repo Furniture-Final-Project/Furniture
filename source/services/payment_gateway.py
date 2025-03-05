@@ -2,11 +2,14 @@ from enum import Enum
 from abc import ABC, abstractmethod
 import random
 
+
 class PaymentMethod(Enum):
     """Enum representing the available payment methods."""
+
     CREDIT_CARD = "credit_card"
     PAYPAL = "paypal"
     BANK_TRANSFER = "bank_transfer"
+
 
 class PaymentStrategy(ABC):
     """Abstract base class for payment strategies."""
@@ -22,11 +25,13 @@ class PaymentStrategy(ABC):
         """
         pass
 
+
 class CreditCardPayment(PaymentStrategy):
     """Handles credit card transactions."""
 
     def process_payment(self, user_id: int, amount: float) -> bool:
         return MockPaymentGateway().charge(user_id, amount, PaymentMethod.CREDIT_CARD)
+
 
 class PayPalPayment(PaymentStrategy):
     """Handles PayPal transactions."""
@@ -34,15 +39,17 @@ class PayPalPayment(PaymentStrategy):
     def process_payment(self, user_id: int, amount: float) -> bool:
         return MockPaymentGateway().charge(user_id, amount, PaymentMethod.PAYPAL)
 
+
 class BankTransferPayment(PaymentStrategy):
     """Handles bank transfer transactions."""
 
     def process_payment(self, user_id: int, amount: float) -> bool:
         return MockPaymentGateway().charge(user_id, amount, PaymentMethod.BANK_TRANSFER)
 
+
 class MockPaymentGateway:
     """Simulates a payment processing gateway."""
-    
+
     def charge(self, user_id: int, amount: float, payment_method: PaymentMethod) -> bool:
         """Simulates a payment transaction with additional validation."""
 

@@ -1,17 +1,24 @@
 import unittest
 from unittest.mock import MagicMock
 from source.services.checkout_service import (
-    CheckoutService, CartEmptyError, OutOfStockError, PaymentFailedError,
-    UserNotFoundError, OrderCreationError, InvalidAddressError
+    CheckoutService,
+    CartEmptyError,
+    OutOfStockError,
+    PaymentFailedError,
+    UserNotFoundError,
+    OrderCreationError,
+    InvalidAddressError,
 )
+
 
 class MockItem:
     """Mock class to simulate an item object."""
-    
+
     def __init__(self, item_id: int, quantity: int, name: str = "Test Item") -> None:
         self.item_id = item_id
         self.quantity = quantity
-        self.name = name  
+        self.name = name
+
 
 class TestCheckoutService(unittest.TestCase):
     """Test suite for the CheckoutService class."""
@@ -133,6 +140,7 @@ class TestCheckoutService(unittest.TestCase):
 
         with self.assertRaises(InvalidAddressError):
             self.checkout_service.checkout(user_id=1, address="")
+
 
 if __name__ == '__main__':
     unittest.main()

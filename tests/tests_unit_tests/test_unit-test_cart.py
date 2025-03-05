@@ -21,9 +21,9 @@
 #     """Test that updating a cart item is not possible if the item not in user's cart"""
 #     update_info = dict(model_num="chair-0", user_id=1004, quantity=1)
 
-#     # TODO: MOCKING 
-#     # login_info = {"user_name": "EmilyDavis", "password": "davisEmily!"} 
-    
+#     # TODO: MOCKING
+#     # login_info = {"user_name": "EmilyDavis", "password": "davisEmily!"}
+
 #     response = client.post('/user/update_cart_item_quantity', json=update_info)
 #     assert response.status_code == http.HTTPStatus.NOT_FOUND
 
@@ -50,7 +50,7 @@
 
 #     update_info = dict(model_num="chair-0", user_id=1002, quantity=4)
 
-#     # TODO: mock for login 
+#     # TODO: mock for login
 #     # login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
 
 #     with patch("source.controller.cart.get_cart_item_full_details", return_value={update_info["model_num"]: {"stock_quantity": 5}}):
@@ -77,7 +77,7 @@
 # def test_updating_cart_item_quantity_to_0(client):
 #     """Test updating a cart item quantity to 0 will delete it from the table"""
 #     # Log in first to ensure the @login_required endpoint (/cart and /user/add_item_to_cart) can be accessed
-#      # TODO: mock for login 
+#      # TODO: mock for login
 #       # login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
 
 #     # Ensure the cart item in the cart
@@ -113,7 +113,7 @@
 #     """
 #     # Authenticate as an admin to access detailed user data for verification.
 #     # TODO: MOCKING
-#     # login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"} 
+#     # login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
 
 #     response = client.get('/admin/carts')
 #     assert response.status_code == http.HTTPStatus.OK
@@ -136,7 +136,7 @@
 #     """
 #     # TODO: MOCKING for login
 #     # login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
-    
+
 #     response = client.get('/carts', query_string={"user_id": 1002})
 #     assert response.status_code == http.HTTPStatus.OK
 #     data = response.get_json()
@@ -152,7 +152,7 @@
 #     """
 #     # TODO: MOCKING for login
 #     # login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
-    
+
 #     response = client.get('/carts', query_string={"user_id": 1002, 'model_num': 'chair-0'})
 #     assert response.status_code == http.HTTPStatus.OK
 #     data = response.get_json()

@@ -3,6 +3,7 @@ import json
 from unittest.mock import patch
 from source.API.checkout_api import create_app
 
+
 class TestCheckoutAPI(unittest.TestCase):
     """Test suite for the Checkout API endpoints."""
 
@@ -19,11 +20,7 @@ class TestCheckoutAPI(unittest.TestCase):
     @patch("source.API.checkout_api.checkout_service")
     def test_checkout_success(self, mock_checkout_service, *_):
         """Test successful checkout with mocked dependencies."""
-        mock_checkout_service.finalize_checkout.return_value = {
-            "status": "success",
-            "order_id": 1234,
-            "message": "Order placed successfully"
-        }
+        mock_checkout_service.finalize_checkout.return_value = {"status": "success", "order_id": 1234, "message": "Order placed successfully"}
 
         response = self.client.post(
             "/api/checkout",
@@ -73,10 +70,7 @@ class TestCheckoutAPI(unittest.TestCase):
     @patch("source.API.checkout_api.checkout_service")
     def test_checkout_payment_failure(self, mock_checkout_service) -> None:
         """Test checkout fails when payment is declined."""
-        mock_checkout_service.finalize_checkout.return_value = {
-            "status": "error",
-            "message": "Payment was declined"
-        }
+        mock_checkout_service.finalize_checkout.return_value = {"status": "error", "message": "Payment was declined"}
 
         response = self.client.post(
             "/api/checkout",
@@ -87,6 +81,7 @@ class TestCheckoutAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json["status"], "error")
         self.assertEqual(response.json["message"], "Payment was declined")
+
 
 if __name__ == "__main__":
     unittest.main()

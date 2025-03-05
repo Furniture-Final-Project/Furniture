@@ -2,34 +2,49 @@ from typing import Dict, Any
 from abc import ABC, abstractmethod
 from source.services.payment_gateway import PaymentStrategy
 
+
 # ✅ Custom Exceptions for structured error handling
 class CheckoutError(Exception):
     """Base exception for checkout errors."""
+
     pass
+
 
 class CartEmptyError(CheckoutError):
     """Raised when the cart is empty."""
+
     pass
+
 
 class OutOfStockError(CheckoutError):
     """Raised when an item is out of stock."""
+
     pass
+
 
 class PaymentFailedError(CheckoutError):
     """Raised when a payment transaction fails."""
+
     pass
+
 
 class UserNotFoundError(CheckoutError):
     """Raised when a user is not found."""
+
     pass
+
 
 class OrderCreationError(CheckoutError):
     """Raised when order creation fails."""
+
     pass
+
 
 class InvalidAddressError(CheckoutError):
     """Raised when the provided shipping address is invalid."""
+
     pass
+
 
 # ✅ Template Method Pattern for Checkout Process
 class CheckoutTemplate(ABC):
@@ -73,13 +88,14 @@ class CheckoutTemplate(ABC):
         """Updates the inventory after a successful checkout."""
         pass
 
+
 # ✅ CheckoutService now implements the template
 class CheckoutService(CheckoutTemplate):
     """
-    Handles the checkout process, including cart validation, payment processing, 
+    Handles the checkout process, including cart validation, payment processing,
     order creation, and inventory updates.
     """
-    
+
     def __init__(
         self,
         cart_manager: Any,
