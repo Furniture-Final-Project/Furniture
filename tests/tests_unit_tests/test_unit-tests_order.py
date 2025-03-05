@@ -195,7 +195,6 @@ def test_valid_method_cartitem(user_exists, item_exists, expected):
     assert is_valid == expected
 
 
-
 def test_order_cancel(client):
     """
     Test that when order is cancelled the function to restore the inventory will be called
@@ -203,6 +202,7 @@ def test_order_cancel(client):
     """
 
     # schema.Order.new.assert_called_once_with(**order_data)
+
 
 # =====================cart unit tests=========================
 # mocking instead of the login process is required
@@ -273,4 +273,3 @@ def test_order_cancel(client):
 #     assert "1003" in data["carts"]
 #     assert data["carts"]['1003']['model_num'] == "chair-1"
 #     assert data["carts"]['1003']['quantity'] == 1
-
