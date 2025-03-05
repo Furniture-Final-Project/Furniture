@@ -160,6 +160,7 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     @app.route('/update_user', methods=['POST'])
+    @login_required
     def update_user_info():
         data = flask.request.get_json()
         s = schema.session()

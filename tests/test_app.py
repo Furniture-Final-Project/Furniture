@@ -809,6 +809,11 @@ def test_add_user_invalid_role(client):
 
 def test_user_update_address(client):
     """Test to update address of a user, by its user_id"""
+    # The user that wants to change its address logs in
+    login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}  # user id 1003
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     updated_info = {"user_id": 1003, "address": "21 Yaakov Meridor, Tel Aviv"}
     response = client.post('/update_user', json=updated_info)
     data = response.get_json()
@@ -828,6 +833,11 @@ def test_user_update_address(client):
 
 def test_user_update_user_name(client):
     """Test to update user_name of a user, by its user_id"""
+    # The user that wants to change its user_name logs in
+    login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}  # user id 1003
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     update_info = {"user_id": 1003, "user_name": "Michael_Cohen"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
@@ -847,6 +857,11 @@ def test_user_update_user_name(client):
 
 def test_user_update_user_full_name(client):
     """Test to update user_full_name of a user, by its user_id"""
+    # The user that wants to change its full name logs in
+    login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}  # user id 1003
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     update_info = {"user_id": 1003, "user_full_name": "Michael Levi"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
@@ -866,6 +881,11 @@ def test_user_update_user_full_name(client):
 
 def test_user_update_user_phone_num(client):
     """Test to update user_phone_num of a user, by its user_id"""
+    # The user that wants to change its phone number logs in
+    login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}  # user id 1003
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     update_info = {"user_id": 1003, "user_phone_num": "555-1094"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
@@ -885,6 +905,11 @@ def test_user_update_user_phone_num(client):
 
 def test_user_update_email(client):
     """Test to update email of a user, by its user_id"""
+    # The user that wants to change its email logs in
+    login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}  # user id 1003
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     update_info = {"user_id": 1003, "email": "MichaelCohen@gmail.com"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
@@ -904,6 +929,11 @@ def test_user_update_email(client):
 
 def test_user_update_password(client):
     """Test to update password of a user and hash it, by its user_id"""
+    # The user that wants to change its password logs in
+    login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}  # user id 1003
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     update_info = {"user_id": 1003, "password": "NewSecurePass123"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
