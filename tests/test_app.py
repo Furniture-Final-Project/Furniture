@@ -946,11 +946,21 @@ def test_add_item_to_cart_requires_login(client):
     assert response.status_code == http.HTTPStatus.OK
 
 
-# def test_admin_required_operator(client):
-#     # log in as the regular user
-#     login_info = {"user_name": "JaneSmith", "password": "mypassword456"} #jane has "user" role
-#     response = client.post('/login', json=login_info)
-#     assert response.status_code == http.HTTPStatus.OK
+def test_admin_required_operator(client):
+    # log in as the regular user
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"} #jane has "user" role
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # request that needs admin permission
+    response = client.get('/admin/users', query_string={"user_id": 1005})
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+    hashed_password = data["users"]["1005"]["password"]
+    assert hashed_password != "wilsonRob007"
+    assert check_password_hash(hashed_password, "wilsonRob007")
+
+
 # # TODO : ROTEM should continue from here
 
 

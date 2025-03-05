@@ -8,7 +8,7 @@ import source.controller.furniture_inventory as furniture_inventory
 import source.controller.user as user
 import source.controller.cart as cart
 import source.controller.order as order
-from decorators import login_required
+from decorators import login_required, admin_required
 import os
 from werkzeug.security import check_password_hash
 
@@ -105,8 +105,9 @@ def create_app(config: dict):
         furniture_inventory.delete_item(s, data["model_num"])
         return flask.jsonify({})
 
-    # ============== User ====================
+    # ================ User ====================
     @app.route('/admin/users', methods=['GET'])
+    @admin_required
     def get_users():
         s = schema.session()
         query = s.query(schema.User)
