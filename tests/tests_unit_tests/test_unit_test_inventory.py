@@ -3,6 +3,7 @@ import app
 import schema
 import http
 import source.controller.furniture_inventory as furniture_inventory
+from unittest.mock import patch
 
 
 @pytest.fixture
@@ -87,6 +88,8 @@ def test_system_update_item_quantity(client):
     data = response.get_json()
     items = data['items']
     assert items['BD-5005']['stock_quantity'] == 4
+
+
 
 # def test_add_bed_item(client):
 #     """Test adding a new Bed item using POST request."""

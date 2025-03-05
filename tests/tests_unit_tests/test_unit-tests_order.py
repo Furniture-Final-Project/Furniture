@@ -273,3 +273,23 @@ def test_order_cancel(client):
 #     assert "1003" in data["carts"]
 #     assert data["carts"]['1003']['model_num'] == "chair-1"
 #     assert data["carts"]['1003']['quantity'] == 1
+
+
+# def test_update_order_status(client):
+#     response = client.get('/orders', query_string={"order_num": 1})
+#     assert response.status_code == http.HTTPStatus.OK
+#     data = response.get_json()
+#     orders = data['orders']
+#     assert orders["1"]["status"] == "PENDING"
+#
+#     # update order status
+#     update_info = dict(order_num=1, status=OrderStatus.SHIPPED.value)  # Convert to string
+#     response = client.post('/admin/update_order_status', json=update_info)
+#     assert response.status_code == http.HTTPStatus.OK
+#
+#     # Send a GET request to verify item stock update
+#     response = client.get('/orders', query_string={"order_num": 1})
+#     assert response.status_code == http.HTTPStatus.OK
+#     data = response.get_json()
+#     orders = data['orders']
+#     assert orders["1"]["status"] == "SHIPPED"
