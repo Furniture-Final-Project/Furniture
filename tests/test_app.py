@@ -6,7 +6,7 @@ import schema
 from unittest.mock import patch
 from werkzeug.security import check_password_hash, generate_password_hash
 from source.models.OrderStatus import OrderStatus
-import source.controller.user as user
+
 
 
 @pytest.fixture
@@ -628,8 +628,12 @@ def test_delete_item(client):
 
 # ============user=============================
 
-
 def test_get_user_by_id(client):
+    # Authenticate as an admin to access detailed user data for verification.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"} 
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     response = client.get('/admin/users', query_string={"user_id": 1002})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
@@ -661,6 +665,11 @@ def test_add_new_user(client):
     response = client.post('/add_user', json=user_info)
     assert response.status_code == http.HTTPStatus.OK
 
+    # Authenticate as an admin to access detailed user data for verification.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"} 
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     # Send a GET request to verify user was asses successfully
     response = client.get('/admin/users', query_string={"user_id": 207105880})
     assert response.status_code == http.HTTPStatus.OK
@@ -681,6 +690,11 @@ def test_password_hashing(client):
     }
 
     response = client.post('/add_user', json=user_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Authenticate as an admin to access detailed user data for verification.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"} 
+    response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
     response = client.get('/admin/users', query_string={"user_id": 67890})
@@ -721,6 +735,11 @@ def test_add_admin_user(client):
     response = client.post('/add_admin_user', json=user_info)
     assert response.status_code == http.HTTPStatus.OK
 
+    # Authenticate as an admin to access detailed user data for verification.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"} 
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     # Send a GET request to verify user was asses successfully
     response = client.get('/admin/users', query_string={"user_id": 207105881})
     assert response.status_code == http.HTTPStatus.OK
@@ -745,6 +764,11 @@ def test_add_admin_user_invalid(client):
     }
     response = client.post('/add_admin_user', json=user_info)
     assert response.status_code == http.HTTPStatus.BAD_REQUEST
+
+    # Authenticate as an admin to access detailed user data for verification.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"} 
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
 
     # Send a GET request to verify user was asses successfully
     response = client.get('/admin/users', query_string={"user_id": 207105881})
@@ -771,6 +795,11 @@ def test_add_user_invalid_role(client):
     response = client.post('/add_user', json=user_info)
     assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
+    # Authenticate as an admin to access detailed user data for verification.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"} 
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     # Send a GET request to verify user was asses successfully
     response = client.get('/admin/users', query_string={"user_id": 207105881})
     assert response.status_code == http.HTTPStatus.OK
@@ -778,14 +807,16 @@ def test_add_user_invalid_role(client):
     assert data["users"] == {}
 
 
-# TODO - add test to get user info
-
-
 def test_user_update_address(client):
     """Test to update address of a user, by its user_id"""
     updated_info = {"user_id": 1003, "address": "21 Yaakov Meridor, Tel Aviv"}
     response = client.post('/update_user', json=updated_info)
     data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Log in as an admin user to enable access to detailed user information.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"} 
+    response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
     # Send a GET request to verify user details were updated corretly
@@ -802,6 +833,11 @@ def test_user_update_user_name(client):
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
 
+    # Log in as an admin user to enable access to detailed user information.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"} 
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     # Send a GET request to verify user details were updated correctly
     response = client.get('/admin/users', query_string={"user_id": 1003})
     data = response.get_json()
@@ -814,6 +850,11 @@ def test_user_update_user_full_name(client):
     update_info = {"user_id": 1003, "user_full_name": "Michael Levi"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Log in as an admin user to enable access to detailed user information.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"} 
+    response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
     # Send a GET request to verify user details were updated correctly
@@ -830,6 +871,11 @@ def test_user_update_user_phone_num(client):
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
 
+    # Log in as an admin user to enable access to detailed user information.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"} 
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     # Send a GET request to verify user details were updated correctly
     response = client.get('/admin/users', query_string={"user_id": 1003})
     data = response.get_json()
@@ -844,7 +890,12 @@ def test_user_update_email(client):
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
 
-    # Send a GET request to verify user details were updated correctly
+    # Log in as an admin user to enable access to detailed user information.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"} 
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Retrieve the user details to verify that the email was updated correctly.
     response = client.get('/admin/users', query_string={"user_id": 1003})
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
@@ -858,6 +909,11 @@ def test_user_update_password(client):
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
 
+    # Log in as an admin user to enable access to detailed user information.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"} 
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     # Send a GET request to verify user details were updated correctly
     response = client.get('/admin/users', query_string={"user_id": 1003})
     data = response.get_json()
@@ -866,20 +922,6 @@ def test_user_update_password(client):
     # Verify that the new password saved as hash password
     assert hashed_password != "NewSecurePass123"
     assert check_password_hash(hashed_password, "NewSecurePass123")
-
-
-def test_get_user_details_existing():
-    """Test retrieving details of an existing user from the test database"""
-    user_id = 1003
-    user_data = user.get_user_details(user_id)
-
-    assert user_data["user_id"] == 1003
-    assert user_data["user_name"] == "MichaelBrown"
-    assert user_data["user_full_name"] == "Michael Brown"
-    assert user_data["user_phone_num"] == "555-5678"
-    assert user_data["address"] == "789 Maple Street, Los Angeles, CA"
-    assert user_data["email"] == "michaelbrown@example.com"
-    assert user_data["role"] == "user"
 
 
 def test_user_login(client):
@@ -947,7 +989,7 @@ def test_add_item_to_cart_requires_login(client):
 
 
 def test_admin_required_operator(client):
-    # log in as the regular user
+    # log in as admin user
     login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"} #jane has "user" role
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
