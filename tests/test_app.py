@@ -1298,6 +1298,11 @@ def test_order_view_all_orders(client):
     - The number of unique items is as expected.
     - Each order item includes necessary details such as order ID, user ID, model number, items, .
     """
+    # Log in first to ensure the @login_required endpoint (/orders) can be accessed
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     response = client.get('/orders')
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
@@ -1334,6 +1339,11 @@ def test_order_view_all_orders(client):
 
 
 def test_get_order_by_user_id(client):
+    # Log in first to ensure the @login_required endpoint (/orders) can be accessed
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     response = client.get('/orders', query_string={"user_id": 1002})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
@@ -1356,6 +1366,11 @@ def test_get_order_by_user_id(client):
 
 
 def test_get_order_by_order_num(client):
+    # Log in first to ensure the @login_required endpoint (/orders) can be accessed
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     response = client.get('/orders', query_string={"order_num": 2})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
@@ -1379,6 +1394,11 @@ def test_get_order_by_order_num(client):
 
 
 def test_update_order_status(client):
+    # Log in first to ensure the @login_required endpoint (/orders) can be accessed
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+    
     response = client.get('/orders', query_string={"order_num": 1})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
