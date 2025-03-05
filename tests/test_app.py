@@ -413,6 +413,11 @@ def test_add_bed_item(client):
         "category": "Bed",
     }
 
+    # Log in as an admin user to enable access to detailed user information.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     # Send a POST request to add the item
     response = client.post('/admin/add_item', json=new_item)
     data = response.get_json()
@@ -446,6 +451,11 @@ def test_add_bed_item_not_correct_values(client):
         "category": "Bed",
     }
 
+    # Log in as an admin user to enable access to detailed user information.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     # Send a POST request to add invalid item
     response = client.post('/admin/add_item', json=invalid_item)
     data = response.get_json()
@@ -475,6 +485,12 @@ def test_add_chair(client):
         "discount": 10.0,
         "category": "Chair",
     }
+
+    # Log in as an admin user to enable access to detailed user information.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     # Send a POST request to add the item
     response = client.post('/admin/add_item', json=new_item)
     data = response.get_json()
@@ -507,6 +523,12 @@ def test_add_chair_item_not_correct_values(client):
         "discount": 10.0,
         "category": "Chair",
     }
+
+    # Log in as an admin user to enable access to detailed user information.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     # Send a POST request to add invalid item
     response = client.post('/admin/add_item', json=invalid_item)
     data = response.get_json()
@@ -541,6 +563,12 @@ def test_add_BookShelf(client):
         "discount": 15.0,
         "category": "Book Shelf",
     }
+
+    # Log in as an admin user to enable access to detailed user information.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     # Send a POST request to add the item
     response = client.post('/admin/add_item', json=new_item)
     data = response.get_json()
@@ -576,6 +604,12 @@ def test_add_Sofa(client):
         "discount": 12.0,
         "category": "Sofa",
     }
+
+    # Log in as an admin user to enable access to detailed user information.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     # Send a POST request to add the item
     response = client.post('/admin/add_item', json=new_item)
     data = response.get_json()
@@ -603,6 +637,12 @@ def test_update_quantity(client):
         "model_num": "chair-0",
         "stock_quantity": 0,
     }
+
+    # Log in as an admin user to enable access to detailed user information.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
     response = client.post('/admin/update_item', json=update_info)
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
@@ -615,6 +655,10 @@ def test_update_quantity(client):
 
 def test_delete_item(client):
     deleted_item = {"model_num": "chair-1"}
+    # Log in as an admin user to enable access to detailed user information.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
     # Send a POST request to delete the item
     response = client.post('/admin/delete_item', json=deleted_item)
     assert response.status_code == http.HTTPStatus.OK
@@ -1414,6 +1458,11 @@ def test_update_order_status(client):
     data = response.get_json()
     orders = data['orders']
     assert orders["1"]["status"] == "PENDING"
+
+    # Authenticate as an admin to access detailed user data for verification.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
 
     # update order status
     update_info = dict(order_num=1, status=OrderStatus.SHIPPED.value)  # Convert to string

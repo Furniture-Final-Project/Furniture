@@ -79,6 +79,7 @@ def create_app(config: dict):
     # TODO - Admin
 
     @app.route('/admin/add_item', methods=['POST'])
+    @admin_required
     def add_item_endpoint():
         """
         API endpoint to add a new furniture item.
@@ -89,6 +90,7 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     @app.route('/admin/update_item', methods=['POST'])
+    @admin_required
     def update_item_endpoint():
         """
         API endpoint to add a new furniture item.
@@ -99,6 +101,7 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     @app.route('/admin/delete_item', methods=['POST'])
+    @admin_required
     def delete_item_endpoint():
         data = flask.request.get_json()
         s = schema.session()
@@ -309,6 +312,7 @@ def create_app(config: dict):
     #     return flask.jsonify({})
 
     @app.route('/admin/update_order_status', methods=['POST'])
+    @admin_required
     def update_order_status_endpoint():
         """
         API endpoint to update the status of an order.
