@@ -2,8 +2,9 @@ import pytest
 import functools
 import http
 import schema
+
 # import source.controller.cart as cart
-# from unittest.mock import patch
+from unittest.mock import patch
 # from werkzeug.security import check_password_hash, generate_password_hash
 # from source.models.OrderStatus import OrderStatus
 # from datetime import datetime
