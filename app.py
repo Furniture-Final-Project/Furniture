@@ -11,7 +11,7 @@ import source.controller.order as order
 from decorators import login_required
 import os
 from werkzeug.security import check_password_hash
-
+from source.services.payment_gateway import get_payment_strategy
 from source.services.checkout_service import CheckoutService
 
 
@@ -330,15 +330,17 @@ def create_app(config: dict):
         address = data.get("address")
         payment_method = data.get("payment_method")
 
+        # Convert the string to a PaymentStrategy object
+        payment_strategy = get_payment_strategy(payment_method)
+
         if user_id is None or not address or not payment_method:
             return flask.jsonify({"status": "error", "message": "Missing required fields"}), 400
 
         # Handle invalid payment method
-        valid_payment_methods = {"credit_card", "paypal", "bank_transfer"}
-        if payment_method not in valid_payment_methods:
-            return flask.jsonify({"status": "error", "message": "Invalid payment method"}), 400
+        if payment_strategy is None:
+            return flask.jsonify({"error": "Invalid payment method"}), 400
 
-        checkout = CheckoutService(payment_strategy=payment_method)
+        checkout = CheckoutService(payment_strategy=payment_strategy)
         result = checkout.checkout(user_id, address)
         return flask.jsonify(result)
 

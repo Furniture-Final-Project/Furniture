@@ -2,6 +2,8 @@ import source.controller.cart as cart
 import pytest
 import app
 import schema
+from source.controller.cart import get_cart_item_full_details
+
 
 # from unittest.mock import patch
 
@@ -77,4 +79,22 @@ def test_system_get_cart_items_by_user_id(client):
             ]
         },
         'total_price': 1510.4,
+    }
+
+
+def test_get_cart_items_full_details(client):
+    item = get_cart_item_full_details('chair-0')
+
+    assert item['chair-0'] == {
+        'model_num': 'chair-0',
+        'model_name': 'Yosef',
+        'description': 'a nice chair',
+        'price': 100.0,
+        'dimensions': {"height": 90, "width": 45, "depth": 50},
+        'category': "Chair",
+        'image_filename': 'classic_wooden_chair.jpg',
+        'stock_quantity': 3,
+        'discount': 0.0,
+        'final_price': 118.0,
+        'details': {'material': 'wood', 'weight': 5, 'color': 'white'},
     }

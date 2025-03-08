@@ -2,9 +2,12 @@ import source.services.checkout_service as checkout
 from datetime import datetime
 import app
 import schema
+import http
 from werkzeug.security import generate_password_hash
 import pytest
 from unittest.mock import patch
+
+from source.controller.cart import system_get_all_user_cart_items, get_cart_item_full_details
 from source.services.payment_gateway import PaymentMethod, CreditCardPayment, MockPaymentGateway
 from source.models.OrderStatus import OrderStatus
 
@@ -132,6 +135,7 @@ def preprepared_data(application):
     cart_item1 = schema.CartItem(user_id=1002, model_num='chair-0', quantity=2)
     cart_item2 = schema.CartItem(user_id=1003, model_num='BS-4004', quantity=2)
     cart_item3 = schema.CartItem(user_id=1002, model_num='SF-3003', quantity=1)
+    cart_item4 = schema.CartItem(user_id=1004, model_num='BD-5005', quantity=1)
 
     order1 = schema.Order(
         order_num=1,
@@ -155,7 +159,9 @@ def preprepared_data(application):
         creation_time=datetime(2024, 3, 3, 12, 30, 0),
     )
 
-    session.add_all([chair0, chair1, bed, bookshelf, sofa, user_1, user_2, user_3, user_4, cart_item1, cart_item2, cart_item3, order1, order2])
+    session.add_all(
+        [chair0, chair1, bed, bookshelf, sofa, user_1, user_2, user_3, user_4, cart_item1, cart_item2, cart_item3, cart_item4, order1, order2]
+    )
     session.commit()
     yield
 
@@ -182,7 +188,7 @@ def preprepared_data(application):
 )
 def test_checkout_process(client, attribute, expected_output):
     with patch.object(MockPaymentGateway, 'charge', return_value=True):
-        checkout1 = checkout.CheckoutService(payment_strategy=CreditCardPayment())  # Instantiate strategy
+        checkout1 = checkout.CheckoutService(payment_strategy=CreditCardPayment())
         user_id = 1002
         address = "Even Gabirol 3, Tel Aviv"
         checkout1.checkout(user_id, address)
@@ -215,3 +221,50 @@ def test_validate_cart_out_of_stock(client):
 
     response = client.post(f"/checkout", json={'user_id': user_id, "address": address, 'payment_method': PaymentMethod.CREDIT_CARD.value})
     assert response.status_code == 409
+
+
+def test_quantity_update(client):
+    """Test that the quantity in inventory is updated"""
+    user_id = 1004
+    address = "Even Gabirol 5, Tel Aviv"
+
+    # check current inventory stock for items in cart
+    items = {}
+    cart_items = system_get_all_user_cart_items(user_id=user_id)
+    user_cart = cart_items['carts'].get(user_id, [])  # Get user cart safely
+    for item in user_cart:  # Iterate through all cart items
+        items[item['model_num']] = item['quantity']
+
+    stock_quantity = {}
+    for key, value in items.items():
+        stock_quantity[key] = get_cart_item_full_details(key)[key]['stock_quantity']
+
+    with patch.object(MockPaymentGateway, 'charge', return_value=True):
+        checkout1 = checkout.CheckoutService(payment_strategy=CreditCardPayment())
+        checkout1.checkout(user_id, address)
+
+        for key, value in items.items():
+            assert get_cart_item_full_details(key)[key]['stock_quantity'] == stock_quantity[key] - checkout1.cart[key]
+
+
+def test_order_creation(client):
+    """Test that checkout process creates a valid order in order table"""
+    user_id = 1004  # User not exists
+    address = "Even Gabirol 3, Tel Aviv"
+
+    # ensure checkout process was successful
+    with patch.object(MockPaymentGateway, 'charge', return_value=True):
+        response = client.post(f"/checkout", json={'user_id': user_id, "address": address, 'payment_method': PaymentMethod.CREDIT_CARD.value})
+        assert response.status_code == http.HTTPStatus.OK
+        data = response.get_json()
+        created_order_num = data['order_id']
+
+        response = client.get('/orders', query_string={"order_num": created_order_num})
+        assert response.status_code == http.HTTPStatus.OK
+        data = response.get_json()
+        orders = data['orders']
+        assert len(orders) == 1
+        assert orders[str(created_order_num)]['user_id'] == 1004
+        assert orders[str(created_order_num)]['shipping_address'] == address
+        assert orders[str(created_order_num)]['items'] == {'BD-5005': 1}
+        assert orders[str(created_order_num)]['total_price'] == 1274.4

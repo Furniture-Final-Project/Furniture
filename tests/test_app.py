@@ -1377,3 +1377,12 @@ def test_update_order_status(client):
 
 
 # TODO: test that invalid status will raise error
+
+# ===============checkout============================================
+# def test_check_out_process(client):
+#
+#     user_id = 1002  # User not exists
+#     address = "Even Gabirol 3, Tel Aviv"
+#
+#     response = client.post(f"/checkout", json={'user_id': user_id, "address": address, 'payment_method': PaymentMethod.CREDIT_CARD.value})
+#     assert response.status_code == http.HTTPStatus.OK
