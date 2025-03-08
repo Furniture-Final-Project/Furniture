@@ -6,8 +6,8 @@ import source.controller.user as user
 
 # related to the DB
 from werkzeug.security import check_password_hash, generate_password_hash
-from source.models.OrderStatus import OrderStatus
-from datetime import datetime
+# from source.models.OrderStatus import OrderStatus
+# from datetime import datetime
 
 
 @pytest.fixture(autouse=True)
@@ -385,7 +385,7 @@ def test_user_update_user_phone_num(client):
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["user_phone_num"] == "555-1094"
 
- 
+
 def test_user_update_email(client):
     """Test to update email of a user, by its user_id"""
     update_info = {"user_id": 1003, "email": "MichaelCohen@gmail.com"}

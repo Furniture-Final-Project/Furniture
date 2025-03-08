@@ -274,7 +274,7 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     @app.route('/user/delete_cart_item', methods=['POST'])
-    # add login 
+    # add login
     def delete_cart_item_endpoint():
         data = flask.request.get_json()
         s = schema.session()

@@ -7,6 +7,7 @@ import functools
 import schema
 from source.models.OrderStatus import OrderStatus
 
+
 @pytest.fixture(autouse=True)
 def bypass_admin_required(monkeypatch):
     """
@@ -50,9 +51,11 @@ def bypass_login_required(monkeypatch):
 
     monkeypatch.setattr(app, 'login_required', dummy_decorator)
 
+
 @pytest.fixture
 def application():
     import app
+
     application = app.create_app({'database_url': f'sqlite:///:memory:'})  # Use in-memory DB for testing
     yield application
 
@@ -62,13 +65,16 @@ def client(application):
     with application.test_client() as client:
         yield client
 
-@pytest.fixture  
-def test_db(application):  
-     import schema  
-     # Use the application's database session or create a new one  
-     session = schema.session()  
-     yield session  
-     session.close()  
+
+@pytest.fixture
+def test_db(application):
+    import schema
+
+    # Use the application's database session or create a new one
+    session = schema.session()
+    yield session
+    session.close()
+
 
 @pytest.fixture(autouse=True)
 def preprepared_data(application):
@@ -99,6 +105,7 @@ def preprepared_data(application):
     session.commit()
     yield
 
+
 def test_create_order_object(test_db):
     # Sample valid order data
     order_data = {
@@ -110,22 +117,23 @@ def test_create_order_object(test_db):
         "total_price": 150.00,
     }
 
-    dummy_customer = {  
-         "user_phone_num": "555-1234",  
-         "user_name": "John Doe",  
-         "user_full_name": "John Doe",  
-     }  
-   
-    with patch("schema.user.get_user_details", return_value=dummy_customer):  
-        with patch("schema.cart.get_cart_item_full_details", return_value={"dummy_key": "dummy_value"}):  
-            add_order(test_db, order_data)  
-   
-            added_order = test_db.query(schema.Order).filter_by(user_id=1).first()  
-   
-            assert added_order is not None  
-            assert added_order.user_id == 1  
-            assert added_order.total_price == 150.00  
-            assert added_order.shipping_address == "123 Test Street"  
+    dummy_customer = {
+        "user_phone_num": "555-1234",
+        "user_name": "John Doe",
+        "user_full_name": "John Doe",
+    }
+
+    with patch("schema.user.get_user_details", return_value=dummy_customer):
+        with patch("schema.cart.get_cart_item_full_details", return_value={"dummy_key": "dummy_value"}):
+            add_order(test_db, order_data)
+
+            added_order = test_db.query(schema.Order).filter_by(user_id=1).first()
+
+            assert added_order is not None
+            assert added_order.user_id == 1
+            assert added_order.total_price == 150.00
+            assert added_order.shipping_address == "123 Test Street"
+
 
 def test_add_order_invalid(client):
     """

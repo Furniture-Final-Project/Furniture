@@ -2,11 +2,12 @@ import pytest
 import functools
 import http
 import schema
-import source.controller.cart as cart
-from unittest.mock import patch
-from werkzeug.security import check_password_hash, generate_password_hash
-from source.models.OrderStatus import OrderStatus
-from datetime import datetime
+# import source.controller.cart as cart
+# from unittest.mock import patch
+# from werkzeug.security import check_password_hash, generate_password_hash
+# from source.models.OrderStatus import OrderStatus
+# from datetime import datetime
+
 
 @pytest.fixture(autouse=True)
 def bypass_admin_required(monkeypatch):
@@ -51,6 +52,7 @@ def bypass_login_required(monkeypatch):
 
     monkeypatch.setattr(app, 'login_required', dummy_decorator)
 
+
 @pytest.fixture
 def application():
     import app
@@ -58,10 +60,12 @@ def application():
     application = app.create_app({'database_url': f'sqlite:///:memory:'})  # Use in-memory DB for testing
     yield application
 
+
 @pytest.fixture
 def client(application):
     with application.test_client() as client:
         yield client
+
 
 @pytest.fixture(autouse=True)
 def preprepared_data(application):
@@ -131,7 +135,9 @@ def preprepared_data(application):
     session.add_all([chair0, chair1, bed, bookshelf, sofa, cart_item1])
     session.commit()
     yield
-# furniture- used 
+
+
+# furniture- used
 
 
 def test_update_quantity_with_item_not_in_cart(client):
@@ -140,6 +146,7 @@ def test_update_quantity_with_item_not_in_cart(client):
 
     response = client.post('/user/update_cart_item_quantity', json=update_info)
     assert response.status_code == http.HTTPStatus.NOT_FOUND
+
 
 @pytest.mark.parametrize(
     "user_exists, item_exists, expected",
@@ -150,7 +157,6 @@ def test_update_quantity_with_item_not_in_cart(client):
         (False, False, False),  # False
     ],
 )
-
 def test_valid_method_cartitem(user_exists, item_exists, expected):
     """
     Test the valid() function of CartItem.
@@ -213,6 +219,7 @@ def test_updating_cart_item_quantity_to_0(client):
     data = response.get_json()
     assert data['carts'] == {}
 
+
 def test_cart_get_all_cart_table(client):
     """
     Test retrieving all items in carts.
@@ -254,6 +261,7 @@ def test_cart_get_cart_by_userid(client):
     assert cart['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}
     assert data['cart_total_price'] == 236.0
 
+
 def test_get_specific_item_in_cart(client):
     """
     Test retrieving an item by model number and user id.
@@ -265,6 +273,7 @@ def test_get_specific_item_in_cart(client):
     assert len(cart) == 1
 
     assert cart['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}
+
 
 def test_delete_cart_item(client):
     """Test deleting a cart item from CartItem table"""
