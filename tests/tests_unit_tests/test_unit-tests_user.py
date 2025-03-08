@@ -12,7 +12,13 @@ from datetime import datetime
 
 @pytest.fixture(autouse=True)
 def bypass_admin_required(monkeypatch):
-    # Define a dummy decorator that does nothing
+    """  
+     Automatically bypass the admin_required decorator for testing.  
+       
+     This fixture defines a dummy decorator that simply calls the original function,  
+     effectively bypassing admin authentication. It then patches the app's admin_required  
+     decorator with this dummy version before any routes are created.  
+     """
     def dummy_decorator(fn):
         @functools.wraps(fn)
         def wrapper(*args, **kwargs):
@@ -27,7 +33,12 @@ def bypass_admin_required(monkeypatch):
 
 @pytest.fixture(autouse=True)
 def bypass_login_required(monkeypatch):
-    # Define a dummy decorator that does nothing
+    """  
+     Automatically bypass the login_required decorator for testing.  
+       
+     Similar to bypass_admin_required, this fixture defines a dummy decorator  
+     that ignores the login check and directly calls the decorated function.  
+     """ 
     def dummy_decorator(fn):
         @functools.wraps(fn)
         def wrapper(*args, **kwargs):
@@ -35,7 +46,6 @@ def bypass_login_required(monkeypatch):
 
         return wrapper
 
-    # Import app after defining the dummy decorator to ensure patching is applied
     import app
 
     monkeypatch.setattr(app, 'login_required', dummy_decorator)
@@ -206,8 +216,6 @@ def test_get_user_details_existing():
     assert user_data["role"] == "user"
 
 def test_get_user_by_id(client):
-    # TODO: mock for admin
-
     response = client.get('/admin/users', query_string={"user_id": 1002})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
@@ -239,8 +247,6 @@ def test_add_new_user(client):
     response = client.post('/add_user', json=user_info)
     assert response.status_code == http.HTTPStatus.OK
 
-    # TODO: mock for admin
-
     # Send a GET request to verify user was asses successfully
     response = client.get('/admin/users', query_string={"user_id": 207105880})
     assert response.status_code == http.HTTPStatus.OK
@@ -262,8 +268,6 @@ def test_password_hashing(client):
 
     response = client.post('/add_user', json=user_info)
     assert response.status_code == http.HTTPStatus.OK
-
-    # TODO: mock for admin
 
     response = client.get('/admin/users', query_string={"user_id": 67890})
     assert response.status_code == http.HTTPStatus.OK
@@ -287,8 +291,6 @@ def test_add_admin_user(client):
     }
     response = client.post('/add_admin_user', json=user_info)
     assert response.status_code == http.HTTPStatus.OK
-
-    # TODO: mock for admin
 
     # Send a GET request to verify user was asses successfully
     response = client.get('/admin/users', query_string={"user_id": 207105881})
@@ -315,8 +317,6 @@ def test_add_admin_user_invalid(client):
     response = client.post('/add_admin_user', json=user_info)
     assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
-    # TODO: mock for admin
-
     # Send a GET request to verify user was asses successfully
     response = client.get('/admin/users', query_string={"user_id": 207105881})
     assert response.status_code == http.HTTPStatus.OK
@@ -342,8 +342,6 @@ def test_add_user_invalid_role(client):
     response = client.post('/add_user', json=user_info)
     assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
-    # TODO: mock for admin
-
     # Send a GET request to verify user was asses successfully
     response = client.get('/admin/users', query_string={"user_id": 207105881})
     assert response.status_code == http.HTTPStatus.OK
@@ -352,16 +350,11 @@ def test_add_user_invalid_role(client):
 
 
 def test_user_update_address(client):
-# TODO: add loggin mock for the specific user - 1003
-# its login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}
-
     """Test to update address of a user, by its user_id"""
     updated_info = {"user_id": 1003, "address": "21 Yaakov Meridor, Tel Aviv"}
     response = client.post('/update_user', json=updated_info)
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
-
-    # TODO: mock for admin
 
     # Send a GET request to verify user details were updated corretly
     response = client.get('/admin/users', query_string={"user_id": 1003})
@@ -378,8 +371,6 @@ def test_user_update_user_name(client):
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
 
-    # TODO: mock for admin
-
     # Send a GET request to verify user details were updated correctly
     response = client.get('/admin/users', query_string={"user_id": 1003})
     data = response.get_json()
@@ -389,14 +380,10 @@ def test_user_update_user_name(client):
 
 def test_user_update_user_full_name(client):
     """Test to update user_full_name of a user, by its user_id"""
-# TODO: add loggin mock for the specific user - 1003
-
     update_info = {"user_id": 1003, "user_full_name": "Michael Levi"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
-
-    # TODO: mock for admin
 
     # Send a GET request to verify user details were updated correctly
     response = client.get('/admin/users', query_string={"user_id": 1003})
@@ -407,14 +394,10 @@ def test_user_update_user_full_name(client):
 
 def test_user_update_user_phone_num(client):
     """Test to update user_phone_num of a user, by its user_id"""
-# TODO: add loggin mock for the specific user - 1003
-
     update_info = {"user_id": 1003, "user_phone_num": "555-1094"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
-
-# TODO: mock for admin
 
     # Send a GET request to verify user details were updated correctly
     response = client.get('/admin/users', query_string={"user_id": 1003})
@@ -424,14 +407,10 @@ def test_user_update_user_phone_num(client):
 
 def test_user_update_email(client):
     """Test to update email of a user, by its user_id"""
-# TODO: add loggin mock for the specific user - 1003
-
     update_info = {"user_id": 1003, "email": "MichaelCohen@gmail.com"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
-
-# TODO: mock for admin
 
     # Send a GET request to verify user details were updated correctly
     response = client.get('/admin/users', query_string={"user_id": 1003})
@@ -443,14 +422,10 @@ def test_user_update_email(client):
 def test_user_update_password(client):
     """Test to update password of a user and hash it, by its user_id"""
 
-# TODO: add loggin mock for the specific user - 1003
-
     update_info = {"user_id": 1003, "password": "NewSecurePass123"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
-
-# TODO: mock for admin
 
     # Send a GET request to verify user details were updated correctly
     response = client.get('/admin/users', query_string={"user_id": 1003})
