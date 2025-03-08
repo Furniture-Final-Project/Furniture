@@ -86,7 +86,6 @@ def create_app(config: dict):
         data = flask.request.get_json()  # Get JSON payload from the request
         s = schema.session()  # create a new session for DB operations
         furniture_inventory.add_item(s, data)  # call add_item from services.py
-        print("XXXXXXXXXXXXXXXXXXXXXX   MODULE NAME:", admin_required.__module__)
         return flask.jsonify({})
 
     @app.route('/admin/update_item', methods=['POST'])
@@ -275,6 +274,7 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     @app.route('/user/delete_cart_item', methods=['POST'])
+    # add login 
     def delete_cart_item_endpoint():
         data = flask.request.get_json()
         s = schema.session()

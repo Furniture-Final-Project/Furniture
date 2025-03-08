@@ -3,15 +3,56 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from source.controller.order import add_order
 import pytest
-import app
+import functools
 import schema
-
-# from unittest.mock import patch
 from source.models.OrderStatus import OrderStatus
 
+@pytest.fixture(autouse=True)
+def bypass_admin_required(monkeypatch):
+    """
+    Automatically bypass the admin_required decorator for testing.
+
+    This fixture defines a dummy decorator that simply calls the original function,
+    effectively bypassing admin authentication. It then patches the app's admin_required
+    decorator with this dummy version before any routes are created.
+    """
+
+    def dummy_decorator(fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            return fn(*args, **kwargs)
+
+        return wrapper
+
+    # Import app after defining the dummy decorator to ensure patching is applied
+    import app
+
+    monkeypatch.setattr(app, 'admin_required', dummy_decorator)
+
+
+@pytest.fixture(autouse=True)
+def bypass_login_required(monkeypatch):
+    """
+    Automatically bypass the login_required decorator for testing.
+
+    Similar to bypass_admin_required, this fixture defines a dummy decorator
+    that ignores the login check and directly calls the decorated function.
+    """
+
+    def dummy_decorator(fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            return fn(*args, **kwargs)
+
+        return wrapper
+
+    import app
+
+    monkeypatch.setattr(app, 'login_required', dummy_decorator)
 
 @pytest.fixture
 def application():
+    import app
     application = app.create_app({'database_url': f'sqlite:///:memory:'})  # Use in-memory DB for testing
     yield application
 
@@ -21,6 +62,13 @@ def client(application):
     with application.test_client() as client:
         yield client
 
+@pytest.fixture  
+def test_db(application):  
+     import schema  
+     # Use the application's database session or create a new one  
+     session = schema.session()  
+     yield session  
+     session.close()  
 
 @pytest.fixture(autouse=True)
 def preprepared_data(application):
@@ -51,30 +99,33 @@ def preprepared_data(application):
     session.commit()
     yield
 
+def test_create_order_object(test_db):
+    # Sample valid order data
+    order_data = {
+        "user_id": 1,
+        "items": {"chair-1": 2, "table-2": 1},
+        "user_email": "test@example.com",
+        "user_name": "John Doe",
+        "shipping_address": "123 Test Street",
+        "total_price": 150.00,
+    }
 
-# def test_create_order_object(test_db):
-#     # Sample valid order data
-#     order_data = {
-#         "user_id": 1,
-#         "items": {"chair-1": 2, "table-2": 1},
-#         "user_email": "test@example.com",
-#         "user_name": "John Doe",
-#         "shipping_address": "123 Test Street",
-#         "total_price": 150.00,
-#     }
-#
-#     # Call the function to add order
-#     add_order(test_db, order_data)
-#
-#     # Query database to verify the order was added
-#     added_order = test_db.query(schema.Order).filter_by(user_id=1).first()
-#
-#     # Assertions
-#     assert added_order is not None
-#     assert added_order.user_id == 1
-#     assert added_order.total_price == 150.00
-#     assert added_order.shipping_address == "123 Test Street"
-
+    dummy_customer = {  
+         "user_phone_num": "555-1234",  
+         "user_name": "John Doe",  
+         "user_full_name": "John Doe",  
+     }  
+   
+    with patch("schema.user.get_user_details", return_value=dummy_customer):  
+        with patch("schema.cart.get_cart_item_full_details", return_value={"dummy_key": "dummy_value"}):  
+            add_order(test_db, order_data)  
+   
+            added_order = test_db.query(schema.Order).filter_by(user_id=1).first()  
+   
+            assert added_order is not None  
+            assert added_order.user_id == 1  
+            assert added_order.total_price == 150.00  
+            assert added_order.shipping_address == "123 Test Street"  
 
 def test_add_order_invalid(client):
     """
@@ -195,13 +246,12 @@ def test_valid_method_cartitem(user_exists, item_exists, expected):
     assert is_valid == expected
 
 
-def test_order_cancel(client):
-    """
-    Test that when order is cancelled the function to restore the inventory will be called
-    :param test_db:
-    """
-
-    # schema.Order.new.assert_called_once_with(**order_data)
+# def test_order_cancel(client):
+#     """
+#     Test that when order is cancelled the function to restore the inventory will be called
+#     :param test_db:
+#     """
+#     schema.Order.new.assert_called_once_with(**order_data)
 
 
 # =====================cart unit tests=========================
