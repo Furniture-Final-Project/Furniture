@@ -5,7 +5,6 @@ import http
 import source.controller.furniture_inventory as furniture_inventory
 
 
-
 @pytest.fixture(autouse=True)
 def bypass_admin_required(monkeypatch):
     # Define a dummy decorator that does nothing
