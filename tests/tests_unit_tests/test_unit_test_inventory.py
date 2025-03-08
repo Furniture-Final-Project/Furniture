@@ -1,5 +1,6 @@
 import pytest
-import functools  
+import functools
+
 # import app
 import schema
 import http
@@ -7,23 +8,26 @@ import source.controller.furniture_inventory as furniture_inventory
 from unittest.mock import patch
 
 
-@pytest.fixture(autouse=True)  
-def bypass_admin_required(monkeypatch):  
-# Define a dummy decorator that does nothing
+@pytest.fixture(autouse=True)
+def bypass_admin_required(monkeypatch):
+    # Define a dummy decorator that does nothing
     def dummy_decorator(fn):
         @functools.wraps(fn)
-        def wrapper(*args, **kwargs):  
-            return fn(*args, **kwargs)  
-        return wrapper  
-   
-    # Import app after defining the dummy decorator to ensure patching is applied   
-    import app 
-    monkeypatch.setattr(app, 'admin_required', dummy_decorator)   
+        def wrapper(*args, **kwargs):
+            return fn(*args, **kwargs)
+
+        return wrapper
+
+    # Import app after defining the dummy decorator to ensure patching is applied
+    import app
+
+    monkeypatch.setattr(app, 'admin_required', dummy_decorator)
 
 
 @pytest.fixture
 def application():
     import app
+
     application = app.create_app({'database_url': f'sqlite:///:memory:'})  # Use in-memory DB for testing
     yield application
 
@@ -317,6 +321,7 @@ def test_update_quantity(client):
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
     assert data["items"]["chair-0"]["stock_quantity"] == 0
+
 
 def test_delete_item(client):
     deleted_item = {"model_num": "chair-1"}
