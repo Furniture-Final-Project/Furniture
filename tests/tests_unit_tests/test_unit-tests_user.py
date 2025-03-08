@@ -176,31 +176,7 @@ def preprepared_data(application):
         role="admin",
     )
 
-    cart_item1 = schema.CartItem(user_id=1002, model_num='chair-0', quantity=2)
-
-    order1 = schema.Order(
-        order_num=1,
-        user_id=1002,
-        user_email="janesmith@example.com",
-        shipping_address="123 Main St, Springfield",
-        items={"chair-0": 2, "SF-3003": 1},
-        total_price=1750.1,
-        status=OrderStatus.PENDING,
-        creation_time=datetime(2024, 3, 4, 12, 45, 0),
-    )
-
-    order2 = schema.Order(
-        order_num=2,
-        user_id=1003,
-        user_email="michaelbrown@example.com",
-        shipping_address="789 Maple Street, Los Angeles, CA",
-        items={"BS-4004": 1, "SF-3003": 1},
-        total_price=2500.0,
-        status=OrderStatus.DELIVERED,
-        creation_time=datetime(2024, 3, 3, 12, 30, 0),
-    )
-
-    session.add_all([chair0, chair1, bed, bookshelf, sofa, user_1, user_2, user_3, user_4, cart_item1, order1, order2])
+    session.add_all([chair0, chair1, bed, bookshelf, sofa, user_1, user_2, user_3, user_4])
     session.commit()
     yield
 
@@ -409,7 +385,7 @@ def test_user_update_user_phone_num(client):
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["user_phone_num"] == "555-1094"
 
-
+ 
 def test_user_update_email(client):
     """Test to update email of a user, by its user_id"""
     update_info = {"user_id": 1003, "email": "MichaelCohen@gmail.com"}
