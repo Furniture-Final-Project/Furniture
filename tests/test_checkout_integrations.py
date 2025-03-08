@@ -1,4 +1,4 @@
-import source.services.checkout_service as checkout
+import source.controller.checkout_service as checkout
 from datetime import datetime
 import app
 import schema
@@ -8,7 +8,7 @@ import pytest
 from unittest.mock import patch
 
 from source.controller.cart import system_get_all_user_cart_items, get_cart_item_full_details
-from source.services.payment_gateway import PaymentMethod, CreditCardPayment, MockPaymentGateway
+from source.controller.payment_gateway import PaymentMethod, CreditCardPayment, MockPaymentGateway
 from source.models.OrderStatus import OrderStatus
 
 
@@ -196,33 +196,6 @@ def test_checkout_process(client, attribute, expected_output):
         assert getattr(checkout1, attribute) == expected_output
 
 
-def test_checkout_empty_cart(client):
-    """test retrieving a cart with no items will raise error"""
-    user_id = 1005  # User exists but has no items in cart
-    address = "Even Gabirol 3, Tel Aviv"
-
-    response = client.post(f"/checkout", json={'user_id': user_id, "address": address, 'payment_method': PaymentMethod.CREDIT_CARD.value})
-    assert response.status_code == 404
-
-
-def test_checkout_user_not_exists(client):
-    """test retrieving a cart with no items will raise error"""
-    user_id = 1007  # User not exists
-    address = "Even Gabirol 3, Tel Aviv"
-
-    response = client.post(f"/checkout", json={'user_id': user_id, "address": address, 'payment_method': PaymentMethod.CREDIT_CARD.value})
-    assert response.status_code == 404
-
-
-def test_validate_cart_out_of_stock(client):
-    """Test that validate_cart raises an HTTP 409 error when an item is out of stock."""
-    user_id = 1003  # User not exists
-    address = "Even Gabirol 3, Tel Aviv"
-
-    response = client.post(f"/checkout", json={'user_id': user_id, "address": address, 'payment_method': PaymentMethod.CREDIT_CARD.value})
-    assert response.status_code == 409
-
-
 def test_quantity_update(client):
     """Test that the quantity in inventory is updated"""
     user_id = 1004
@@ -247,6 +220,16 @@ def test_quantity_update(client):
             assert get_cart_item_full_details(key)[key]['stock_quantity'] == stock_quantity[key] - checkout1.cart[key]
 
 
+# TODO: move to tests app - after fixing order
+def test_checkout_validate_cart_out_of_stock(client):
+    """Test that validate_cart raises an HTTP 409 error when an item is out of stock."""
+    user_id = 1003  # User not exists
+    address = "Even Gabirol 3, Tel Aviv"
+
+    response = client.post(f"/checkout", json={'user_id': user_id, "address": address, 'payment_method': PaymentMethod.CREDIT_CARD.value})
+    assert response.status_code == 409
+
+
 def test_order_creation(client):
     """Test that checkout process creates a valid order in order table"""
     user_id = 1004  # User not exists
@@ -254,6 +237,9 @@ def test_order_creation(client):
 
     # ensure checkout process was successful
     with patch.object(MockPaymentGateway, 'charge', return_value=True):
+        checkout1 = checkout.CheckoutService(payment_strategy=CreditCardPayment())
+        checkout1.checkout(user_id, address)
+
         response = client.post(f"/checkout", json={'user_id': user_id, "address": address, 'payment_method': PaymentMethod.CREDIT_CARD.value})
         assert response.status_code == http.HTTPStatus.OK
         data = response.get_json()

@@ -11,8 +11,8 @@ import source.controller.order as order
 from decorators import login_required
 import os
 from werkzeug.security import check_password_hash
-from source.services.payment_gateway import get_payment_strategy
-from source.services.checkout_service import CheckoutService
+from source.controller.payment_gateway import get_payment_strategy
+from source.controller.checkout_service import CheckoutService
 
 
 def create_app(config: dict):

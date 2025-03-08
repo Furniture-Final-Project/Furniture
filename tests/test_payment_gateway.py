@@ -1,5 +1,6 @@
 import unittest
-from source.services.payment_gateway import MockPaymentGateway, PaymentMethod
+from source.controller.payment_gateway import MockPaymentGateway, PaymentMethod
+
 
 class TestMockPaymentGateway(unittest.TestCase):
     """Test suite for the MockPaymentGateway class."""
@@ -43,6 +44,7 @@ class TestMockPaymentGateway(unittest.TestCase):
         """Test additional edge cases for charge()."""
         self.assertFalse(self.gateway.charge(user_id=99999, amount=0.01, payment_method=PaymentMethod.PAYPAL))  # low amount
         self.assertFalse(self.gateway.charge(user_id=0, amount=500, payment_method=PaymentMethod.BANK_TRANSFER))  # invalid user_id
+
 
 if __name__ == '__main__':
     unittest.main()

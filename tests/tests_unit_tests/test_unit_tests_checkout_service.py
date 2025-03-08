@@ -1,7 +1,7 @@
 import unittest
 from werkzeug.exceptions import HTTPException
 from unittest.mock import MagicMock
-from source.services.checkout_service import CheckoutService
+from source.controller.checkout_service import CheckoutService
 from unittest.mock import patch
 
 
