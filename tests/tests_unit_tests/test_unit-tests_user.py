@@ -12,13 +12,14 @@ from datetime import datetime
 
 @pytest.fixture(autouse=True)
 def bypass_admin_required(monkeypatch):
-    """  
-     Automatically bypass the admin_required decorator for testing.  
-       
-     This fixture defines a dummy decorator that simply calls the original function,  
-     effectively bypassing admin authentication. It then patches the app's admin_required  
-     decorator with this dummy version before any routes are created.  
-     """
+    """
+    Automatically bypass the admin_required decorator for testing.
+
+    This fixture defines a dummy decorator that simply calls the original function,
+    effectively bypassing admin authentication. It then patches the app's admin_required
+    decorator with this dummy version before any routes are created.
+    """
+
     def dummy_decorator(fn):
         @functools.wraps(fn)
         def wrapper(*args, **kwargs):
@@ -31,14 +32,16 @@ def bypass_admin_required(monkeypatch):
 
     monkeypatch.setattr(app, 'admin_required', dummy_decorator)
 
+
 @pytest.fixture(autouse=True)
 def bypass_login_required(monkeypatch):
-    """  
-     Automatically bypass the login_required decorator for testing.  
-       
-     Similar to bypass_admin_required, this fixture defines a dummy decorator  
-     that ignores the login check and directly calls the decorated function.  
-     """ 
+    """
+    Automatically bypass the login_required decorator for testing.
+
+    Similar to bypass_admin_required, this fixture defines a dummy decorator
+    that ignores the login check and directly calls the decorated function.
+    """
+
     def dummy_decorator(fn):
         @functools.wraps(fn)
         def wrapper(*args, **kwargs):
@@ -49,6 +52,7 @@ def bypass_login_required(monkeypatch):
     import app
 
     monkeypatch.setattr(app, 'login_required', dummy_decorator)
+
 
 @pytest.fixture
 def application():
@@ -201,7 +205,6 @@ def preprepared_data(application):
     yield
 
 
-
 def test_get_user_details_existing():
     """Test retrieving details of an existing user from the test database"""
     user_id = 1003
@@ -214,6 +217,7 @@ def test_get_user_details_existing():
     assert user_data["address"] == "789 Maple Street, Los Angeles, CA"
     assert user_data["email"] == "michaelbrown@example.com"
     assert user_data["role"] == "user"
+
 
 def test_get_user_by_id(client):
     response = client.get('/admin/users', query_string={"user_id": 1002})
@@ -404,6 +408,7 @@ def test_user_update_user_phone_num(client):
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
     assert data["users"]['1003']["user_phone_num"] == "555-1094"
+
 
 def test_user_update_email(client):
     """Test to update email of a user, by its user_id"""
