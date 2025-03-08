@@ -1,11 +1,9 @@
 import pytest
 import functools
-
-# import app
 import schema
 import http
 import source.controller.furniture_inventory as furniture_inventory
-from unittest.mock import patch
+
 
 
 @pytest.fixture(autouse=True)
