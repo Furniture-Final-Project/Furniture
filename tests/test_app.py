@@ -1118,10 +1118,10 @@ def test_login_with_invalid_json(client, invalid_json):
     response = client.post('/login', json=invalid_json)
     assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
-# TODO- התחברות עם שם משתמש לא קיים (אמור להחזיר 401 UNAUTHORIZED).
-# TODO- התחברות עם סיסמה שגויה (401).
-# TODO- שליחת בקשת התחברות ללא פרמטרים (400).
-# TODO- שליחת בקשת התחברות עם מבנה JSON שגוי (400).
+# TODO- התחברות עם שם משתמש לא קיים (אמור להחזיר 401 UNAUTHORIZED). done
+# TODO- התחברות עם סיסמה שגויה (401). done
+# TODO- שליחת בקשת התחברות ללא פרמטרים (400). done
+# TODO- שליחת בקשת התחברות עם מבנה JSON שגוי (400). done
 
 
 def test_user_logout(client):
