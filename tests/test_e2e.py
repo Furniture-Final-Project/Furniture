@@ -330,9 +330,9 @@ def test_scenario3(client):
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
-
+    
     # The user searches for:
-
+    
     # 1) A table under ₪2000.
     response = client.get('/items', query_string={"category": "Bed", "max_price": 2000.0})
     assert response.status_code == http.HTTPStatus.OK
@@ -351,7 +351,8 @@ def test_scenario3(client):
 
     cart_item2 = {"user_id": 1002, "model_num": items['SF-3003']['model_num'], "quantity": 1}
     response = client.post('/user/add_item_to_cart', json=cart_item2)
-    assert response.status_code == http.HTTPStatus.OK
+
+    assert response.status_code == http.HTTPStatus.OK   
 
     # 3) Two types chairs (filter by category)
     response = client.get('/items', query_string={"category": "Chair"})
@@ -361,11 +362,12 @@ def test_scenario3(client):
 
     cart_item3 = {"user_id": 1002, "model_num": items['chair-0']['model_num'], "quantity": 1}
     response = client.post('/user/add_item_to_cart', json=cart_item3)
-    assert response.status_code == http.HTTPStatus.OK
+
+    assert response.status_code == http.HTTPStatus.OK   
 
     cart_item4 = {"user_id": 1002, "model_num": items['chair-1']['model_num'], "quantity": 2}
     response = client.post('/user/add_item_to_cart', json=cart_item4)
-    assert response.status_code == http.HTTPStatus.OK
+    assert response.status_code == http.HTTPStatus.OK   
 
     # The user decides to remove one chair from the cart.
     update_info = dict(model_num="chair-1", user_id=1002, quantity=1)
@@ -380,6 +382,7 @@ def test_scenario3(client):
         assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     created_order_num = data['order_id']
+
 
     # The user retrieves all of his order statuses using the USER ID.
     response = client.get('/user/orders/1002')
