@@ -591,7 +591,48 @@ def test_add_BookShelf(client):
     assert data["items"]["BS-5001"]["is_available"] is True
 
 
-# TODO - add: test_add_Bookshelf_item_not_correct_values(client)
+# TODO - add: test_add_Bookshelf_item_not_correct_values(client)- done
+
+def test_add_Bookshelf_item_not_correct_values(client):
+    """Test adding a new BookShelf item with incorrect values via the API endpoint."""
+
+    # Invalid item data: missing required field, negative price, invalid material
+    invalid_item_data = {
+        "model_num": "",  # Model number should not be empty
+        "model_name": "ModernGlassShelf",
+        "description": "A sleek, modern bookshelf with tempered glass shelves and a metal frame.",
+        "price": -50.0,  # Invalid price
+        "dimensions": {"width": 90, "depth": 35, "height": 200},
+        "stock_quantity": 5,
+        "details": {
+            "num_shelves": 4,
+            "max_capacity_weight_per_shelf": 15.0,
+            "material": "non_existent_material",  # Invalid material
+            "color": "transparent",
+        },
+        "image_filename": "modern_glass_bookshelf.jpg",
+        "discount": 15.0,
+        "category": "Book Shelf",
+    }
+
+    # Log in as an admin user to enable access to detailed user information
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    login_response = client.post('/login', json=login_info)
+    assert login_response.status_code == 200  # Ensure login is successful
+
+    # Send a POST request to add the invalid item to the inventory
+    response = client.post('/admin/add_item', json=invalid_item_data)
+
+    # Assert that the response status code is 400 (Bad Request) because the data is invalid
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
+
+    # Check the response body and handle the case where it's None
+    data = response.get_json()
+    if data:
+        assert "error" in data
+        assert "model_num" in data["error"]  # Check if 'model_num' is required and not empty
+        assert "price" in data["error"]  # Check if price is positive
+        assert "material" in data["error"]  # Check if material is valid
 
 
 def test_add_Sofa(client):
