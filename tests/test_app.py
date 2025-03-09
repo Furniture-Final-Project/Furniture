@@ -1060,7 +1060,7 @@ def test_add_item_to_cart_requires_login(client):
     assert response.status_code == http.HTTPStatus.OK
 
     # 3) Now that we're logged in, try again
-    response = client.post('/user/add_item_to_cart', json={"user_id": 1003, "model_num": "chair-1", "quantity": 1})
+    response = client.post('/user/add_item_to_cart', json=cart_item)
     # Expect a success code (200 OK, 201 CREATED, etc.), depending on your implementation
     assert response.status_code == http.HTTPStatus.OK
 
