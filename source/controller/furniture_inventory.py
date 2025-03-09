@@ -46,6 +46,13 @@ def update_item_quantity(session: Session, data):
         session.commit()
 
 
+def update_item_discount(session: Session, data):
+    item = session.get(schema.Furniture, data["model_num"])
+    if item:
+        item.discount = data["discount"]
+        session.commit()
+
+
 def system_update_item_quantity(model_num: str, quantity_to_add: int):
     s = schema.session()
     item = s.get(schema.Furniture, model_num)
