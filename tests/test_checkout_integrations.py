@@ -260,3 +260,4 @@ def test_order_creation(client):
         assert orders[str(created_order_num)]['shipping_address'] == address
         assert orders[str(created_order_num)]['items'] == {'BD-5005': 1}
         assert orders[str(created_order_num)]['total_price'] == 1274.4
+
