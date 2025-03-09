@@ -1009,6 +1009,32 @@ def test_user_login(client):
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
+def test_login_with_nonexistent_user(client):
+    """Test user login with non existing user name"""
+    login_info = {"user_name": "non_existent_user", "password": "randompassword" }
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.UNAUTHORIZED
+
+def test_login_with_wrong_password(client):
+    """Test user login with wrong password"""
+    login_info = {"user_name": "JaneSmith",  "password": "wrongpassword"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.UNAUTHORIZED
+
+def test_login_with_no_parameters(client):
+    response = client.post('/login', json={})
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
+
+@pytest.mark.parametrize("invalid_json", [
+    ["user_name", "password"],
+    {"user_name": 123, "password": 456},
+    "this is not a json",
+    None
+])
+def test_login_with_invalid_json(client, invalid_json):
+    """Test user login with invalid jason"""
+    response = client.post('/login', json=invalid_json)
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
 # TODO- התחברות עם שם משתמש לא קיים (אמור להחזיר 401 UNAUTHORIZED).
 # TODO- התחברות עם סיסמה שגויה (401).
@@ -1027,18 +1053,26 @@ def test_user_logout(client):
     response = client.post('/logout')
     assert response.status_code == http.HTTPStatus.OK
 
+# This test ensures that logging out when no user is logged in
+# This behavior prevents unnecessary failures and maintains consistency.
+def test_logout_when_not_logged_in(client):
+    """Test logout when no user is logged in"""
+    response = client.post('/logout')
+    assert response.status_code == http.HTTPStatus.OK
+    assert response.data == b""
 
-# TODO: Add a test for logging out when the user is not logged in.
-# Even if 'user_id' is missing in the session, session.pop('user_id', None)
-# will simply return None and not raise an error.
-# The logout endpoint still returns HTTPStatus.OK with an empty response body.
+def test_access_protected_endpoint_after_logout(client):
+    """Test that after logging out, access to a protected route returns 401 Unauthorized"""
 
-# TODO: After implementing @login_required, make a request to an endpoint that requires login
-# and expect HTTPStatus.UNAUTHORIZED. This verifies that the session was successfully cleared
-# during the logout process. A recommended test sequence would be:
-# 1) Log in
-# 2) Log out
-# 3) Call the protected endpoint -> expect HTTPStatus.UNAUTHORIZED
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    response = client.post('/logout')
+    assert response.status_code == http.HTTPStatus.OK
+
+    response = client.post('/user/update_cart_item_quantity', json={"item_id": 1, "quantity": 2})
+    assert response.status_code == http.HTTPStatus.UNAUTHORIZED
 
 
 def test_add_item_to_cart_requires_login(client):
