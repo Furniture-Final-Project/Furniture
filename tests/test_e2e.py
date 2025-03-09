@@ -6,11 +6,7 @@ import schema
 from unittest.mock import patch
 from werkzeug.security import generate_password_hash
 from source.models.OrderStatus import OrderStatus
-
-# import source.controller.user as user
 from source.controller.payment_gateway import PaymentMethod, MockPaymentGateway
-
-# import source.controller.checkout_service as checkout
 from freezegun import freeze_time
 
 
@@ -429,7 +425,7 @@ def test_admin_updates_order_status(client):
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
-    response = client.get('/orders', query_string={"order_num": 1})
+    response = client.get('/admin/orders', query_string={"order_num": 1})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     orders = data['orders']
@@ -441,7 +437,7 @@ def test_admin_updates_order_status(client):
     assert response.status_code == http.HTTPStatus.OK
 
     # Send a GET request to verify item stock update
-    response = client.get('/orders', query_string={"order_num": 1})
+    response = client.get('/admin/orders', query_string={"order_num": 1})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     orders = data['orders']
@@ -454,7 +450,7 @@ def test_admin_updates_order_status(client):
 
 
     # The user retrieves the order status using the order ID and sees that it is marked as "SHIPPED".
-    response = client.get('/user/orders/1006', query_string={"order_num": 1})
+    response = client.get('/user/orders/1002', query_string={"order_num": 1})
     assert response.status_code == http.HTTPStatus.OK
 
     data = response.get_json()
@@ -477,7 +473,7 @@ def test_admin_updates_order_status(client):
 
 def test_admin_update_discount(client):
     """
-    Admin Updates Discount on an Existing Product & Regular User Verifies the Updated Price
+    Admin Updates Discount on an Existing Product and Regular User Verifies the Updated Price
     """
     # STEP 1: Admin logs in
     admin_login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
