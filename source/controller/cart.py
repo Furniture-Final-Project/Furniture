@@ -2,6 +2,7 @@ import http
 import schema
 import flask
 from sqlalchemy.orm import Session
+from collections import defaultdict
 
 
 def add_cart_item(session: Session, item_data: dict):
@@ -43,6 +44,21 @@ def get_cart_item_full_details(model_num):  # TODO: add integration tests
     print(item)
     item['final_price'] = final_price
     return item
+
+
+def system_get_all_user_cart_items(user_id):
+    s = schema.session()
+    query = s.query(schema.CartItem)
+    query = query.filter(schema.CartItem.user_id == user_id)
+    results = query.all()
+    total_price = 0
+    cart_items = defaultdict(list)  # Using defaultdict to store lists of items per user_id
+
+    for result in results:
+        cart_items[result.user_id].append(result.to_dict())  # Append instead of overwrite
+        total_price += result.to_dict()['price']  # Summing prices correctly
+
+    return {'carts': dict(cart_items), 'total_price': total_price}
 
 
 def get_cart_user_details(user_id):
