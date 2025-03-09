@@ -1,5 +1,6 @@
 import unittest
-from source.services.payment_gateway import MockPaymentGateway, PaymentMethod
+from source.controller.payment_gateway import MockPaymentGateway, PaymentMethod
+
 
 
 class TestMockPaymentGateway(unittest.TestCase):

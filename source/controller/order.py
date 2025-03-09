@@ -30,6 +30,7 @@ def add_order(session: Session, item_data: dict):
 
     session.add(order)
     session.commit()
+    return order.order_num
 
 
 def update_order_status(session: Session, item_data: dict):

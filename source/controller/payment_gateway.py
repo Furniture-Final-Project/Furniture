@@ -80,3 +80,13 @@ class MockPaymentGateway:
             print("❌ Payment failed due to a random decline.")
 
         return payment_success
+
+
+def get_payment_strategy(payment_method: str) -> PaymentStrategy:
+    """Returns the correct PaymentStrategy instance based on the payment method string."""
+    strategy_map = {
+        PaymentMethod.CREDIT_CARD.value: CreditCardPayment(),
+        PaymentMethod.PAYPAL.value: PayPalPayment(),
+        PaymentMethod.BANK_TRANSFER.value: BankTransferPayment(),
+    }
+    return strategy_map.get(payment_method, None)
