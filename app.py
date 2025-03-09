@@ -285,7 +285,7 @@ def create_app(config: dict):
 
     # ============== Order ====================
     @app.route('/orders', methods=['GET'])
-    @login_required
+    @admin_required
     def get_order_items():
         s = schema.session()
         query = s.query(schema.Order)
