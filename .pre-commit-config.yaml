@@ -19,5 +19,3 @@ repos:
       - id: flake8
         args:
           - --ignore=E203,E501,E266,F541,W503
-
-
