@@ -13,6 +13,7 @@ import os
 from werkzeug.security import check_password_hash
 from source.controller.payment_gateway import get_payment_strategy
 from source.controller.checkout_service import CheckoutService
+from collections import defaultdict
 
 def create_app(config: dict):
     app = flask.Flask(__name__)
@@ -226,22 +227,32 @@ def create_app(config: dict):
         user_id = flask.request.args.get('user_id')
         model_num = flask.request.args.get('model_num')
 
-        if user_id is not None:
+        # Apply filtering properly
+        if user_id is not None and model_num is not None:
+            query = query.filter(schema.CartItem.user_id == user_id, schema.CartItem.model_num == model_num)
+        elif user_id is not None:
             query = query.filter(schema.CartItem.user_id == user_id)
-            results = query.all()
-            total_price = 0
-            cart_items = {result.user_id: result.to_dict() for result in results}
-
-            for cart_item in cart_items.values():  # Iterate over dictionary values
-                total_price += cart_item['price']
-            return flask.jsonify({'carts': cart_items, 'cart_total_price': total_price})
-
-        if model_num is not None:
-            query = query.filter(schema.CartItem.user_id == user_id)
+        elif model_num is not None:
+            query = query.filter(schema.CartItem.model_num == model_num)
 
         results = query.all()
-        cart_items = {result.user_id: result.to_dict() for result in results}
-        return flask.jsonify({'carts': cart_items})
+        cart_items = defaultdict(list)
+        total_price = 0  # Only needed if filtering by user_id
+
+        for result in results:
+            cart_items[result.user_id].append(result.to_dict())
+
+            # Compute total price **only if filtering by user_id**
+            if user_id is not None:
+                total_price += result.to_dict().get('price', 0)
+
+        s.close()  # Properly close session
+
+        # **Return total_price only if filtering by user_id**
+        if user_id is not None:
+            return flask.jsonify({'carts': dict(cart_items), 'total_price': total_price})
+
+        return flask.jsonify({'carts': dict(cart_items)})  # No total price if filtering by model_num only
 
     @app.route('/admin/carts', methods=['GET'])
     @admin_required
