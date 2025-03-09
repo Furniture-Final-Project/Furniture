@@ -134,11 +134,11 @@ def preprepared_data(application):
         role="admin",
     )
 
-    cart_item1 = schema.CartItem(user_id=1002, model_num='chair-0', quantity=2)
-    cart_item2 = schema.CartItem(user_id=1002, model_num='SF-3003', quantity=1)
-    cart_item3 = schema.CartItem(user_id=1003, model_num='BS-4004', quantity=1)
-    cart_item4 = schema.CartItem(user_id=1003, model_num='BD-5005', quantity=1)
-    cart_item5 = schema.CartItem(user_id=1003, model_num='SF-3003', quantity=1)
+    # cart_item1 = schema.CartItem(user_id=1002, model_num='chair-0', quantity=2)
+    # cart_item2 = schema.CartItem(user_id=1002, model_num='SF-3003', quantity=1)
+    # cart_item3 = schema.CartItem(user_id=1003, model_num='BS-4004', quantity=1)
+    # cart_item4 = schema.CartItem(user_id=1003, model_num='BD-5005', quantity=1)
+    # cart_item5 = schema.CartItem(user_id=1003, model_num='SF-3003', quantity=1)
     cart_item6 = schema.CartItem(user_id=1004, model_num='chair-0', quantity=1)
     cart_item7 = schema.CartItem(user_id=1005, model_num='chair-1', quantity=3)
 
@@ -175,11 +175,11 @@ def preprepared_data(application):
             user_2,
             user_3,
             user_4,
-            cart_item1,
-            cart_item2,
-            cart_item3,
-            cart_item4,
-            cart_item5,
+            # cart_item1,
+            # cart_item2,
+            # cart_item3,
+            # cart_item4,
+            # cart_item5,
             cart_item6,
             cart_item7,
             order1,
@@ -232,7 +232,7 @@ def test_scenario1(client):
     created_order_num = data['order_id']
 
     # The user retrieves the order status using the order ID and sees that it is marked as "Pending".
-    response = client.get('/orders', query_string={"order_num": created_order_num})
+    response = client.get('/user/orders/1006', query_string={"order_num": created_order_num})
     assert response.status_code == http.HTTPStatus.OK
 
     data = response.get_json()
