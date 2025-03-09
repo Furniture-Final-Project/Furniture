@@ -1345,8 +1345,8 @@ def test_order_view_all_orders(client):
     - The number of unique items is as expected.
     - Each order item includes necessary details such as order ID, user ID, model number, items, .
     """
-    # Log in first to ensure the @login_required endpoint (/orders) can be accessed
-    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    # Authenticate as an admin to access detailed user data for verification.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
@@ -1386,8 +1386,8 @@ def test_order_view_all_orders(client):
 
 
 def test_get_order_by_user_id(client):
-    # Log in first to ensure the @login_required endpoint (/orders) can be accessed
-    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    # Authenticate as an admin to access detailed user data for verification.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
@@ -1413,8 +1413,8 @@ def test_get_order_by_user_id(client):
 
 
 def test_get_order_by_order_num(client):
-    # Log in first to ensure the @login_required endpoint (/orders) can be accessed
-    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    # Authenticate as an admin to access detailed user data for verification.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
@@ -1441,8 +1441,8 @@ def test_get_order_by_order_num(client):
 
 
 def test_update_order_status(client):
-    # Log in first to ensure the @login_required endpoint (/orders) can be accessed
-    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    # Authenticate as an admin to access detailed user data for verification.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
