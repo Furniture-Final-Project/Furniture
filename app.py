@@ -8,12 +8,11 @@ import source.controller.furniture_inventory as furniture_inventory
 import source.controller.user as user
 import source.controller.cart as cart
 import source.controller.order as order
-from decorators import login_required
+from decorators import login_required, admin_required
 import os
 from werkzeug.security import check_password_hash
 from source.controller.payment_gateway import get_payment_strategy
 from source.controller.checkout_service import CheckoutService
-
 
 def create_app(config: dict):
     app = flask.Flask(__name__)
@@ -80,6 +79,7 @@ def create_app(config: dict):
     # TODO - Admin
 
     @app.route('/admin/add_item', methods=['POST'])
+    @admin_required
     def add_item_endpoint():
         """
         API endpoint to add a new furniture item.
@@ -90,6 +90,7 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     @app.route('/admin/update_item', methods=['POST'])
+    @admin_required
     def update_item_endpoint():
         """
         API endpoint to add a new furniture item.
@@ -100,14 +101,16 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     @app.route('/admin/delete_item', methods=['POST'])
+    @admin_required
     def delete_item_endpoint():
         data = flask.request.get_json()
         s = schema.session()
         furniture_inventory.delete_item(s, data["model_num"])
         return flask.jsonify({})
 
-    # ============== User ====================
+    # ================ User ====================
     @app.route('/admin/users', methods=['GET'])
+    @admin_required
     def get_users():
         s = schema.session()
         query = s.query(schema.User)
@@ -160,6 +163,7 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     @app.route('/update_user', methods=['POST'])
+    @login_required
     def update_user_info():
         data = flask.request.get_json()
         s = schema.session()
@@ -209,19 +213,12 @@ def create_app(config: dict):
 
     @app.route('/logout', methods=['POST'])
     def logout():
-        data = flask.request.get_json()
-        if "user_id" not in data:
-            return flask.jsonify({"success": False, "message": "Missing user_id"}), HTTPStatus.BAD_REQUEST
-
-        # s = schema.session()
-        result = user.logout_user(data["user_id"])
-        return flask.jsonify(result), (HTTPStatus.OK if result["success"] else HTTPStatus.UNAUTHORIZED)
-
         session.pop('user_id', None)
         return '', HTTPStatus.OK
 
     # ============== Shopping Cart ====================
     @app.route('/carts', methods=['GET'])
+    @login_required
     def get_cart_items():
         s = schema.session()
         query = s.query(schema.CartItem)
@@ -246,6 +243,15 @@ def create_app(config: dict):
         cart_items = {result.user_id: result.to_dict() for result in results}
         return flask.jsonify({'carts': cart_items})
 
+    @app.route('/admin/carts', methods=['GET'])
+    @admin_required
+    def get_all_cart_items():
+        s = schema.session()
+        query = s.query(schema.CartItem)
+        results = query.all()
+        cart_items = {result.user_id: result.to_dict() for result in results}
+        return flask.jsonify({'carts': cart_items})
+
     @app.route('/user/add_item_to_cart', methods=['POST'])
     @login_required
     def add_cart_item_endpoint():
@@ -258,6 +264,7 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     @app.route('/user/update_cart_item_quantity', methods=['POST'])
+    @login_required
     def update_cart_item_endpoint():
         """
         API endpoint to update the item quantity in shopping cart.
@@ -268,6 +275,7 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     @app.route('/user/delete_cart_item', methods=['POST'])
+    # add login
     def delete_cart_item_endpoint():
         data = flask.request.get_json()
         s = schema.session()
@@ -277,6 +285,7 @@ def create_app(config: dict):
 
     # ============== Order ====================
     @app.route('/orders', methods=['GET'])
+    @login_required
     def get_order_items():
         s = schema.session()
         query = s.query(schema.Order)
@@ -297,18 +306,8 @@ def create_app(config: dict):
         orders = {result.order_num: result.to_dict() for result in results}
         return flask.jsonify({'orders': orders})
 
-    #
-    # @app.route('/add_order', methods=['POST'])
-    # def add_cart_item_endpoint():
-    #     """
-    #     API endpoint to add a new item to order for a user - will be called when the checkout is done by the system.
-    #     """
-    #     data = flask.request.get_json()  # Get JSON payload from the request
-    #     s = schema.session()  # create a new session for DB operations
-    #     order.add_order(s, data)  # call add_order from services.py
-    #     return flask.jsonify({})
-
     @app.route('/admin/update_order_status', methods=['POST'])
+    @admin_required
     def update_order_status_endpoint():
         """
         API endpoint to update the status of an order.

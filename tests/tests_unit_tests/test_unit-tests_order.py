@@ -3,15 +3,59 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from source.controller.order import add_order
 import pytest
-import app
+import functools
 import schema
-
-# from unittest.mock import patch
 from source.models.OrderStatus import OrderStatus
+
+
+@pytest.fixture(autouse=True)
+def bypass_admin_required(monkeypatch):
+    """
+    Automatically bypass the admin_required decorator for testing.
+
+    This fixture defines a dummy decorator that simply calls the original function,
+    effectively bypassing admin authentication. It then patches the app's admin_required
+    decorator with this dummy version before any routes are created.
+    """
+
+    def dummy_decorator(fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            return fn(*args, **kwargs)
+
+        return wrapper
+
+    # Import app after defining the dummy decorator to ensure patching is applied
+    import app
+
+    monkeypatch.setattr(app, 'admin_required', dummy_decorator)
+
+
+@pytest.fixture(autouse=True)
+def bypass_login_required(monkeypatch):
+    """
+    Automatically bypass the login_required decorator for testing.
+
+    Similar to bypass_admin_required, this fixture defines a dummy decorator
+    that ignores the login check and directly calls the decorated function.
+    """
+
+    def dummy_decorator(fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            return fn(*args, **kwargs)
+
+        return wrapper
+
+    import app
+
+    monkeypatch.setattr(app, 'login_required', dummy_decorator)
 
 
 @pytest.fixture
 def application():
+    import app
+
     application = app.create_app({'database_url': f'sqlite:///:memory:'})  # Use in-memory DB for testing
     yield application
 
@@ -20,6 +64,16 @@ def application():
 def client(application):
     with application.test_client() as client:
         yield client
+
+
+@pytest.fixture
+def test_db(application):
+    import schema
+
+    # Use the application's database session or create a new one
+    session = schema.session()
+    yield session
+    session.close()
 
 
 @pytest.fixture(autouse=True)
@@ -52,28 +106,33 @@ def preprepared_data(application):
     yield
 
 
-# def test_create_order_object(test_db):
-#     # Sample valid order data
-#     order_data = {
-#         "user_id": 1,
-#         "items": {"chair-1": 2, "table-2": 1},
-#         "user_email": "test@example.com",
-#         "user_name": "John Doe",
-#         "shipping_address": "123 Test Street",
-#         "total_price": 150.00,
-#     }
-#
-#     # Call the function to add order
-#     add_order(test_db, order_data)
-#
-#     # Query database to verify the order was added
-#     added_order = test_db.query(schema.Order).filter_by(user_id=1).first()
-#
-#     # Assertions
-#     assert added_order is not None
-#     assert added_order.user_id == 1
-#     assert added_order.total_price == 150.00
-#     assert added_order.shipping_address == "123 Test Street"
+def test_create_order_object(test_db):
+    # Sample valid order data
+    order_data = {
+        "user_id": 1,
+        "items": {"chair-1": 2, "table-2": 1},
+        "user_email": "test@example.com",
+        "user_name": "John Doe",
+        "shipping_address": "123 Test Street",
+        "total_price": 150.00,
+    }
+
+    dummy_customer = {
+        "user_phone_num": "555-1234",
+        "user_name": "John Doe",
+        "user_full_name": "John Doe",
+    }
+
+    with patch("schema.user.get_user_details", return_value=dummy_customer):
+        with patch("schema.cart.get_cart_item_full_details", return_value={"dummy_key": "dummy_value"}):
+            add_order(test_db, order_data)
+
+            added_order = test_db.query(schema.Order).filter_by(user_id=1).first()
+
+            assert added_order is not None
+            assert added_order.user_id == 1
+            assert added_order.total_price == 150.00
+            assert added_order.shipping_address == "123 Test Street"
 
 
 def test_add_order_invalid(client):
@@ -195,13 +254,12 @@ def test_valid_method_cartitem(user_exists, item_exists, expected):
     assert is_valid == expected
 
 
-def test_order_cancel(client):
-    """
-    Test that when order is cancelled the function to restore the inventory will be called
-    :param test_db:
-    """
-
-    # schema.Order.new.assert_called_once_with(**order_data)
+# def test_order_cancel(client):
+#     """
+#     Test that when order is cancelled the function to restore the inventory will be called
+#     :param test_db:
+#     """
+#     schema.Order.new.assert_called_once_with(**order_data)
 
 
 # =====================cart unit tests=========================
@@ -273,3 +331,127 @@ def test_order_cancel(client):
 #     assert "1003" in data["carts"]
 #     assert data["carts"]['1003']['model_num'] == "chair-1"
 #     assert data["carts"]['1003']['quantity'] == 1
+
+
+# def test_order_view_all_orders(client):
+#     """
+#     Test retrieving all orders in order table.
+
+#     Sends a GET request to the '/order' endpoint to fetch the complete list of orders cart items.
+#     Verifies that the response status is HTTP 200 OK.
+
+#     The test validates that:
+#     - The response contains a 'order' key.
+#     - The number of unique items is as expected.
+#     - Each order item includes necessary details such as order ID, user ID, model number, items, .
+#     """
+#     # TODO: MOCKING
+#     # login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+
+#     response = client.get('/orders')
+#     assert response.status_code == http.HTTPStatus.OK
+#     data = response.get_json()
+#     orders = data['orders']
+#     assert len(orders) == 2
+
+#     assert orders["1"] == {
+#         "order_num": 1,
+#         "user_id": 1002,
+#         "items": {"chair-0": 2, "SF-3003": 1},
+#         "user_email": "janesmith@example.com",
+#         "shipping_address": "123 Main St, Springfield",
+#         "status": "PENDING",
+#         "total_price": 1750.1,
+#         "user_name": "JaneSmith",
+#         "phone_number": "555-1234",
+#         "user_full_name": "Jane Smith",
+#         "creation_time": 'Mon, 04 Mar 2024 12:45:00 GMT',
+#     }
+
+#     assert orders["2"] == {
+#         "order_num": 2,
+#         "user_id": 1003,
+#         "items": {"BS-4004": 1, "SF-3003": 1},
+#         "user_email": "michaelbrown@example.com",
+#         "shipping_address": "789 Maple Street, Los Angeles, CA",
+#         "status": "DELIVERED",
+#         "total_price": 2500.0,
+#         "user_name": "MichaelBrown",
+#         "phone_number": '555-5678',
+#         "user_full_name": "Michael Brown",
+#         "creation_time": 'Sun, 03 Mar 2024 12:30:00 GMT',
+#     }
+
+
+# def test_get_order_by_user_id(client):
+#     # TODO: MOCKING
+#     # login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+
+#     response = client.get('/orders', query_string={"user_id": 1002})
+#     assert response.status_code == http.HTTPStatus.OK
+#     data = response.get_json()
+#     orders = data['orders']
+#     assert orders == {
+#         "1": {
+#             "order_num": 1,
+#             "user_id": 1002,
+#             "items": {"chair-0": 2, "SF-3003": 1},
+#             "user_email": "janesmith@example.com",
+#             "shipping_address": "123 Main St, Springfield",
+#             "status": "PENDING",
+#             "total_price": 1750.1,
+#             "user_name": "JaneSmith",
+#             "phone_number": "555-1234",
+#             "user_full_name": "Jane Smith",
+#             "creation_time": 'Mon, 04 Mar 2024 12:45:00 GMT',
+#         }
+#     }
+
+
+# def test_get_order_by_order_num(client):
+#     # TODO: MOCKING
+#     # login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+
+#     response = client.get('/orders', query_string={"order_num": 2})
+#     assert response.status_code == http.HTTPStatus.OK
+#     data = response.get_json()
+#     orders = data['orders']
+#     assert len(orders) == 1
+#     assert orders == {
+#         "2": {
+#             "order_num": 2,
+#             "user_id": 1003,
+#             "items": {"BS-4004": 1, "SF-3003": 1},
+#             "user_email": "michaelbrown@example.com",
+#             "shipping_address": "789 Maple Street, Los Angeles, CA",
+#             "status": "DELIVERED",
+#             "total_price": 2500.0,
+#             "user_name": "MichaelBrown",
+#             "phone_number": '555-5678',
+#             "user_full_name": "Michael Brown",
+#             "creation_time": 'Sun, 03 Mar 2024 12:30:00 GMT',
+#         }
+#     }
+
+
+# def test_update_order_status(client):
+#     # TODO: MOCKING
+#     # login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+
+#     response = client.get('/orders', query_string={"order_num": 1})
+#     assert response.status_code == http.HTTPStatus.OK
+#     data = response.get_json()
+#     orders = data['orders']
+#     assert orders["1"]["status"] == "PENDING"
+
+#     # update order status
+#     update_info = dict(order_num=1, status=OrderStatus.SHIPPED.value)  # Convert to string
+#     response = client.post('/admin/update_order_status', json=update_info)
+#     assert response.status_code == http.HTTPStatus.OK
+
+#     # Send a GET request to verify item stock update
+#     response = client.get('/orders', query_string={"order_num": 1})
+#     assert response.status_code == http.HTTPStatus.OK
+#     data = response.get_json()
+#     orders = data['orders']
+#     assert orders["1"]["status"] == "SHIPPED"
