@@ -192,12 +192,22 @@ def create_app(config: dict):
     # ===================login====================
     @app.route('/login', methods=['POST'])
     def login():
+        if not flask.request.is_json:
+            return '', HTTPStatus.BAD_REQUEST
+
         data = flask.request.get_json()
         if not data:
             return '', HTTPStatus.BAD_REQUEST
 
+        if not isinstance(data, dict):
+            return '', HTTPStatus.BAD_REQUEST
+
         username = data.get("user_name")
         password = data.get("password")
+
+        if not isinstance(username, str) or not isinstance(password, str):
+            return '', HTTPStatus.BAD_REQUEST
+
         if not username or not password:
             return '', HTTPStatus.BAD_REQUEST
 
@@ -336,8 +346,15 @@ def create_app(config: dict):
         """
         API endpoint to update the status of an order.
         """
-        data = flask.request.get_json()  # Get JSON payload from the request
-        s = schema.session()  # create a new session for DB operations
+        data = flask.request.get_json()
+
+        if "status" not in data or "order_num" not in data:
+            return '', HTTPStatus.BAD_REQUEST
+
+        if data["status"] not in {status.value for status in OrderStatus}:
+            return '', HTTPStatus.BAD_REQUEST
+
+        s = schema.session()
         order.update_order_status(s, data)
         return flask.jsonify({})
 
