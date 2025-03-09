@@ -320,3 +320,101 @@ def test_scenario2(client):
             f"/checkout", json={"user_id": 1002, "address": '456 Oak Avenue, New York, NY', "payment_method": PaymentMethod.CREDIT_CARD.value}
         )
         assert response.status_code == http.HTTPStatus.OK
+
+@freeze_time("2024-03-05 12:30:00")
+def test_scenario3(client):
+    """
+    Advanced Product Search and Cart Management
+    """
+    # The user logs into their account.
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+    
+    # The user searches for:
+    
+    # 1) A table under ₪2000.
+    response = client.get('/items', query_string={"category": "Bed", "max_price": 2000.0})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    items = data['items']
+
+    cart_item1 = {"user_id": 1002, "model_num": items['BD-5005']['model_num'], "quantity": 1}
+    response = client.post('/user/add_item_to_cart', json=cart_item1)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # 2) A sofa using a specific model name.
+    response = client.get('/items', query_string={"model_name": "LuxComfort"})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    items = data['items']
+
+    cart_item2 = {"user_id": 1002, "model_num": items['SF-3003']['model_num'], "quantity": 1}
+    response = client.post('/user/add_item_to_cart', json=cart_item2)
+    assert response.status_code == http.HTTPStatus.OK   
+
+    # 3) Two types chairs (filter by category)
+    response = client.get('/items', query_string={"category": "Chair"})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    items = data['items']
+
+    cart_item3 = {"user_id": 1002, "model_num": items['chair-0']['model_num'], "quantity": 1}
+    response = client.post('/user/add_item_to_cart', json=cart_item3)
+    assert response.status_code == http.HTTPStatus.OK   
+
+    cart_item4 = {"user_id": 1002, "model_num": items['chair-1']['model_num'], "quantity": 2}
+    response = client.post('/user/add_item_to_cart', json=cart_item4)
+    assert response.status_code == http.HTTPStatus.OK   
+
+    # The user decides to remove one chair from the cart.
+    update_info = dict(model_num="chair-1", user_id=1002, quantity=1)
+    response = client.post('/user/update_cart_item_quantity', json=update_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # The user proceeds to checkout and verifies that the correct items and prices are displayed.
+    with patch.object(MockPaymentGateway, 'charge', return_value=True):
+        response = client.post(
+            f"/checkout", json={"user_id": 1002, "address": '456 Oak Avenue, New York, NY', "payment_method": PaymentMethod.CREDIT_CARD.value}
+        )
+        assert response.status_code == http.HTTPStatus.OK
+
+    # The user retrieves all of his order statuses using the USER ID.
+    response = client.get('/user/orders/1002')
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    orders = data['orders']
+    assert len(orders) == 2
+
+    created_order_num = data['order_id']
+
+    assert orders["1"] == {
+        "order_num": 1,
+        "user_id": 1002,
+        "items": {"chair-0": 2, "SF-3003": 1},
+        "user_email": "janesmith@example.com",
+        "shipping_address": "123 Main St, Springfield",
+        "status": "PENDING",
+        "total_price": 1750.1,
+        "user_name": "JaneSmith",
+        "phone_number": "555-1234",
+        "user_full_name": "Jane Smith",
+        "creation_time": 'Mon, 04 Mar 2024 12:45:00 GMT',
+    }
+
+    assert orders[str(created_order_num)] == {
+        "order_num": created_order_num,
+        "user_id": 1002,
+        "items": {"BD-5005": 1, "SF-3003": 1, "chair-0": 1, "chair-1": 1},
+        "user_email": "janesmith@example.com",
+        "shipping_address": "123 Main St, Springfield",
+        "status": "PENDING",
+        "total_price": 2460.0,
+        "user_name": "JaneSmith",
+        "phone_number": "555-1234",
+        "user_full_name": "Jane Smith",
+        "creation_time": 'Mon, 05 Mar 2024 12:30:00 GMT',
+    }
+
+
+
