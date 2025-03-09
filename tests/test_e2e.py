@@ -222,7 +222,6 @@ def test_scenario1(client):
     # address, and selects a payment method (credit card).
     # The system processes the payment and confirms the order.
     with patch.object(MockPaymentGateway, 'charge', return_value=True):
-
         response = client.post(
             f"/checkout", json={"user_id": 1006, "address": 'Rothschild Boulevard 4, Tel Aviv', "payment_method": PaymentMethod.CREDIT_CARD.value}
         )
@@ -321,6 +320,7 @@ def test_scenario2(client):
         )
         assert response.status_code == http.HTTPStatus.OK
 
+
 @freeze_time("2024-03-05 12:30:00")
 def test_scenario3(client):
     """
@@ -351,6 +351,7 @@ def test_scenario3(client):
 
     cart_item2 = {"user_id": 1002, "model_num": items['SF-3003']['model_num'], "quantity": 1}
     response = client.post('/user/add_item_to_cart', json=cart_item2)
+
     assert response.status_code == http.HTTPStatus.OK   
 
     # 3) Two types chairs (filter by category)
@@ -361,6 +362,7 @@ def test_scenario3(client):
 
     cart_item3 = {"user_id": 1002, "model_num": items['chair-0']['model_num'], "quantity": 1}
     response = client.post('/user/add_item_to_cart', json=cart_item3)
+
     assert response.status_code == http.HTTPStatus.OK   
 
     cart_item4 = {"user_id": 1002, "model_num": items['chair-1']['model_num'], "quantity": 2}
@@ -378,15 +380,16 @@ def test_scenario3(client):
             f"/checkout", json={"user_id": 1002, "address": '456 Oak Avenue, New York, NY', "payment_method": PaymentMethod.CREDIT_CARD.value}
         )
         assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    created_order_num = data['order_id']
+
 
     # The user retrieves all of his order statuses using the USER ID.
     response = client.get('/user/orders/1002')
     assert response.status_code == http.HTTPStatus.OK
-    data = response.get_json()
-    orders = data['orders']
+    data1 = response.get_json()
+    orders = data1['orders']
     assert len(orders) == 2
-
-    created_order_num = data['order_id']
 
     assert orders["1"] == {
         "order_num": 1,
@@ -407,14 +410,11 @@ def test_scenario3(client):
         "user_id": 1002,
         "items": {"BD-5005": 1, "SF-3003": 1, "chair-0": 1, "chair-1": 1},
         "user_email": "janesmith@example.com",
-        "shipping_address": "123 Main St, Springfield",
+        "shipping_address": '456 Oak Avenue, New York, NY',
         "status": "PENDING",
-        "total_price": 2460.0,
+        "total_price": 2902.8,
         "user_name": "JaneSmith",
         "phone_number": "555-1234",
         "user_full_name": "Jane Smith",
-        "creation_time": 'Mon, 05 Mar 2024 12:30:00 GMT',
+        "creation_time": 'Tue, 05 Mar 2024 12:30:00 GMT',
     }
-
-
-
