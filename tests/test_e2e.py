@@ -4,13 +4,14 @@ import app
 import http
 import schema
 from unittest.mock import patch
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import generate_password_hash
 from source.models.OrderStatus import OrderStatus
-import source.controller.user as user
-from source.controller.payment_gateway import PaymentMethod, CreditCardPayment, MockPaymentGateway
-import source.controller.checkout_service as checkout
-from freezegun import freeze_time
 
+# import source.controller.user as user
+from source.controller.payment_gateway import PaymentMethod, MockPaymentGateway
+
+# import source.controller.checkout_service as checkout
+from freezegun import freeze_time
 
 
 @pytest.fixture
@@ -163,13 +164,34 @@ def preprepared_data(application):
         creation_time=datetime(2024, 3, 3, 12, 30, 0),
     )
 
-    session.add_all([chair0, chair1, bed, bookshelf, sofa, user_1, user_2, user_3, user_4, cart_item1, cart_item2, cart_item3, cart_item4, cart_item5, cart_item6, cart_item7, order1, order2])
+    session.add_all(
+        [
+            chair0,
+            chair1,
+            bed,
+            bookshelf,
+            sofa,
+            user_1,
+            user_2,
+            user_3,
+            user_4,
+            cart_item1,
+            cart_item2,
+            cart_item3,
+            cart_item4,
+            cart_item5,
+            cart_item6,
+            cart_item7,
+            order1,
+            order2,
+        ]
+    )
     session.commit()
     yield
 
 
-@freeze_time("2024-03-03 12:30:00")  
-def scenario1(client):
+@freeze_time("2024-03-03 12:30:00")
+def test_scenario1(client):
     """
     New User Registration and Purchase Flow
     """
@@ -182,7 +204,7 @@ def scenario1(client):
         "address": "Rothschild Boulevard 4, Tel Aviv",
         "email": "johncohen@example.com",
         "password": "securepassword123",
-        "role": "user"
+        "role": "user",
     }
     response = client.post('/add_user', json=user_info)
     assert response.status_code == http.HTTPStatus.OK
@@ -201,7 +223,9 @@ def scenario1(client):
     # The system processes the payment and confirms the order.
     with patch.object(MockPaymentGateway, 'charge', return_value=True):
 
-        response = client.post(f"/checkout", json={"user_id": 1006, "address": 'Rothschild Boulevard 4, Tel Aviv', "payment_method": PaymentMethod.CREDIT_CARD.value})
+        response = client.post(
+            f"/checkout", json={"user_id": 1006, "address": 'Rothschild Boulevard 4, Tel Aviv', "payment_method": PaymentMethod.CREDIT_CARD.value}
+        )
         assert response.status_code == http.HTTPStatus.OK
 
     data = response.get_json()
@@ -231,14 +255,14 @@ def scenario1(client):
     }
 
 
-def scenario2(client):
+def test_scenario2(client):
     """
     Guest Browsing and Login Requirement for Checkout
     """
     # The guest user (Jane Smith) accesses the website without logging in.
     # Jane Smith browses product categories and selects an item to add to the cart.
     # The system detects that the user is not logged in and displays a prompt requiring login or registration.
-    
+
     # 1) Attempt to add item to cart without logging in
     cart_item1 = {"user_id": 1002, "model_num": "BS-4004", "quantity": 1}
 
@@ -253,7 +277,7 @@ def scenario2(client):
 
     # 3) Now that we're logged in, try again
     response = client.post('/user/add_item_to_cart', json=cart_item1)
-    assert response.status_code == http.HTTPStatus.OK # Jane Smith successfully adds items to the cart.
+    assert response.status_code == http.HTTPStatus.OK  # Jane Smith successfully adds items to the cart.
 
     # Meanwhile ANOTHER USER, named Michael Brown logs into his existicting account.
     login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}
@@ -267,7 +291,9 @@ def scenario2(client):
     # Michael Brown proceeds to the checkout page, confirms the order and enters the required fields.
     # The system processes the payment and confirms the order.
     with patch.object(MockPaymentGateway, 'charge', return_value=True):
-        response = client.post(f"/checkout", json={"user_id": 1003, "address": '789 Maple Street, Los Angeles, CA', "payment_method": PaymentMethod.CREDIT_CARD.value})
+        response = client.post(
+            f"/checkout", json={"user_id": 1003, "address": '789 Maple Street, Los Angeles, CA', "payment_method": PaymentMethod.CREDIT_CARD.value}
+        )
         assert response.status_code == http.HTTPStatus.OK
 
     # At this point Michael Brown's order is accepted and BS-4004 quantity drops to 0 -
@@ -276,10 +302,12 @@ def scenario2(client):
     # Jane Smith  add another item to his cart after logged in
     cart_item2 = {"user_id": 1002, "model_num": "chair-1", "quantity": 1}
     response = client.post('/user/add_item_to_cart', json=cart_item2)
-    assert response.status_code == http.HTTPStatus.OK 
+    assert response.status_code == http.HTTPStatus.OK
 
     # The user proceeds to checkout but finds that one of the selected items is out of stock.
-    response = client.post(f"/checkout", json={"user_id": 1002, "address": '456 Oak Avenue, New York, NY', "payment_method": PaymentMethod.CREDIT_CARD.value})
+    response = client.post(
+        f"/checkout", json={"user_id": 1002, "address": '456 Oak Avenue, New York, NY', "payment_method": PaymentMethod.CREDIT_CARD.value}
+    )
     assert response.status_code == 409
 
     # The user removes the out-of-stock item and completes the checkout process.
@@ -288,6 +316,7 @@ def scenario2(client):
     assert response.status_code == http.HTTPStatus.OK
 
     with patch.object(MockPaymentGateway, 'charge', return_value=True):
-        response = client.post(f"/checkout", json={"user_id": 1002, "address": '456 Oak Avenue, New York, NY', "payment_method": PaymentMethod.CREDIT_CARD.value})
+        response = client.post(
+            f"/checkout", json={"user_id": 1002, "address": '456 Oak Avenue, New York, NY', "payment_method": PaymentMethod.CREDIT_CARD.value}
+        )
         assert response.status_code == http.HTTPStatus.OK
-
