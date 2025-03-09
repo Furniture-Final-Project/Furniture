@@ -192,12 +192,22 @@ def create_app(config: dict):
     # ===================login====================
     @app.route('/login', methods=['POST'])
     def login():
+        if not flask.request.is_json:
+            return '', HTTPStatus.BAD_REQUEST
+
         data = flask.request.get_json()
         if not data:
             return '', HTTPStatus.BAD_REQUEST
 
+        if not isinstance(data, dict):
+            return '', HTTPStatus.BAD_REQUEST
+
         username = data.get("user_name")
         password = data.get("password")
+
+        if not isinstance(username, str) or not isinstance(password, str):
+            return '', HTTPStatus.BAD_REQUEST
+
         if not username or not password:
             return '', HTTPStatus.BAD_REQUEST
 
