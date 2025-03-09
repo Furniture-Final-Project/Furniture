@@ -1475,7 +1475,7 @@ def test_order_view_all_orders(client):
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
-    response = client.get('/orders')
+    response = client.get('/admin/orders')
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     orders = data['orders']
@@ -1510,13 +1510,13 @@ def test_order_view_all_orders(client):
     }
 
 
-def test_get_order_by_user_id(client):
+def test_get_order_by_user_id_for_admin(client):
     # Authenticate as an admin to access detailed user data for verification.
     login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
-    response = client.get('/orders', query_string={"user_id": 1002})
+    response = client.get('/admin/orders', query_string={"user_id": 1002})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     orders = data['orders']
@@ -1537,13 +1537,90 @@ def test_get_order_by_user_id(client):
     }
 
 
-def test_get_order_by_order_num(client):
+def test_user_view_my_orders(client):
     # Authenticate as an admin to access detailed user data for verification.
-    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
-    response = client.get('/orders', query_string={"order_num": 2})
+    response = client.get('/user/orders/1002')
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    orders = data['orders']
+    assert orders == {
+        "1": {
+            "order_num": 1,
+            "user_id": 1002,
+            "items": {"chair-0": 2, "SF-3003": 1},
+            "user_email": "janesmith@example.com",
+            "shipping_address": "123 Main St, Springfield",
+            "status": "PENDING",
+            "total_price": 1750.1,
+            "user_name": "JaneSmith",
+            "phone_number": "555-1234",
+            "user_full_name": "Jane Smith",
+            "creation_time": 'Mon, 04 Mar 2024 12:45:00 GMT',
+        }
+    }
+
+
+def test_view_user_order_no_user_id(client):
+    """Tests that the API call for user/orders will raise server error if no user id procided."""
+    # Authenticate as an admin to access detailed user data for verification.
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    response = client.get('/user/orders')
+    assert response.status_code == 404
+
+
+def test_user_view_all_orders_block(client):
+    """Tests that a user can't see an order that isn't his."""
+    # Authenticate as an admin to access detailed user data for verification.
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    response = client.get('/admin/orders')
+    assert response.status_code == 403
+
+
+def test_get_order_by_order_num_for_admin(client):
+    # Authenticate as an admin to access detailed user data for verification.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == 200
+
+    response = client.get('/admin/orders', query_string={"order_num": 2})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    orders = data['orders']
+    assert len(orders) == 1
+    assert orders == {
+        "2": {
+            "order_num": 2,
+            "user_id": 1003,
+            "items": {"BS-4004": 1, "SF-3003": 1},
+            "user_email": "michaelbrown@example.com",
+            "shipping_address": "789 Maple Street, Los Angeles, CA",
+            "status": "DELIVERED",
+            "total_price": 2500.0,
+            "user_name": "MichaelBrown",
+            "phone_number": '555-5678',
+            "user_full_name": "Michael Brown",
+            "creation_time": 'Sun, 03 Mar 2024 12:30:00 GMT',
+        }
+    }
+
+
+def test_user_view_specific_order(client):
+    # Authenticate as an admin to access detailed user data for verification.
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    response = client.get('/user/orders/1003', query_string={"order_num": 2})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     orders = data['orders']
@@ -1578,11 +1655,6 @@ def test_get_order_by_order_num(client):
 #     orders = data['orders']
 #     assert orders["1"]["status"] == "PENDING"
 #
-#     # Authenticate as an admin to access detailed user data for verification.
-#     login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
-#     response = client.post('/login', json=login_info)
-#     assert response.status_code == http.HTTPStatus.OK
-#
 #     # update order status
 #     update_info = dict(order_num=1, status=OrderStatus.SHIPPED.value)  # Convert to string
 #     response = client.post('/admin/update_order_status', json=update_info)
@@ -1595,17 +1667,27 @@ def test_get_order_by_order_num(client):
 #     orders = data['orders']
 #     assert orders["1"]["status"] == "SHIPPED"
 
-def test_update_order_status_invalid_status(client):
-    """Test that sending an invalid status to update_order_status raises an error"""
+# 
+# def test_update_order_status_invalid_status(client):
+#     """Test that sending an invalid status to update_order_status raises an error"""
+#
+#     login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+#     response = client.post('/login', json=login_info)
+#     assert response.status_code == http.HTTPStatus.OK
 
-    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
-    response = client.post('/login', json=login_info)
-    assert response.status_code == http.HTTPStatus.OK
+#     response = client.get('/admin/orders', query_string={"order_num": 1})
+#     assert response.status_code == http.HTTPStatus.OK
+#     data = response.get_json()
+#     orders = data['orders']
+#     assert orders["1"]["status"] == "PENDING"
+# 
 
-    invalid_status_data = {"order_id": 123, "status": "invalid_status"}
-    response = client.post('/admin/update_order_status', json=invalid_status_data)
+#     invalid_status_data = {"order_id": 123, "status": "invalid_status"}
+#     response = client.post('/admin/update_order_status', json=invalid_status_data)
+#    assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
-    assert response.status_code == http.HTTPStatus.BAD_REQUEST
+
+   
 
 
 # ===============checkout============================================

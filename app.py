@@ -299,9 +299,28 @@ def create_app(config: dict):
         return flask.jsonify({})
 
     # ============== Order ====================
-    @app.route('/orders', methods=['GET'])
+    @app.route('/user/orders/<user_id>', methods=['GET'])
+    @login_required
+    def get_order_items(user_id: int):
+        s = schema.session()
+        query = s.query(schema.Order)
+
+        order_num = flask.request.args.get('order_num')
+
+        query = query.filter(schema.Order.user_id == user_id)
+        if order_num is not None:
+            query = query.filter(schema.Order.order_num == order_num)
+
+        # Order by creation_time in descending order
+        query = query.order_by(schema.Order.creation_time.desc())
+
+        results = query.all()
+        orders = {result.order_num: result.to_dict() for result in results}
+        return flask.jsonify({'orders': orders})
+
+    @app.route('/admin/orders', methods=['GET'])
     @admin_required
-    def get_order_items():
+    def get_order_items_admin():
         s = schema.session()
         query = s.query(schema.Order)
 
