@@ -108,6 +108,11 @@ class CheckoutService:
 
             # STEP 7: Update inventory
             self.update_inventory(self.cart)
+
+            # STEP 8: Empty user cart
+            for key, value in self.cart.items():
+                self.delete_item_from_cart(key, user_id)
+
             return dict(status="success", order_id=self.order_id, message="Order placed successfully.")
 
         except Exception as e:
@@ -160,3 +165,9 @@ class CheckoutService:
         """Updates the inventory stock after a successful order."""
         for key, val in cart.items():
             self.inventory_control.system_update_item_quantity(key, -val)
+
+    def delete_item_from_cart(self, item: str, user_id: int) -> None:
+        """Deletes an item from the user cart."""
+        s = schema.session()
+        item_data = {'user_id': user_id, 'model_num': item}
+        self.cart_control.delete_cart_item(s, item_data)

@@ -229,6 +229,65 @@ class TestCheckoutService(unittest.TestCase):
         self.assertEqual(context.exception.response.status_code, 411)  # Use `.response.status_code`
         self.assertIn("Invalid address", str(context.exception.description))
 
+    @patch("schema.session")  # Mock database session
+    @patch("source.controller.cart.delete_cart_item")  # Mock delete_cart_item function
+    @patch("source.controller.cart.system_get_all_user_cart_items")  # Mock getting cart items
+    @patch("source.controller.user.get_user_details")  # Mock getting user details
+    @patch("source.controller.order.add_order")  # Mock order creation
+    @patch("source.controller.furniture_inventory.system_update_item_quantity")  # Mock inventory update
+    @patch("source.controller.cart.get_cart_item_full_details")  # FIX: Mock get_cart_item_full_details
+    def test_cart_items_deleted_after_checkout(
+        self,
+        mock_get_cart_item_details,
+        mock_update_inventory,
+        mock_add_order,
+        mock_get_user,
+        mock_get_cart,
+        mock_delete_cart_item,
+        mock_schema_session,
+    ) -> None:
+        """Test that all cart items are deleted after successful checkout."""
+
+        # Mock the database session
+        mock_schema_session.return_value = MagicMock()
+
+        # Mock cart contents
+        mock_get_cart.return_value = {"carts": {1: [{"model_num": 1, "quantity": 2}, {"model_num": 2, "quantity": 1}]}, "total_price": 150.0}
+
+        # Mock user details
+        mock_get_user.return_value = {"user_name": "John Doe", "email": "johndoe@example.com"}
+
+        # Mock order creation success
+        mock_add_order.return_value = 1001  # Simulated order ID
+
+        # Mock successful payment processing
+        self.mock_payment_strategy.process_payment.return_value = True
+
+        # FIX: Properly mock get_cart_item_full_details to return expected structure
+        mock_get_cart_item_details.side_effect = lambda model_num: {model_num: {"stock_quantity": 10, "discount": 0.1}}
+
+        # Perform checkout
+        result = self.checkout_service.checkout(user_id=1, address="123 Main St")
+
+        # Assertions
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(result["order_id"], 1001)
+        self.assertEqual(result["message"], "Order placed successfully.")
+
+        # Verify that delete_cart_item was called twice (once per item in cart)
+        self.assertEqual(mock_delete_cart_item.call_count, 2)
+
+        # Ensure delete_cart_item was called with correct parameters
+        mock_delete_cart_item.assert_any_call(mock_schema_session.return_value, {'user_id': 1, 'model_num': 1})
+        mock_delete_cart_item.assert_any_call(mock_schema_session.return_value, {'user_id': 1, 'model_num': 2})
+
+    def tearDown(self) -> None:
+        """Stop all patches after tests."""
+        self.cart_patch.stop()
+        self.user_patch.stop()
+        self.order_patch.stop()
+        self.inventory_patch.stop()
+
 
 if __name__ == '__main__':
     unittest.main()

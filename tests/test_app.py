@@ -6,7 +6,8 @@ import schema
 from unittest.mock import patch
 from werkzeug.security import check_password_hash, generate_password_hash
 from source.models.OrderStatus import OrderStatus
-import source.controller.user as user
+
+# import source.controller.user as user
 from source.controller.payment_gateway import PaymentMethod
 
 
@@ -1086,9 +1087,8 @@ def test_admin_required_operator(client):
 #     data = response.get_json()
 #     assert response.status_code == http.HTTPStatus.UNAUTHORIZED
 
+
 # ===============cart============================================
-
-
 def test_cart_get_all_cart_table(client):
     """
     Test retrieving all items in carts.
@@ -1111,7 +1111,6 @@ def test_cart_get_all_cart_table(client):
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     carts = data['carts']
-
     assert carts['1002'] == [
         {'model_name': 'Yosef', 'model_num': 'chair-0', 'price': 236.0, 'price_per_unit': 118.0, 'quantity': 2, 'user_id': 1002},
         {'model_name': 'LuxComfort', 'model_num': 'SF-3003', 'price': 1274.4, 'price_per_unit': 1274.4, 'quantity': 1, 'user_id': 1002},
@@ -1484,13 +1483,13 @@ def test_update_order_status(client):
 
 
 # ===============checkout============================================
-# def test_check_out_process(client):
-#     """Tests the API call for checkout start the checkout service"""
-#     user_id = 1002  # User not exists
-#     address = "Even Gabirol 3, Tel Aviv"
+def test_check_out_process(client):
+    """Tests the API call for checkout start the checkout service"""
+    user_id = 1002  # User not exists
+    address = "Even Gabirol 3, Tel Aviv"
 
-#     response = client.post(f"/checkout", json={'user_id': user_id, "address": address, 'payment_method': PaymentMethod.CREDIT_CARD.value})
-#     assert response.status_code == http.HTTPStatus.OK
+    response = client.post(f"/checkout", json={'user_id': user_id, "address": address, 'payment_method': PaymentMethod.CREDIT_CARD.value})
+    assert response.status_code == http.HTTPStatus.OK
 
 
 def test_checkout_user_not_exists(client):
