@@ -15,4 +15,4 @@ jobs:
       - name: install project
         run: pip install -r requirements.txt
       - name: run tests
-        run: python -m pytest -rA -sv tests/test_app.py
+        run: python -m pytest -rA -sv --cov=source --cov-fail-under=80 tests 
