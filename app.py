@@ -327,8 +327,15 @@ def create_app(config: dict):
         """
         API endpoint to update the status of an order.
         """
-        data = flask.request.get_json()  # Get JSON payload from the request
-        s = schema.session()  # create a new session for DB operations
+        data = flask.request.get_json()
+
+        if "status" not in data or "order_num" not in data:
+            return '', HTTPStatus.BAD_REQUEST
+
+        if data["status"] not in {status.value for status in OrderStatus}:
+            return '', HTTPStatus.BAD_REQUEST
+
+        s = schema.session()
         order.update_order_status(s, data)
         return flask.jsonify({})
 
