@@ -90,16 +90,17 @@ def create_app(config: dict):
         furniture_inventory.add_item(s, data)  # call add_item from services.py
         return flask.jsonify({})
 
-    @app.route('/admin/update_item', methods=['POST'])
-    @admin_required
-    def update_item_endpoint():
-        """
-        API endpoint to add a new furniture item.
-        """
-        data = flask.request.get_json()  # Get JSON payload from the request
-        s = schema.session()  # create a new session for DB operations
-        furniture_inventory.update_item_quantity(s, data)  # call add_item from services.py
-        return flask.jsonify({})
+    @app.route('/admin/update_item/<model_num>', methods=['PUT'])  
+    @admin_required  
+    def update_item_endpoint(model_num):  
+        """  
+        API endpoint to update a furniture item using PUT.  
+        """  
+        data = flask.request.get_json()      # Get JSON payload from the request  
+        s = schema.session()                   # Create a new session for DB operations  
+        # Call the update function from services.py (you might want to pass model_num separately)  
+        furniture_inventory.update_item_quantity(s, model_num, data)  
+        return flask.jsonify({})  
 
     @app.route('/admin/delete_item', methods=['POST'])
     @admin_required

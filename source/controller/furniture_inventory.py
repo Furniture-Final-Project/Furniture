@@ -38,13 +38,11 @@ def add_item(session: Session, item_data: dict):
     session.add(item)
     session.commit()
 
-
-def update_item_quantity(session: Session, data):
-    item = session.get(schema.Furniture, data["model_num"])
-    if item:
-        item.stock_quantity = data["stock_quantity"]
-        session.commit()
-
+def update_item_quantity(session: Session, model_num, data):  
+    item = session.get(schema.Furniture, model_num)  
+    if item:  
+        item.stock_quantity = data["stock_quantity"]  
+        session.commit()  
 
 def system_update_item_quantity(model_num: str, quantity_to_add: int):
     s = schema.session()

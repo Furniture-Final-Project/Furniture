@@ -634,26 +634,27 @@ def test_add_Sofa(client):
 # TODO - add: test_add_Sofa_item_not_correct_values(client)
 
 
-def test_update_quantity(client):
-    """Test to update quantity of an item, by its model number"""
+def test_update_quantity(client):  
+    """Test to update the quantity of an item, by its model number using PUT"""  
     update_info = {
-        "model_num": "chair-0",
-        "stock_quantity": 0,
-    }
-
-    # Log in as an admin user to enable access to detailed user information.
-    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
-    response = client.post('/login', json=login_info)
-    assert response.status_code == http.HTTPStatus.OK
-
-    response = client.post('/admin/update_item', json=update_info)
-    data = response.get_json()
-    assert response.status_code == http.HTTPStatus.OK
-    # Send a GET request to verify item stock update
-    response = client.get('/items', query_string={"model_num": "chair-0"})
-    data = response.get_json()
-    assert response.status_code == http.HTTPStatus.OK
-    assert data["items"]["chair-0"]["stock_quantity"] == 0
+        "stock_quantity": 0,  
+    }  
+   
+    # Log in as an admin user to enable access to admin endpoints.  
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}  
+    response = client.post('/login', json=login_info)  
+    assert response.status_code == http.HTTPStatus.OK  
+   
+    # Send a PUT request to update the item.  
+    response = client.put('/admin/update_item/chair-0', json=update_info)  
+    data = response.get_json()  
+    assert response.status_code == http.HTTPStatus.OK  
+   
+    # Send a GET request to verify the item's stock update.  
+    response = client.get('/items', query_string={"model_num": "chair-0"})  
+    data = response.get_json()  
+    assert response.status_code == http.HTTPStatus.OK  
+    assert data["items"]["chair-0"]["stock_quantity"] == 0  
 
 
 def test_delete_item(client):

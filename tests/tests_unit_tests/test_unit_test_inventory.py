@@ -305,12 +305,11 @@ def test_add_Sofa(client):
 
 
 def test_update_quantity(client):
-    """Test to update quantity of an item, by its model number"""
+    """Test to update quantity of an item, by its model number using PUT.""" 
     update_info = {
-        "model_num": "chair-0",
         "stock_quantity": 0,
     }
-    response = client.post('/admin/update_item', json=update_info)
+    response = client.put('/admin/update_item/chair-0', json=update_info)
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
     # Send a GET request to verify item stock update
