@@ -72,7 +72,7 @@ class MockPaymentGateway:
         print(f"Processing mock payment for User {user_id}: ${amount} via {payment_method.value}")
 
         # Simulate an 80% success rate for transactions
-        payment_success = random.random() < 0.8
+        payment_success = random.random() < 0.99
 
         if payment_success:
             print("✅ Payment successful!")
