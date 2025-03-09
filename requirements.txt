@@ -1,5 +1,5 @@
-flask
-sqlalchemy
+flask~=3.1.0
+sqlalchemy~=2.0.38
 
 # dev dependencies
 pytest>=7.0
@@ -8,3 +8,11 @@ black
 ptpython
 pre-commit
 Werkzeug>=2.0.0
+pip~=21.3.1
+Pillow~=9.4.0
+jedi~=0.19.2
+distlib~=0.3.9
+virtualenv~=20.29.1
+requests~=2.32.3
+filelock~=3.17.0
+requests

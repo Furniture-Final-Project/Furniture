@@ -7,6 +7,7 @@ from unittest.mock import patch
 from werkzeug.security import check_password_hash, generate_password_hash
 from source.models.OrderStatus import OrderStatus
 import source.controller.user as user
+from source.controller.payment_gateway import PaymentMethod
 
 
 @pytest.fixture
@@ -1377,3 +1378,31 @@ def test_update_order_status(client):
 
 
 # TODO: test that invalid status will raise error
+
+
+# ===============checkout============================================
+def test_check_out_process(client):
+    """Tests the API call for checkout start the checkout service"""
+    user_id = 1002  # User not exists
+    address = "Even Gabirol 3, Tel Aviv"
+
+    response = client.post(f"/checkout", json={'user_id': user_id, "address": address, 'payment_method': PaymentMethod.CREDIT_CARD.value})
+    assert response.status_code == http.HTTPStatus.OK
+
+
+def test_checkout_user_not_exists(client):
+    """test retrieving a cart with no items will raise error"""
+    user_id = 1007  # User not exists
+    address = "Even Gabirol 3, Tel Aviv"
+
+    response = client.post(f"/checkout", json={'user_id': user_id, "address": address, 'payment_method': PaymentMethod.CREDIT_CARD.value})
+    assert response.status_code == 404
+
+
+def test_checkout_empty_cart(client):
+    """test retrieving a cart with no items will raise error"""
+    user_id = 1005  # User exists but has no items in cart
+    address = "Even Gabirol 3, Tel Aviv"
+
+    response = client.post(f"/checkout", json={'user_id': user_id, "address": address, 'payment_method': PaymentMethod.CREDIT_CARD.value})
+    assert response.status_code == 404

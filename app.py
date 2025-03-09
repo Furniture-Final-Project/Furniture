@@ -11,7 +11,8 @@ import source.controller.order as order
 from decorators import login_required
 import os
 from werkzeug.security import check_password_hash
-
+from source.controller.payment_gateway import get_payment_strategy
+from source.controller.checkout_service import CheckoutService
 
 
 def create_app(config: dict):
@@ -226,7 +227,7 @@ def create_app(config: dict):
         query = s.query(schema.CartItem)
 
         user_id = flask.request.args.get('user_id')
-        mdoel_num = flask.request.args.get('mdoel_num')
+        model_num = flask.request.args.get('model_num')
 
         if user_id is not None:
             query = query.filter(schema.CartItem.user_id == user_id)
@@ -238,7 +239,7 @@ def create_app(config: dict):
                 total_price += cart_item['price']
             return flask.jsonify({'carts': cart_items, 'cart_total_price': total_price})
 
-        if mdoel_num is not None:
+        if model_num is not None:
             query = query.filter(schema.CartItem.user_id == user_id)
 
         results = query.all()
@@ -316,5 +317,31 @@ def create_app(config: dict):
         s = schema.session()  # create a new session for DB operations
         order.update_order_status(s, data)
         return flask.jsonify({})
+
+    # -------------checkout---------------
+    @app.route('/checkout', methods=['POST'])
+    def start_checkout():
+        """Handles the checkout process."""
+        data = flask.request.get_json(silent=True)
+        if not data:
+            return flask.jsonify({"status": "error", "message": "Invalid JSON format"}), 400
+
+        user_id = data.get("user_id")
+        address = data.get("address")
+        payment_method = data.get("payment_method")
+
+        # Convert the string to a PaymentStrategy object
+        payment_strategy = get_payment_strategy(payment_method)
+
+        if user_id is None or not address or not payment_method:
+            return flask.jsonify({"status": "error", "message": "Missing required fields"}), 400
+
+        # Handle invalid payment method
+        if payment_strategy is None:
+            return flask.jsonify({"error": "Invalid payment method"}), 400
+
+        checkout = CheckoutService(payment_strategy=payment_strategy)
+        result = checkout.checkout(user_id, address)
+        return flask.jsonify(result)
 
     return app
