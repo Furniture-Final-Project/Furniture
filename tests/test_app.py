@@ -1006,6 +1006,11 @@ def test_user_login(client):
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
+# def test_user_login_nonexistent_user(client):
+#     """Test user login with correct credentials"""
+#     login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}
+#     response = client.post('/login', json=login_info)
+#     assert response.status_code == http.HTTPStatus.OK
 
 # TODO- התחברות עם שם משתמש לא קיים (אמור להחזיר 401 UNAUTHORIZED).
 # TODO- התחברות עם סיסמה שגויה (401).
@@ -1036,7 +1041,6 @@ def test_user_logout(client):
 # 1) Log in
 # 2) Log out
 # 3) Call the protected endpoint -> expect HTTPStatus.UNAUTHORIZED
-
 
 def test_add_item_to_cart_requires_login(client):
     """
@@ -1076,13 +1080,6 @@ def test_admin_required_operator(client):
     assert hashed_password != "wilsonRob007"
     assert check_password_hash(hashed_password, "wilsonRob007")
 
-
-# def test_user_login_nonexistent_user(client):
-#     """Test user login with non-existent user ID"""
-#     login_info = {"user_id": 9999, "password": "AnyPassword"}
-#     response = client.post('/login', json=login_info)
-#     data = response.get_json()
-#     assert response.status_code == http.HTTPStatus.UNAUTHORIZED
 
 # ===============cart============================================
 
