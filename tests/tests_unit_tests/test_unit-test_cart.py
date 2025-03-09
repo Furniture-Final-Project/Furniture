@@ -133,8 +133,10 @@ def preprepared_data(application):
         details={"upholstery": "Top-Grain Leather", "color": "Dark Gray", "num_seats": 3},
     )
     cart_item1 = schema.CartItem(user_id=1002, model_num='chair-0', quantity=2)
+    cart_item2 = schema.CartItem(user_id=1003, model_num='BS-4004', quantity=2)
+    cart_item3 = schema.CartItem(user_id=1002, model_num='SF-3003', quantity=1)
 
-    session.add_all([chair0, chair1, bed, bookshelf, sofa, cart_item1])
+    session.add_all([chair0, chair1, bed, bookshelf, sofa, cart_item1, cart_item2, cart_item3])
     session.commit()
     yield
 
@@ -189,16 +191,12 @@ def test_update_cart_item_quantity(client):
     data = response.get_json()
     assert response.status_code == http.HTTPStatus.OK
 
-    assert data["carts"]["1002"]["quantity"] == 4
+    assert data["carts"]["1002"][0]["quantity"] == 1
 
-    assert data["carts"]['1002'] == {
-        'user_id': 1002,
-        'model_num': 'chair-0',
-        'quantity': 4,
-        'price_per_unit': 118.0,
-        'price': 472.0,
-        'model_name': 'Yosef',
-    }
+    assert data["carts"]['1002'] == [
+        {'model_name': 'LuxComfort', 'model_num': 'SF-3003', 'price': 1274.4, 'price_per_unit': 1274.4, 'quantity': 1, 'user_id': 1002},
+        {'model_name': 'Yosef', 'model_num': 'chair-0', 'price': 472.0, 'price_per_unit': 118.0, 'quantity': 4, 'user_id': 1002},
+    ]
 
 
 def test_updating_cart_item_quantity_to_0(client):
@@ -208,7 +206,7 @@ def test_updating_cart_item_quantity_to_0(client):
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     cart = data['carts']
-    assert cart['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}
+    assert cart['1002'] == [{'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}]
 
     # update quantity to 0
     update_info = dict(model_num="chair-0", user_id=1002, quantity=0)
@@ -239,9 +237,15 @@ def test_cart_get_all_cart_table(client):
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     carts = data['carts']
-    assert len(carts) == 1
+    assert len(carts) == 2
 
-    assert carts['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}
+    assert carts['1002'] == [
+        {'model_name': 'Yosef', 'model_num': 'chair-0', 'price': 236.0, 'price_per_unit': 118.0, 'quantity': 2, 'user_id': 1002},
+        {'model_name': 'LuxComfort', 'model_num': 'SF-3003', 'price': 1274.4, 'price_per_unit': 1274.4, 'quantity': 1, 'user_id': 1002},
+    ]
+    assert carts['1003'] == [
+        {'model_name': 'OakElegance', 'model_num': 'BS-4004', 'price': 129.8, 'price_per_unit': 64.9, 'quantity': 2, 'user_id': 1003}
+    ]
 
 
 def test_cart_get_cart_by_userid(client):
@@ -260,8 +264,12 @@ def test_cart_get_cart_by_userid(client):
     cart = data['carts']
     assert len(cart) == 1
 
-    assert cart['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}
-    assert data['cart_total_price'] == 236.0
+    assert cart['1002'] == [
+        {'model_name': 'LuxComfort', 'model_num': 'SF-3003', 'price': 1274.4, 'price_per_unit': 1274.4, 'quantity': 1, 'user_id': 1002},
+        {'model_name': 'Yosef', 'model_num': 'chair-0', 'price': 236.0, 'price_per_unit': 118.0, 'quantity': 2, 'user_id': 1002},
+    ]
+
+    assert data['total_price'] == 1510.4
 
 
 def test_get_specific_item_in_cart(client):
@@ -274,7 +282,7 @@ def test_get_specific_item_in_cart(client):
     cart = data['carts']
     assert len(cart) == 1
 
-    assert cart['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}
+    assert cart['1002'] == [{'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}]
 
 
 def test_delete_cart_item(client):
@@ -284,7 +292,7 @@ def test_delete_cart_item(client):
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     cart = data['carts']
-    assert cart['1002'] == {'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}
+    assert cart['1002'] == [{'user_id': 1002, 'model_num': 'chair-0', 'quantity': 2, 'price_per_unit': 118.0, 'price': 236.0, 'model_name': 'Yosef'}]
 
     delete_item = {'model_num': 'chair-0', 'user_id': 1002}
     # Send a POST request to delete the item
