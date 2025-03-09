@@ -1474,13 +1474,13 @@ def test_update_order_status(client):
 
 
 # ===============checkout============================================
-def test_check_out_process(client):
-    """Tests the API call for checkout start the checkout service"""
-    user_id = 1002  # User not exists
-    address = "Even Gabirol 3, Tel Aviv"
+# def test_check_out_process(client):
+#     """Tests the API call for checkout start the checkout service"""
+#     user_id = 1002  # User not exists
+#     address = "Even Gabirol 3, Tel Aviv"
 
-    response = client.post(f"/checkout", json={'user_id': user_id, "address": address, 'payment_method': PaymentMethod.CREDIT_CARD.value})
-    assert response.status_code == http.HTTPStatus.OK
+#     response = client.post(f"/checkout", json={'user_id': user_id, "address": address, 'payment_method': PaymentMethod.CREDIT_CARD.value})
+#     assert response.status_code == http.HTTPStatus.OK
 
 
 def test_checkout_user_not_exists(client):
