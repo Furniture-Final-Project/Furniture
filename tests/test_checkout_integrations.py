@@ -6,8 +6,6 @@ import http
 from werkzeug.security import generate_password_hash
 import pytest
 from unittest.mock import patch
-import functools
-
 from source.controller.cart import system_get_all_user_cart_items, get_cart_item_full_details
 from source.controller.payment_gateway import PaymentMethod, CreditCardPayment, MockPaymentGateway
 from source.models.OrderStatus import OrderStatus
@@ -233,13 +231,11 @@ def test_checkout_validate_cart_out_of_stock(client):
 
 def test_order_creation(client):
     """Test that checkout process creates a valid order in order table"""
-    user_id = 1004  # User not exists
+    user_id = 1004
     address = "Even Gabirol 3, Tel Aviv"
 
     # ensure checkout process was successful
     with patch.object(MockPaymentGateway, 'charge', return_value=True):
-        checkout1 = checkout.CheckoutService(payment_strategy=CreditCardPayment())
-        checkout1.checkout(user_id, address)
 
         response = client.post(f"/checkout", json={'user_id': user_id, "address": address, 'payment_method': PaymentMethod.CREDIT_CARD.value})
         assert response.status_code == http.HTTPStatus.OK
@@ -261,3 +257,24 @@ def test_order_creation(client):
         assert orders[str(created_order_num)]['items'] == {'BD-5005': 1}
         assert orders[str(created_order_num)]['total_price'] == 1274.4
 
+
+def test_empty_cart_after_checkout(client):
+    """Test that checkout process creates a valid order in order table"""
+    login_info = {"user_name": "EmilyDavis", "password": "davisEmily!"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    user_id = 1004
+    address = "Even Gabirol 3, Tel Aviv"
+
+    # ensure checkout process was successful
+    with patch.object(MockPaymentGateway, 'charge', return_value=True):
+        response = client.post(f"/checkout", json={'user_id': user_id, "address": address, 'payment_method': PaymentMethod.CREDIT_CARD.value})
+        assert response.status_code == http.HTTPStatus.OK
+        data = response.get_json()
+
+    response = client.get('/carts', query_string={"user_id": 1004})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    cart = data['carts']
+    assert cart == {}
