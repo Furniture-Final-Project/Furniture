@@ -12,46 +12,68 @@ class PaymentMethod(Enum):
 
 
 class PaymentStrategy(ABC):
-    """Abstract base class for payment strategies."""
+    """
+    Abstract base class for payment strategies.
+
+    Defines an interface for processing payments that must be implemented
+    by concrete payment strategy classes.
+    """
 
     @abstractmethod
     def process_payment(self, user_id: int, amount: float) -> bool:
         """
         Processes a payment transaction.
 
-        :param user_id: The ID of the user making the payment.
-        :param amount: The total amount to be charged.
-        :return: True if payment is successful, False otherwise.
+        Args:
+            user_id (int): The ID of the user making the payment.
+            amount (float): The total amount to be charged.
+
+        Returns:
+            bool: True if the payment is successful, False otherwise.
         """
         pass
 
 
 class CreditCardPayment(PaymentStrategy):
-    """Handles credit card transactions."""
+    """
+    Handles credit card transactions.
+    """
 
     def process_payment(self, user_id: int, amount: float) -> bool:
         return MockPaymentGateway().charge(user_id, amount, PaymentMethod.CREDIT_CARD)
 
 
 class PayPalPayment(PaymentStrategy):
-    """Handles PayPal transactions."""
+    """
+    Handles PayPal transactions.
+
+    """
 
     def process_payment(self, user_id: int, amount: float) -> bool:
         return MockPaymentGateway().charge(user_id, amount, PaymentMethod.PAYPAL)
 
 
 class BankTransferPayment(PaymentStrategy):
-    """Handles bank transfer transactions."""
+    """
+    Handles bank transfer transactions.
+
+    """
 
     def process_payment(self, user_id: int, amount: float) -> bool:
         return MockPaymentGateway().charge(user_id, amount, PaymentMethod.BANK_TRANSFER)
 
 
 class MockPaymentGateway:
-    """Simulates a payment processing gateway."""
+    """
+    Simulates a payment processing gateway.
+
+    """
 
     def charge(self, user_id: int, amount: float, payment_method: PaymentMethod) -> bool:
-        """Simulates a payment transaction with additional validation."""
+        """
+        Simulates a payment transaction with additional validation.
+
+        """
 
         if not user_id:
             print("❌ Invalid transaction detected! Reason: User ID is missing or invalid.")
@@ -83,7 +105,15 @@ class MockPaymentGateway:
 
 
 def get_payment_strategy(payment_method: str) -> PaymentStrategy:
-    """Returns the correct PaymentStrategy instance based on the payment method string."""
+    """
+    Returns the appropriate PaymentStrategy instance based on the payment method.
+
+    Args:
+        payment_method (str): The selected payment method.
+
+    Returns:
+        PaymentStrategy: An instance of the corresponding payment strategy, or None if not found.
+    """
     strategy_map = {
         PaymentMethod.CREDIT_CARD.value: CreditCardPayment(),
         PaymentMethod.PAYPAL.value: PayPalPayment(),

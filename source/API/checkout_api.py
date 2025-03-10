@@ -52,7 +52,7 @@ def create_app() -> Flask:
 
     @app.route('/api/checkout', methods=['POST'])
     def start_checkout() -> Any:
-        """Handles the checkout process."""
+        """Handles the checkout process"""
         data = request.get_json(silent=True)
         if not data:
             return jsonify({"status": "error", "message": "Invalid JSON format"}), 400
