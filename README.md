@@ -259,11 +259,6 @@ All requests to the API should be made using **JSON**, and responses are returne
 }
 ```
 
-## **Example API Response**
-```json
-{}
-```
-
 ## **Notes**
 - This endpoint requires **Admin privileges**.
 - The request must be sent with a **valid JSON payload**.
@@ -292,11 +287,6 @@ All requests to the API should be made using **JSON**, and responses are returne
 }
 ```
 
-## **Example API Response**
-```json
-{}
-```
-
 ## **Notes**
 - This endpoint requires **Admin privileges**.
 - The request must be sent with a **valid JSON payload**.
@@ -322,11 +312,6 @@ All requests to the API should be made using **JSON**, and responses are returne
 {
     "model_num": "SOFA-123"
 }
-```
-
-## **Example API Response**
-```json
-{}
 ```
 
 ## **Notes**
@@ -357,25 +342,6 @@ All requests to the API should be made using **JSON**, and responses are returne
 {
     "model_num": "chair-1",
     "discount": 15.0
-}
-```
-
-## **Example API Response (Successful Update)**
-```json
-{}
-```
-
-## **Example API Response (Missing Fields)**
-```json
-{
-    "error": "Missing required fields"
-}
-```
-
-## **Example API Response (Invalid Discount Range)**
-```json
-{
-    "error": "Discount must be between 0 to 100"
 }
 ```
 
@@ -443,23 +409,9 @@ All requests to the API should be made using **JSON**, and responses are returne
 }
 ```
 
-## **Example API Response (Successful Registration)**
-```json
-{}
-```
-
-## **Example API Response (Missing Fields or Invalid Role)**
-```json
-{
-    "success": false,
-    "message": "Either one or more required fields are missing, or 'role' is not set to 'user'."
-}
-```
-
 ## **Notes**
-- The 'role' field **must** be '"user"', or the request will be rejected.
+- The 'role' field **must** be "user", or the request will be rejected.
 - If any required field is missing, the API will return a '400 BAD REQUEST' response.
-- Passwords should be securely stored using hashing mechanisms.
 
 
 # 8. API Endpoint: Register a New Admin User
@@ -498,23 +450,9 @@ All requests to the API should be made using **JSON**, and responses are returne
 }
 ```
 
-## **Example API Response (Successful Registration)**
-```json
-{}
-```
-
-## **Example API Response (Missing Fields or Invalid Role)**
-```json
-{
-    "success": false,
-    "message": "Either one or more required fields are missing, or 'role' is not set to 'admin'."
-}
-```
-
 ## **Notes**
-- The 'role' field **must** be '"admin"', or the request will be rejected.
+- The 'role' field **must** be "admin", or the request will be rejected.
 - If any required field is missing, the API will return a '400 BAD REQUEST' response.
-- Passwords should be securely stored using hashing mechanisms.
 
 
 # 9. API Endpoint: Update User Information
@@ -546,17 +484,11 @@ All requests to the API should be made using **JSON**, and responses are returne
 }
 ```
 
-## **Example API Response (Successful Update)**
-```json
-{}
-```
-
 ## **Notes**
 - This endpoint **requires authentication**.
 - Only fields that are provided in the request will be updated.
 - If no valid fields are provided, the request will have no effect.
 - The request must be sent with a **valid JSON payload**.
-- Password updates should be securely handled and stored using hashing.
 
 
 # 10. API Endpoint: User Login
@@ -584,25 +516,6 @@ All requests to the API should be made using **JSON**, and responses are returne
 }
 ```
 
-## **Example API Response (Successful Login)**
-```json
-""
-```
-
-## **Example API Response (Invalid Credentials)**
-```json
-{
-    "error": "Unauthorized"
-}
-```
-
-## **Example API Response (Missing Fields)**
-```json
-{
-    "error": "Bad Request"
-}
-```
-
 ## **Notes**
 - The request **must** be in valid JSON format.
 - If 'user_name' or 'password' is missing, the request will return '400 BAD REQUEST'.
@@ -627,11 +540,6 @@ All requests to the API should be made using **JSON**, and responses are returne
 ## **Example API Request**
 ```
 POST /logout
-```
-
-## **Example API Response (Successful Logout)**
-```json
-""
 ```
 
 ## **Notes**
@@ -680,47 +588,6 @@ POST /logout
 GET /admin/carts
 ```
 
-## **Example API Response (Successful Request)**
-```json
-{
-    "carts": {
-        "123": [
-            {
-                "model_num": "SOFA-456",
-                "name": "Luxury Sofa",
-                "quantity": 2,
-                "price_per_unit": 1500.00,
-                "total_price": 3000.00
-            }
-        ],
-        "456": [
-            {
-                "model_num": "TABLE-789",
-                "name": "Dining Table",
-                "quantity": 1,
-                "price_per_unit": 1200.00,
-                "total_price": 1200.00
-            },
-            {
-                "model_num": "CHAIR-999",
-                "name": "Office Chair",
-                "quantity": 3,
-                "price_per_unit": 450.00,
-                "total_price": 1350.00
-            }
-        ]
-    }
-}
-```
-
-## **Example API Response (Unauthorized Request)**
-```json
-{
-    "error": "Forbidden",
-    "message": "Admin privileges required."
-}
-```
-
 ## **Notes**
 - This endpoint **requires Admin privileges**.
 - The request will be rejected with '403 FORBIDDEN' if made by a non-admin user.
@@ -750,11 +617,6 @@ GET /admin/carts
     "model_num": "CHAIR-001",
     "quantity": 2
 }
-```
-
-## **Example API Response (Successful Addition)**
-```json
-{}
 ```
 
 ## **Notes**
@@ -789,11 +651,6 @@ GET /admin/carts
 }
 ```
 
-## **Example API Response (Successful Update)**
-```json
-{}
-```
-
 ## **Notes**
 - This endpoint **requires authentication**.
 - The request must be sent in **valid JSON format**.
@@ -822,11 +679,6 @@ GET /admin/carts
     "user_id": 123,
     "model_num": "CHAIR-001"
 }
-```
-
-## **Example API Response (Successful Deletion)**
-```json
-{}
 ```
 
 ## **Notes**
@@ -907,26 +759,6 @@ GET /admin/carts
 }
 ```
 
-## **Example API Response (Successful Update)**
-```json
-{}
-```
-
-## **Example API Response (Missing Fields)**
-```json
-{
-    "error": "Bad Request",
-    "message": "new order status is missing"
-}
-```
-
-```json
-{
-    "error": "Bad Request",
-    "message": "order num is missing"
-}
-```
-
 ## **Notes**
 - This endpoint **requires Admin privileges**.
 - The request must be sent in **valid JSON format**.
@@ -958,30 +790,6 @@ GET /admin/carts
     "user_id": 123,
     "address": "123 Main St, Tel Aviv",
     "payment_method": "credit_card"
-}
-```
-
-## **Example API Response (Successful Checkout)**
-```json
-{
-    "status": "success",
-    "message": "Order placed successfully",
-    "order_id": 98765
-}
-```
-
-## **Example API Response (Missing Fields)**
-```json
-{
-    "status": "error",
-    "message": "Missing required fields"
-}
-```
-
-## **Example API Response (Invalid Payment Method)**
-```json
-{
-    "error": "Invalid payment method"
 }
 ```
 
