@@ -204,13 +204,13 @@ def test_get_user_details_existing():
 
 def test_get_user_by_id(client):
     """
-        Test retrieving a specific user by ID.
+    Test retrieving a specific user by ID.
 
-        Steps:
-        - Sends a GET request to '/admin/users' with a specific user ID.
-        - Verifies the response status is HTTP 200 OK.
-        - Ensures the response contains correct user details.
-        """
+    Steps:
+    - Sends a GET request to '/admin/users' with a specific user ID.
+    - Verifies the response status is HTTP 200 OK.
+    - Ensures the response contains correct user details.
+    """
 
     response = client.get('/admin/users', query_string={"user_id": 1002})
     assert response.status_code == http.HTTPStatus.OK
@@ -231,13 +231,13 @@ def test_get_user_by_id(client):
 
 def test_add_new_user(client):
     """
-        Test adding a new user to the system.
+    Test adding a new user to the system.
 
-        Steps:
-        - Sends a POST request to '/add_user' with valid user details.
-        - Verifies the response status is HTTP 200 OK.
-        - Retrieves the newly added user and ensures the details are correct.
-        """
+    Steps:
+    - Sends a POST request to '/add_user' with valid user details.
+    - Verifies the response status is HTTP 200 OK.
+    - Retrieves the newly added user and ensures the details are correct.
+    """
 
     user_info = {
         "user_id": 207105880,
@@ -261,13 +261,13 @@ def test_add_new_user(client):
 
 def test_password_hashing(client):
     """
-        Test that user passwords are properly hashed.
+    Test that user passwords are properly hashed.
 
-        Steps:
-        - Adds a new user with a known password.
-        - Retrieves the user data and ensures that the stored password is hashed.
-        - Checks if the hashed password matches the original password using `check_password_hash()`.
-        """
+    Steps:
+    - Adds a new user with a known password.
+    - Retrieves the user data and ensures that the stored password is hashed.
+    - Checks if the hashed password matches the original password using `check_password_hash()`.
+    """
 
     user_info = {
         "user_id": 67890,
@@ -294,13 +294,13 @@ def test_password_hashing(client):
 
 def test_add_admin_user(client):
     """
-        Test adding a new admin user to the system.
+    Test adding a new admin user to the system.
 
-        Steps:
-        - Sends a POST request to '/add_admin_user' with valid admin user details.
-        - Verifies the response status is HTTP 200 OK.
-        - Retrieves the newly added admin user and ensures the details are correct.
-        """
+    Steps:
+    - Sends a POST request to '/add_admin_user' with valid admin user details.
+    - Verifies the response status is HTTP 200 OK.
+    - Retrieves the newly added admin user and ensures the details are correct.
+    """
     user_info = {
         "user_id": 207105881,
         "user_name": "RonCohen",
@@ -490,7 +490,7 @@ def test_user_update_email(client):
 
 
 def test_user_update_password(client):
-     """
+    """
     Test updating and hashing a user's password.
 
     Steps:
@@ -499,7 +499,6 @@ def test_user_update_password(client):
     - Retrieves the updated user data and checks that the password is hashed.
     - Confirms that the hashed password matches the original password using `check_password_hash()`.
     """
-
     update_info = {"user_id": 1003, "password": "NewSecurePass123"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
