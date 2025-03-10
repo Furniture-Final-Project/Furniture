@@ -1,0 +1,18 @@
+name: UnitTests
+
+on:
+  pull_request:
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+      - name: install project
+        run: pip install -r requirements.txt
+      - name: run tests
+        run: python -m pytest -rA -sv --cov=source --cov-fail-under=80 tests
