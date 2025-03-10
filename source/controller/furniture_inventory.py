@@ -52,7 +52,6 @@ def system_update_item_quantity(model_num: str, quantity_to_add: int):
     if item:
         item.stock_quantity += quantity_to_add
     s.commit()
-    # TODO: add tests
 
 
 def delete_item(session: Session, model_num: str):
@@ -60,3 +59,9 @@ def delete_item(session: Session, model_num: str):
     if item:
         session.delete(item)
         session.commit()
+
+def update_item_discount(session: Session, data): 
+    item = session.get(schema.Furniture, data["model_num"])
+    if item:
+        item.discount = data["discount"]
+        session.commit()   
