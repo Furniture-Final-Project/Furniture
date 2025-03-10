@@ -819,6 +819,29 @@ def test_update_quantity(client):
     assert data["items"]["chair-0"]["stock_quantity"] == 0
 
 
+def test_update_discount(client):
+    """Test to update the discount of an item by its model number"""
+    update_info = {
+        "model_num": "chair-0",
+        "discount": 15.0,
+    }
+
+    # Log in as an admin user to enable access to item modification.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send request to update the discount of an item
+    response = client.post('/admin/update_discount', json=update_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify item discount update
+    response = client.get('/items', query_string={"model_num": "chair-0"})
+    data = response.get_json()
+    assert response.status_code == http.HTTPStatus.OK
+    assert data["items"]["chair-0"]["discount"] == 15.0  # Verify discount update
+
+
 def test_delete_item(client):
     """
     Tests deleting an item via a POST request.

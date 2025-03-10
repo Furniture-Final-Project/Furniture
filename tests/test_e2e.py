@@ -6,17 +6,13 @@ import schema
 from unittest.mock import patch
 from werkzeug.security import generate_password_hash
 from source.models.OrderStatus import OrderStatus
-
-# import source.controller.user as user
 from source.controller.payment_gateway import PaymentMethod, MockPaymentGateway
-
-# import source.controller.checkout_service as checkout
 from freezegun import freeze_time
 
 
 @pytest.fixture
 def application():
-    application = app.create_app({'database_url': f'sqlite:///:memory:'})  # Use in-memory DB for testing
+    application = app.create_app({'database_url': 'sqlite:///:memory:', 'TESTING': True})
     yield application
 
 
@@ -139,8 +135,8 @@ def preprepared_data(application):
     # cart_item3 = schema.CartItem(user_id=1003, model_num='BS-4004', quantity=1)
     # cart_item4 = schema.CartItem(user_id=1003, model_num='BD-5005', quantity=1)
     # cart_item5 = schema.CartItem(user_id=1003, model_num='SF-3003', quantity=1)
-    cart_item6 = schema.CartItem(user_id=1004, model_num='chair-0', quantity=1)
-    cart_item7 = schema.CartItem(user_id=1005, model_num='chair-1', quantity=3)
+    # cart_item6 = schema.CartItem(user_id=1004, model_num='chair-0', quantity=1)
+    # cart_item7 = schema.CartItem(user_id=1005, model_num='chair-1', quantity=3)
 
     order1 = schema.Order(
         order_num=1,
@@ -180,8 +176,8 @@ def preprepared_data(application):
             # cart_item3,
             # cart_item4,
             # cart_item5,
-            cart_item6,
-            cart_item7,
+            # cart_item6,
+            # cart_item7,
             order1,
             order2,
         ]
@@ -191,7 +187,7 @@ def preprepared_data(application):
 
 
 @freeze_time("2024-03-03 12:30:00")
-def test_scenario1(client):
+def test_user_signup_cart_checkout(client):
     """
     End-to-End Test: New User Registration and Purchase Flow.
 
@@ -263,7 +259,7 @@ def test_scenario1(client):
     }
 
 
-def test_scenario2(client):
+def test_guest_login_and_stock_validation_during_checkout(client):
     """
     End-to-End Test: Guest Browsing and Login Requirement for Checkout.
 
@@ -336,7 +332,7 @@ def test_scenario2(client):
 
 
 @freeze_time("2024-03-05 12:30:00")
-def test_scenario3(client):
+def test_user_cart_management_and_order_verification(client):
     """
     End-to-End Test: Advanced Product Search and Cart Management.
 
@@ -434,6 +430,114 @@ def test_scenario3(client):
         "shipping_address": '456 Oak Avenue, New York, NY',
         "status": "PENDING",
         "total_price": 2902.8,
+        "user_name": "JaneSmith",
+        "phone_number": "555-1234",
+        "user_full_name": "Jane Smith",
+        "creation_time": 'Tue, 05 Mar 2024 12:30:00 GMT',
+    }
+
+
+def test_admin_updates_order_status(client):
+    """
+    Admin Order Management
+    """
+    # Authenticate as an admin to access detailed user data for verification.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    response = client.get('/admin/orders', query_string={"order_num": 1})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    orders = data['orders']
+    assert orders["1"]["status"] == "PENDING"
+
+    # update order status
+    update_info = dict(order_num=1, status=OrderStatus.SHIPPED.value)
+    response = client.post('/admin/update_order_status', json=update_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # Send a GET request to verify item stock update
+    response = client.get('/admin/orders', query_string={"order_num": 1})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    orders = data['orders']
+    assert orders["1"]["status"] == "SHIPPED"
+
+    # The user logs into their account.
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # The user retrieves the order status using the order ID and sees that it is marked as "SHIPPED".
+    response = client.get('/user/orders/1002', query_string={"order_num": 1})
+    assert response.status_code == http.HTTPStatus.OK
+
+    data = response.get_json()
+    orders = data['orders']
+    assert len(orders) == 1
+    assert orders["1"] == {
+        "order_num": 1,
+        "user_id": 1002,
+        "items": {"chair-0": 2, "SF-3003": 1},
+        "user_email": "janesmith@example.com",
+        "shipping_address": "123 Main St, Springfield",
+        "status": "SHIPPED",
+        "total_price": 1750.1,
+        "user_name": "JaneSmith",
+        "phone_number": "555-1234",
+        "user_full_name": "Jane Smith",
+        "creation_time": 'Mon, 04 Mar 2024 12:45:00 GMT',
+    }
+
+
+def test_admin_update_discount(client):
+    """
+    Admin Updates Discount on an Existing Product and Regular User Verifies the Updated Price
+    """
+    # STEP 1: Admin logs in
+    admin_login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    response = client.post('/login', json=admin_login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # STEP 2: Admin updates the discount on an existing product (Chair-1)
+    update_discount_payload = {"model_num": "chair-1", "discount": 15.0}  # 15% discount
+    response = client.post('/admin/update_discount', json=update_discount_payload)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # STEP 3: Fetch the updated product details as an admin
+    response = client.get('/items', query_string={"model_num": "chair-1"})
+    assert response.status_code == http.HTTPStatus.OK
+
+    data = response.get_json()
+    assert "items" in data
+    product = data["items"]["chair-1"]
+
+    # STEP 4: Validate the discount was updated correctly
+    assert product["model_num"] == "chair-1"
+    assert product["discount"] == 15.0  # Ensuring the discount was applied
+    assert product["price"] == 200.0  # Original price
+    expected_discounted_price = product["price"] * (1.18) * (1 - 15.0 / 100)
+    assert product["final_price"] == expected_discounted_price  # Ensure final price reflects discount
+
+    # STEP 5: Regular user logs in
+    user_login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=user_login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    # STEP 6: Regular user fetches the product details
+    response = client.get('/items', query_string={"model_num": "chair-1"})
+    assert response.status_code == http.HTTPStatus.OK
+
+    user_data = response.get_json()
+    assert "items" in user_data
+    user_product = user_data["items"]["chair-1"]
+
+    # STEP 7: Validate the regular user sees the updated discount and price
+    assert user_product["model_num"] == "chair-1"
+    assert user_product["discount"] == 15.0  # User should see the new discount
+    assert user_product["price"] == 200.0  # Original price remains the same
+    assert user_product["final_price"] == expected_discounted_price  # Ensure user sees the correct final price
         "user_name": "JaneSmith",
         "phone_number": "555-1234",
         "user_full_name": "Jane Smith",

@@ -76,3 +76,9 @@ def delete_item(session: Session, model_num: str):
     if item:
         session.delete(item)
         session.commit()
+
+def update_item_discount(session: Session, data): 
+    item = session.get(schema.Furniture, data["model_num"])
+    if item:
+        item.discount = data["discount"]
+        session.commit()   
