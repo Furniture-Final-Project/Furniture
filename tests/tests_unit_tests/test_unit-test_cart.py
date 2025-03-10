@@ -2,13 +2,7 @@ import pytest
 import functools
 import http
 import schema
-
-# import source.controller.cart as cart
 from unittest.mock import patch
-
-# from werkzeug.security import check_password_hash, generate_password_hash
-# from source.models.OrderStatus import OrderStatus
-# from datetime import datetime
 
 
 @pytest.fixture(autouse=True)
@@ -338,3 +332,45 @@ def test_delete_cart_item(client):
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     assert data['carts'] == {}
+
+
+@pytest.mark.parametrize(
+    "user_exists, item_exists, expected",
+    [
+        (True, True, True),  # Both user and item exist -> Valid
+        (False, True, False),  # User does not exist -> Invalid
+        (True, False, False),  # Item does not exist -> Invalid
+        (False, False, False),  # Neither user nor item exist -> Invalid
+    ],
+)
+def test_valid_method_cart_item(user_exists, item_exists, expected):
+    """
+    Tests the `valid()` function of CartItem.
+
+    This function verifies that the `valid()` method returns `True` only when both the user
+    and the cart item exist.
+    """
+    cart_item = schema.CartItem(user_id=9999, model_num="chair-10", quantity=1)
+
+    with (
+        patch("source.controller.user.get_user_details", return_value=user_exists),
+        patch("source.controller.cart.get_cart_item_full_details", return_value=item_exists),
+    ):
+        is_valid = cart_item.valid()
+
+    assert is_valid == expected
+
+    def test_update_quantity_with_not_enough_units_in_stock(client):
+        """
+        Test that updating a cart item is not possible if the item not in stock or do not have enough units in stock.
+        Expecting an error response.
+        """
+        # Log in as an admin user to enable access to detailed user information.
+        login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+        response = client.post('/login', json=login_info)
+        assert response.status_code == http.HTTPStatus.OK
+        update_info = dict(model_num="chair-0", user_id=1004, quantity=5)
+
+        with patch("source.controller.cart.get_cart_item_full_details", return_value={update_info["model_num"]: {"stock_quantity": 3}}):
+            response = client.post('/user/add_item_to_cart', json=update_info)
+            assert response.status_code == http.HTTPStatus.CONFLICT

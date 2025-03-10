@@ -76,19 +76,19 @@ class MockPaymentGateway:
         """
 
         if not user_id:
-            print("❌ Invalid transaction detected! Reason: User ID is missing or invalid.")
+            print("Invalid transaction detected! Reason: User ID is missing or invalid.")
             return False
 
         if amount <= 0:
-            print("❌ Invalid transaction detected! Reason: Amount must be greater than 0.")
+            print("Invalid transaction detected! Reason: Amount must be greater than 0.")
             return False
 
         if amount < 1.00:
-            print("❌ Invalid transaction detected! Reason: Amount must be at least $1.00.")
+            print("Invalid transaction detected! Reason: Amount must be at least $1.00.")
             return False
 
         if not isinstance(payment_method, PaymentMethod):
-            print("❌ Invalid transaction detected! Reason: Invalid payment method provided.")
+            print("Invalid transaction detected! Reason: Invalid payment method provided.")
             return False
 
         print(f"Processing mock payment for User {user_id}: ${amount} via {payment_method.value}")
@@ -97,9 +97,9 @@ class MockPaymentGateway:
         payment_success = random.random() < 0.99
 
         if payment_success:
-            print("✅ Payment successful!")
+            print("Payment successful!")
         else:
-            print("❌ Payment failed due to a random decline.")
+            print("Payment failed due to a random decline.")
 
         return payment_success
 

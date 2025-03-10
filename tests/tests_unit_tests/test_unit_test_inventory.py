@@ -310,9 +310,6 @@ def test_add_BookShelf(client):
     assert data["items"]["BS-5001"]["is_available"] is True
 
 
-# TODO - add: test_add_Bookshelf_item_not_correct_values(client)
-
-
 def test_add_Sofa(client):
     """
     Test adding a new Sofa item using a POST request.
