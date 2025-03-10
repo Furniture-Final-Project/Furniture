@@ -161,6 +161,8 @@ def preprepared_data(application):
     session.commit()
     yield
 
+    # ================ Inventory API ====================
+
 
 def test_user_get_all_items(client):
     """
@@ -591,8 +593,6 @@ def test_add_BookShelf(client):
     assert data["items"]["BS-5001"]["is_available"] is True
 
 
-# TODO - add: test_add_Bookshelf_item_not_correct_values(client)- done
-
 def test_add_Bookshelf_item_not_correct_values(client):
     """Test adding a new BookShelf item with incorrect values via the API endpoint."""
 
@@ -673,7 +673,6 @@ def test_add_Sofa(client):
     assert data["items"]["SF-5005"]["is_available"] is True
 
 
-# TODO - add: test_add_Sofa_item_not_correct_values(client)
 def test_add_Sofa_item_not_correct_values(client):
     """Test adding a new Sofa item with incorrect values via the API endpoint."""
 
@@ -756,9 +755,7 @@ def test_delete_item(client):
     assert data == {'items': {}}
 
 
-# ============user=============================
-
-
+# ============user API=============================
 def test_get_user_by_id(client):
     # Authenticate as an admin to access detailed user data for verification.
     login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
@@ -1091,37 +1088,31 @@ def test_user_login(client):
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
+
 def test_login_with_nonexistent_user(client):
     """Test user login with non existing user name"""
-    login_info = {"user_name": "non_existent_user", "password": "randompassword" }
+    login_info = {"user_name": "non_existent_user", "password": "randompassword"}
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.UNAUTHORIZED
 
+
 def test_login_with_wrong_password(client):
     """Test user login with wrong password"""
-    login_info = {"user_name": "JaneSmith",  "password": "wrongpassword"}
+    login_info = {"user_name": "JaneSmith", "password": "wrongpassword"}
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.UNAUTHORIZED
+
 
 def test_login_with_no_parameters(client):
     response = client.post('/login', json={})
     assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
-@pytest.mark.parametrize("invalid_json", [
-    ["user_name", "password"],
-    {"user_name": 123, "password": 456},
-    "this is not a json",
-    None
-])
+
+@pytest.mark.parametrize("invalid_json", [["user_name", "password"], {"user_name": 123, "password": 456}, "this is not a json", None])
 def test_login_with_invalid_json(client, invalid_json):
     """Test user login with invalid jason"""
     response = client.post('/login', json=invalid_json)
     assert response.status_code == http.HTTPStatus.BAD_REQUEST
-
-# TODO- התחברות עם שם משתמש לא קיים (אמור להחזיר 401 UNAUTHORIZED). done
-# TODO- התחברות עם סיסמה שגויה (401). done
-# TODO- שליחת בקשת התחברות ללא פרמטרים (400). done
-# TODO- שליחת בקשת התחברות עם מבנה JSON שגוי (400). done
 
 
 def test_user_logout(client):
@@ -1135,6 +1126,7 @@ def test_user_logout(client):
     response = client.post('/logout')
     assert response.status_code == http.HTTPStatus.OK
 
+
 # This test ensures that logging out when no user is logged in
 # This behavior prevents unnecessary failures and maintains consistency.
 def test_logout_when_not_logged_in(client):
@@ -1142,6 +1134,7 @@ def test_logout_when_not_logged_in(client):
     response = client.post('/logout')
     assert response.status_code == http.HTTPStatus.OK
     assert response.data == b""
+
 
 def test_access_protected_endpoint_after_logout(client):
     """Test that after logging out, access to a protected route returns 401 Unauthorized"""
@@ -1196,12 +1189,11 @@ def test_admin_required_operator(client):
     assert check_password_hash(hashed_password, "wilsonRob007")
 
 
-# def test_user_login_nonexistent_user(client):
-#     """Test user login with non-existent user ID"""
-#     login_info = {"user_id": 9999, "password": "AnyPassword"}
-#     response = client.post('/login', json=login_info)
-#     data = response.get_json()
-#     assert response.status_code == http.HTTPStatus.UNAUTHORIZED
+def test_user_login_nonexistent_user(client):
+    """Test user login with non-existent user ID"""
+    login_info = {"user_name": "nonexistent_user", "password": "AnyPassword"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.UNAUTHORIZED
 
 
 # ===============cart============================================
@@ -1642,52 +1634,47 @@ def test_user_view_specific_order(client):
     }
 
 
-# TODO: fix the testss
-# def test_update_order_status(client):
-#     # Authenticate as an admin to access detailed user data for verification.
-#     login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
-#     response = client.post('/login', json=login_info)
-#     assert response.status_code == http.HTTPStatus.OK
-#
-#     response = client.get('/orders', query_string={"order_num": 1})
-#     assert response.status_code == http.HTTPStatus.OK
-#     data = response.get_json()
-#     orders = data['orders']
-#     assert orders["1"]["status"] == "PENDING"
-#
-#     # update order status
-#     update_info = dict(order_num=1, status=OrderStatus.SHIPPED.value)  # Convert to string
-#     response = client.post('/admin/update_order_status', json=update_info)
-#     assert response.status_code == http.HTTPStatus.OK
-#
-#     # Send a GET request to verify item stock update
-#     response = client.get('/orders', query_string={"order_num": 1})
-#     assert response.status_code == http.HTTPStatus.OK
-#     data = response.get_json()
-#     orders = data['orders']
-#     assert orders["1"]["status"] == "SHIPPED"
+def test_update_order_status(client):
+    # Authenticate as an admin to access detailed user data for verification.
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
 
-# 
-# def test_update_order_status_invalid_status(client):
-#     """Test that sending an invalid status to update_order_status raises an error"""
-#
-#     login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
-#     response = client.post('/login', json=login_info)
-#     assert response.status_code == http.HTTPStatus.OK
+    response = client.get('/admin/orders', query_string={"order_num": 1})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    orders = data['orders']
+    assert orders["1"]["status"] == "PENDING"
 
-#     response = client.get('/admin/orders', query_string={"order_num": 1})
-#     assert response.status_code == http.HTTPStatus.OK
-#     data = response.get_json()
-#     orders = data['orders']
-#     assert orders["1"]["status"] == "PENDING"
-# 
+    # update order status
+    update_info = dict(order_num=1, status=OrderStatus.SHIPPED.value)  # Convert to string
+    response = client.post('/admin/update_order_status', json=update_info)
+    assert response.status_code == http.HTTPStatus.OK
 
-#     invalid_status_data = {"order_id": 123, "status": "invalid_status"}
-#     response = client.post('/admin/update_order_status', json=invalid_status_data)
-#    assert response.status_code == http.HTTPStatus.BAD_REQUEST
+    # Send a GET request to verify item stock update
+    response = client.get('/admin/orders', query_string={"order_num": 1})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    orders = data['orders']
+    assert orders["1"]["status"] == "SHIPPED"
 
 
-   
+def test_update_order_status_invalid_status(client):
+    """Test that sending an invalid status to update_order_status raises an error"""
+
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    response = client.get('/admin/orders', query_string={"order_num": 1})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    orders = data['orders']
+    assert orders["1"]["status"] == "PENDING"
+
+    invalid_status_data = {"order_id": 123, "status": "invalid_status"}
+    response = client.post('/admin/update_order_status', json=invalid_status_data)
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
 
 # ===============checkout============================================

@@ -2,6 +2,7 @@ from unittest.mock import MagicMock, patch
 from sqlalchemy.orm import Session
 from datetime import datetime
 from source.controller.order import add_order
+from werkzeug.security import generate_password_hash
 import pytest
 import functools
 import schema
@@ -101,7 +102,17 @@ def preprepared_data(application):
         creation_time=datetime(2024, 3, 3, 12, 30, 0),
     )
 
-    session.add_all([order1, order2])
+    user_1 = schema.User(
+        user_id=1005,
+        user_name="RobertWilson",
+        user_full_name="Robert Wilson",
+        user_phone_num="555-3456",
+        address="202 Birch Lane, Seattle, WA",
+        email="robertwilson@example.com",
+        password=generate_password_hash("wilsonRob007"),
+        role="admin",
+    )
+    session.add_all([order1, order2, user_1])
     session.commit()
     yield
 
@@ -133,32 +144,6 @@ def test_create_order_object(test_db):
             assert added_order.user_id == 1
             assert added_order.total_price == 150.00
             assert added_order.shipping_address == "123 Test Street"
-
-
-# TODO: FIX
-# def test_add_order_invalid(client):
-#     """
-#     Test Invalid order can not be created in the table.
-#     The order is invalid since the dict is empty.
-#     """
-#     order_data = {
-#         "user_id": 2,
-#         "items": {},  # Invalid: empty dict
-#         "user_email": "test2@example.com",
-#         "user_name": "Jane Doe",
-#         "shipping_address": "456 Test Avenue",
-#         "total_price": 75.00,
-#     }
-#
-#     # Send request to API endpoint
-#     s = schema.session()
-#     add_order(s, order_data)
-#
-#
-#     # Ensure order was not added to the database
-#     session = schema.session()
-#     added_order = session.query(schema.Order).filter_by(user_id=2).first()
-#     assert added_order is None
 
 
 def test_add_order_to_table():
@@ -254,12 +239,23 @@ def test_valid_method_cartitem(user_exists, item_exists, expected):
     assert is_valid == expected
 
 
-# def test_order_cancel(client):
-#     """
-#     Test that when order is cancelled the function to restore the inventory will be called
-#     :param test_db:
-#     """
-#     schema.Order.new.assert_called_once_with(**order_data)
+# def test_order_cancel():
+#     # Mock session and order
+#     mock_session = MagicMock()
+#     mock_order = MagicMock()
+#     mock_order.items = {"model_1": 2, "model_2": 3}
+#     mock_session.get.return_value = mock_order
+#
+#     # Mock system_update_item_quantity function
+#     with patch("source.controller.furniture_inventory.system_update_item_quantity") as mock_update_quantity:
+#         # Call the function with a cancelled status
+#         update_order_status(mock_session, {"order_num": 123, "status": "cancelled"})
+#
+#         # Assertions
+#         assert mock_order.status == OrderStatus.CANCELLED
+#         mock_session.commit.assert_called_once()
+#         mock_update_quantity.assert_any_call(model_num="model_1", quantity_to_add=2)
+#         mock_update_quantity.assert_any_call(model_num="model_2", quantity_to_add=3)
 
 
 # =====================cart unit tests=========================

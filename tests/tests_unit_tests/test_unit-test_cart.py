@@ -141,9 +141,6 @@ def preprepared_data(application):
     yield
 
 
-# furniture- used
-
-
 def test_update_quantity_with_item_not_in_cart(client):
     """Test that updating a cart item is not possible if the item not in user's cart"""
     update_info = dict(model_num="chair-0", user_id=1004, quantity=1)
