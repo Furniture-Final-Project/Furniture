@@ -22,7 +22,7 @@ def create_app(config: dict=None):
     app = flask.Flask(__name__)
     app.secret_key = os.urandom(24)
 
-    database_url = config.get('database_url', 'sqlite:///:memory:')
+    database_url = config.get('database_url', 'sqlite:///./default.db')
     schema.create(database_url)
 
     @app.route('/items', methods=['GET'])
