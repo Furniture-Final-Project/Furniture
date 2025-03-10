@@ -8,49 +8,6 @@ import source.controller.order as order_controller
 import source.controller.furniture_inventory as furniture_inventory_controller
 
 
-# Custom Exceptions for structured error handling
-class CheckoutError(Exception):
-    """Base exception for checkout errors."""
-
-    pass
-
-
-class CartEmptyError(CheckoutError):
-    """Raised when the cart is empty."""
-
-    pass
-
-
-class OutOfStockError(CheckoutError):
-    """Raised when an item is out of stock."""
-
-    pass
-
-
-class PaymentFailedError(CheckoutError):
-    """Raised when a payment transaction fails."""
-
-    pass
-
-
-class UserNotFoundError(CheckoutError):
-    """Raised when a user is not found."""
-
-    pass
-
-
-class OrderCreationError(CheckoutError):
-    """Raised when order creation fails."""
-
-    pass
-
-
-class InvalidAddressError(CheckoutError):
-    """Raised when the provided shipping address is invalid."""
-
-    pass
-
-
 class CheckoutService:
     """
     Handles the checkout process, including cart validation, payment processing,
@@ -120,17 +77,17 @@ class CheckoutService:
 
     def validate_cart(self, user_id: int) -> None:
         """
-    Validates that the user's cart contains items and that they are in stock.
+        Validates that the user's cart contains items and that they are in stock.
 
-    Checks if the cart is empty and raises an error if so.
-    Ensures each item's requested quantity does not exceed available stock.
+        Checks if the cart is empty and raises an error if so.
+        Ensures each item's requested quantity does not exceed available stock.
 
-    Args:
-        user_id (int): The ID of the user.
+        Args:
+            user_id (int): The ID of the user.
 
-    Raises:
-        HTTPException: If the cart is empty or if stock is insufficient for any item.
-    """
+        Raises:
+            HTTPException: If the cart is empty or if stock is insufficient for any item.
+        """
         print("testing the cart", self.cart)  # debug
         if not self.cart or self.cart == {}:
             flask.abort(http.HTTPStatus.NOT_FOUND, f"Cart for user {user_id} is empty!")
@@ -142,47 +99,47 @@ class CheckoutService:
 
     def validate_address(self, address: str) -> None:
         """
-    Validates the provided shipping address.
+        Validates the provided shipping address.
 
-    Ensures the address is not empty and meets the minimum length requirement.
+        Ensures the address is not empty and meets the minimum length requirement.
 
-    Args:
-        address (str): The shipping address.
+        Args:
+            address (str): The shipping address.
 
-    Raises:
-        HTTPException: If the address is missing or too short.
-    """
+        Raises:
+            HTTPException: If the address is missing or too short.
+        """
         if not address or len(address.strip()) < 5:
             flask.abort(http.HTTPStatus.LENGTH_REQUIRED, "Invalid address. Please provide a valid shipping address.")
 
     def process_payment(self, user_id: int, amount: float) -> None:
         """
-    Processes the payment using the selected strategy.
+        Processes the payment using the selected strategy.
 
-    Args:
-        user_id (int): The ID of the user making the payment.
-        amount (float): The total amount to be charged.
+        Args:
+            user_id (int): The ID of the user making the payment.
+            amount (float): The total amount to be charged.
 
-    Raises:
-        HTTPException: If the payment is declined.
-    """
+        Raises:
+            HTTPException: If the payment is declined.
+        """
         if not self.payment_strategy.process_payment(user_id, amount):
             flask.abort(http.HTTPStatus.PAYMENT_REQUIRED, "Payment was declined. Please try another payment method.")
 
     def create_order(self, user_id: int, address: str) -> int:
         """
-    Creates an order for the user and returns the order ID.
+        Creates an order for the user and returns the order ID.
 
-    Args:
-        user_id (int): The ID of the user placing the order.
-        address (str): The shipping address for the order.
+        Args:
+            user_id (int): The ID of the user placing the order.
+            address (str): The shipping address for the order.
 
-    Returns:
-        int: The generated order ID.
+        Returns:
+            int: The generated order ID.
 
-    Raises:
-        HTTPException: If order creation fails.
-    """
+        Raises:
+            HTTPException: If order creation fails.
+        """
         s = schema.session()
         data_for_order = {
             'user_id': user_id,
@@ -197,27 +154,27 @@ class CheckoutService:
         order_id = self.order_control.add_order(s, data_for_order)
 
         if not order_id:
-            flask.abort(http.HTTPStatus.INTERNAL_SERVER_ERROR, OrderCreationError("Failed to create order."))
+            flask.abort(http.HTTPStatus.INTERNAL_SERVER_ERROR, "Failed to create order.")
         return order_id
 
     def update_inventory(self, cart: Any) -> None:
         """
-    Updates inventory stock based on the purchased cart items.
+        Updates inventory stock based on the purchased cart items.
 
-    Args:
-        cart (Any): A dictionary mapping item model numbers to purchased quantities.
-    """
+        Args:
+            cart (Any): A dictionary mapping item model numbers to purchased quantities.
+        """
         for key, val in cart.items():
             self.inventory_control.system_update_item_quantity(key, -val)
 
     def delete_item_from_cart(self, item: str, user_id: int) -> None:
         """
-    Removes a specific item from the user's cart.
+        Removes a specific item from the user's cart.
 
-    Args:
-        item (str): The model number of the item to remove.
-        user_id (int): The ID of the user.
-    """
+        Args:
+            item (str): The model number of the item to remove.
+            user_id (int): The ID of the user.
+        """
         s = schema.session()
         item_data = {'user_id': user_id, 'model_num': item}
         self.cart_control.delete_cart_item(s, item_data)

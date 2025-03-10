@@ -141,9 +141,6 @@ def preprepared_data(application):
     yield
 
 
-# furniture- used
-
-
 def test_update_quantity_with_item_not_in_cart(client):
     """
     Tests that updating a cart item fails if the item is not in the user's cart.

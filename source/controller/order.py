@@ -64,12 +64,13 @@ def update_order_status(session: Session, item_data: dict):
     """
     new_status_str = item_data['status']
     if new_status_str not in {status.value for status in OrderStatus}:
-        raise ValueError(f"Invalid status: {new_status_str}. Must be one of {[status.value for status in OrderStatus]}")
+        flask.abort(http.HTTPStatus.BAD_REQUEST, f"Invalid status: {new_status_str}. Must be one of {[status.value for status in OrderStatus]}")
+
     new_status = OrderStatus(new_status_str)  # Convert string back to Enum
 
     order = session.get(schema.Order, item_data["order_num"])
     if not order:
-        return '', HTTPStatus.NOT_FOUND
+        flask.abort(http.HTTPStatus.NOT_FOUND, "Order not found.")
 
     order.status = new_status  # Store the Enum instance
     session.commit()
@@ -77,5 +78,3 @@ def update_order_status(session: Session, item_data: dict):
     if new_status == OrderStatus.CANCELLED:
         for key, value in order.items:
             system_update_item_quantity(model_num=key, quantity_to_add=value)
-
-    return '', HTTPStatus.OK

@@ -378,12 +378,12 @@ def test_update_quantity(client):
 
 def test_delete_item(client):
     """
-        Test deleting an item from the inventory.
+    Test deleting an item from the inventory.
 
-        Steps:
-        1. Send a POST request to delete "chair-1" from the inventory.
-        2. Verify the deletion by sending a GET request to check if the item still exists.
-        """
+    Steps:
+    1. Send a POST request to delete "chair-1" from the inventory.
+    2. Verify the deletion by sending a GET request to check if the item still exists.
+    """
 
     deleted_item = {"model_num": "chair-1"}
     # Send a POST request to delete the item
