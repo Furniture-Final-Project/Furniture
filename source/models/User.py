@@ -1,4 +1,5 @@
 class User:
+
     """
     Represents a user in the system.
 
@@ -21,11 +22,10 @@ class User:
             password (str): The user's password.
             role (str): The user's role in the system.
         """
-
+    def __init__(self, id, username, email, password, role):
         self.id = id
         self.username = username
         self.email = email
         self.password = password
         self.role = role
-
 

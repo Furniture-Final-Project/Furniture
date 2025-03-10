@@ -280,7 +280,7 @@ def test_order_creation(client):
         response = client.post('/login', json=login_info)
         assert response.status_code == http.HTTPStatus.OK
 
-        response = client.get('/orders', query_string={"order_num": created_order_num})
+        response = client.get('/admin/orders', query_string={"order_num": created_order_num})
         assert response.status_code == http.HTTPStatus.OK
         data = response.get_json()
         orders = data['orders']
