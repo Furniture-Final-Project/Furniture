@@ -109,6 +109,37 @@ def create_app(config: dict):
         s = schema.session()
         furniture_inventory.delete_item(s, data["model_num"])
         return flask.jsonify({})
+    
+    @app.route('/admin/update_discount', methods=['PUT'])
+    @admin_required
+    def update_discount_endpoint():
+        """
+        API endpoint for an admin to update the discount of an existing furniture item.
+
+        Example of an expected payload:
+        {
+            "model_num": "chair-1",
+            "new_discount": 15.0
+        }
+
+        Returns:
+        - 200 OK if the discount was successfully updated
+        - 400 BAD REQUEST if required fields are missing
+        - 404 NOT FOUND if the item does not exist
+        """
+        data = flask.request.get_json()
+
+        if "model_num" not in data or "new_discount" not in data:
+            return flask.jsonify({"error": "Missing required fields"}), HTTPStatus.BAD_REQUEST
+        
+        if data["new_discount"] >= 100 or data["new_discount"] <= 0:
+            return flask.jsonify({"error": "Discount must be between 0 to 100"}), HTTPStatus.BAD_REQUEST
+
+        data = flask.request.get_json()
+        s = schema.session()  
+        furniture_inventory.update_item_discount(s, data) 
+        return flask.jsonify({})
+
 
     # ================ User ====================
     @app.route('/admin/users', methods=['GET'])

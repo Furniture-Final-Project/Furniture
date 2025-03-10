@@ -12,7 +12,7 @@ from freezegun import freeze_time
 
 @pytest.fixture
 def application():
-    application = app.create_app({'database_url': f'sqlite:///:memory:'})  # Use in-memory DB for testing
+    application = app.create_app({'database_url': 'sqlite:///:memory:', 'TESTING': True})
     yield application
 
 
@@ -135,8 +135,8 @@ def preprepared_data(application):
     # cart_item3 = schema.CartItem(user_id=1003, model_num='BS-4004', quantity=1)
     # cart_item4 = schema.CartItem(user_id=1003, model_num='BD-5005', quantity=1)
     # cart_item5 = schema.CartItem(user_id=1003, model_num='SF-3003', quantity=1)
-    cart_item6 = schema.CartItem(user_id=1004, model_num='chair-0', quantity=1)
-    cart_item7 = schema.CartItem(user_id=1005, model_num='chair-1', quantity=3)
+    # cart_item6 = schema.CartItem(user_id=1004, model_num='chair-0', quantity=1)
+    # cart_item7 = schema.CartItem(user_id=1005, model_num='chair-1', quantity=3)
 
     order1 = schema.Order(
         order_num=1,
@@ -176,8 +176,8 @@ def preprepared_data(application):
             # cart_item3,
             # cart_item4,
             # cart_item5,
-            cart_item6,
-            cart_item7,
+            # cart_item6,
+            # cart_item7,
             order1,
             order2,
         ]
