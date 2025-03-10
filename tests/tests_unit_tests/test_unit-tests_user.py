@@ -183,7 +183,13 @@ def preprepared_data(application):
 
 
 def test_get_user_details_existing():
-    """Test retrieving details of an existing user from the test database"""
+    """
+    Test retrieving details of an existing user from the test database.
+
+    Steps:
+    - Calls `get_user_details()` with an existing user ID.
+    - Verifies that the retrieved user details match expected values.
+    """
     user_id = 1003
     user_data = user.get_user_details(user_id)
 
@@ -197,6 +203,15 @@ def test_get_user_details_existing():
 
 
 def test_get_user_by_id(client):
+    """
+    Test retrieving a specific user by ID.
+
+    Steps:
+    - Sends a GET request to '/admin/users' with a specific user ID.
+    - Verifies the response status is HTTP 200 OK.
+    - Ensures the response contains correct user details.
+    """
+
     response = client.get('/admin/users', query_string={"user_id": 1002})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
@@ -215,6 +230,15 @@ def test_get_user_by_id(client):
 
 
 def test_add_new_user(client):
+    """
+    Test adding a new user to the system.
+
+    Steps:
+    - Sends a POST request to '/add_user' with valid user details.
+    - Verifies the response status is HTTP 200 OK.
+    - Retrieves the newly added user and ensures the details are correct.
+    """
+
     user_info = {
         "user_id": 207105880,
         "user_name": "JonCohen",
@@ -236,6 +260,15 @@ def test_add_new_user(client):
 
 
 def test_password_hashing(client):
+    """
+    Test that user passwords are properly hashed.
+
+    Steps:
+    - Adds a new user with a known password.
+    - Retrieves the user data and ensures that the stored password is hashed.
+    - Checks if the hashed password matches the original password using `check_password_hash()`.
+    """
+
     user_info = {
         "user_id": 67890,
         "user_name": "AliceDoe",
@@ -260,6 +293,14 @@ def test_password_hashing(client):
 
 
 def test_add_admin_user(client):
+    """
+    Test adding a new admin user to the system.
+
+    Steps:
+    - Sends a POST request to '/add_admin_user' with valid admin user details.
+    - Verifies the response status is HTTP 200 OK.
+    - Retrieves the newly added admin user and ensures the details are correct.
+    """
     user_info = {
         "user_id": 207105881,
         "user_name": "RonCohen",
@@ -282,8 +323,12 @@ def test_add_admin_user(client):
 
 def test_add_admin_user_invalid(client):
     """
-    Ensures '/add_admin_user' returns 400 BAD REQUEST if 'role' is 'user',
-    and verifies no user is created.
+    Test that an invalid admin user cannot be created.
+
+    Steps:
+    - Attempts to add an admin user with an invalid role ('user').
+    - Verifies that the server returns HTTP 400 BAD REQUEST.
+    - Ensures that no user was created in the system.
     """
     user_info = {
         "user_id": 207105881,
@@ -307,8 +352,12 @@ def test_add_admin_user_invalid(client):
 
 def test_add_user_invalid_role(client):
     """
-        Ensures '/add_user' returns 400 BAD REQUEST if 'role' is 'admin',
-    and verifies no user is created.
+    Test that a regular user cannot be created with the 'admin' role.
+
+    Steps:
+    - Attempts to add a user with the role set to 'admin'.
+    - Verifies that the server returns HTTP 400 BAD REQUEST.
+    - Ensures that no user was created in the system.
     """
     user_info = {
         "user_id": 207105881,
@@ -331,7 +380,15 @@ def test_add_user_invalid_role(client):
 
 
 def test_user_update_address(client):
-    """Test to update address of a user, by its user_id"""
+    """
+    Test updating a user's address.
+
+    Steps:
+    - Sends a POST request to '/update_user' with a new address.
+    - Verifies the response status is HTTP 200 OK.
+    - Retrieves the updated user data to confirm the change.
+    """
+
     updated_info = {"user_id": 1003, "address": "21 Yaakov Meridor, Tel Aviv"}
     response = client.post('/update_user', json=updated_info)
     data = response.get_json()
@@ -345,7 +402,14 @@ def test_user_update_address(client):
 
 
 def test_user_update_user_name(client):
-    """Test to update user_name of a user, by its user_id"""
+    """
+    Test updating a user's username.
+
+    Steps:
+    - Sends a POST request to '/update_user' with a new username.
+    - Verifies the response status is HTTP 200 OK.
+    - Retrieves the updated user data to confirm the change.
+    """
 
     update_info = {"user_id": 1003, "user_name": "Michael_Cohen"}
     response = client.post('/update_user', json=update_info)
@@ -360,7 +424,15 @@ def test_user_update_user_name(client):
 
 
 def test_user_update_user_full_name(client):
-    """Test to update user_full_name of a user, by its user_id"""
+    """
+    Test updating a user's full name.
+
+    Steps:
+    - Sends a POST request to '/update_user' with a new full name.
+    - Verifies the response status is HTTP 200 OK.
+    - Retrieves the updated user data to confirm the change.
+    """
+
     update_info = {"user_id": 1003, "user_full_name": "Michael Levi"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
@@ -374,7 +446,15 @@ def test_user_update_user_full_name(client):
 
 
 def test_user_update_user_phone_num(client):
-    """Test to update user_phone_num of a user, by its user_id"""
+    """
+    Test updating a user's phone number.
+
+    Steps:
+    - Sends a POST request to '/update_user' with a new phone number.
+    - Verifies the response status is HTTP 200 OK.
+    - Retrieves the updated user data to confirm the change.
+    """
+
     update_info = {"user_id": 1003, "user_phone_num": "555-1094"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
@@ -388,7 +468,15 @@ def test_user_update_user_phone_num(client):
 
 
 def test_user_update_email(client):
-    """Test to update email of a user, by its user_id"""
+    """
+    Test updating a user's email.
+
+    Steps:
+    - Sends a POST request to '/update_user' with a new email.
+    - Verifies the response status is HTTP 200 OK.
+    - Retrieves the updated user data to confirm the change.
+    """
+
     update_info = {"user_id": 1003, "email": "MichaelCohen@gmail.com"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()
@@ -402,8 +490,15 @@ def test_user_update_email(client):
 
 
 def test_user_update_password(client):
-    """Test to update password of a user and hash it, by its user_id"""
+    """
+    Test updating and hashing a user's password.
 
+    Steps:
+    - Sends a POST request to '/update_user' with a new password.
+    - Verifies the response status is HTTP 200 OK.
+    - Retrieves the updated user data and checks that the password is hashed.
+    - Confirms that the hashed password matches the original password using `check_password_hash()`.
+    """
     update_info = {"user_id": 1003, "password": "NewSecurePass123"}
     response = client.post('/update_user', json=update_info)
     data = response.get_json()

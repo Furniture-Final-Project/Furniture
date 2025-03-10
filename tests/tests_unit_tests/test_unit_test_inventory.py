@@ -82,9 +82,11 @@ def preprepared_data(application):
 
 def test_system_update_item_quantity(client):
     """
-    Test updating the quantity of furniture in the inventory from the system (no API call)
-    :param client:
-    :return: None
+    Test updating the quantity of furniture in the inventory from the system (without API call).
+
+    Steps:
+    1. Increase the stock quantity of item "BD-5005" by 1 and verify the update.
+    2. Decrease the stock quantity of the same item by 2 and verify the update.
     """
     # Increase the stock units in 1
     furniture_inventory.system_update_item_quantity(model_num="BD-5005", quantity_to_add=1)
@@ -108,7 +110,14 @@ def test_system_update_item_quantity(client):
 
 
 def test_add_bed_item(client):
-    """Test adding a new Bed item using POST request."""
+    """
+    Test adding a new Bed item using a POST request.
+
+    Steps:
+    1. Send a POST request to add a new bed item with valid details.
+    2. Verify the item was successfully added by checking the response status.
+    3. Retrieve the item using a GET request and confirm the item details.
+    """
 
     new_item = {
         "model_num": "B-101",
@@ -142,7 +151,15 @@ def test_add_bed_item(client):
 
 
 def test_add_bed_item_not_correct_values(client):
-    """Test adding a Bed item with an invalid mattress type."""
+    """
+    Test adding a Bed item with invalid values.
+
+    Steps:
+    1. Attempt to add a bed item with an invalid mattress type.
+    2. Verify that the response returns a BAD REQUEST (400) error.
+    3. Ensure the invalid item was not added to the inventory.
+    """
+
     invalid_item = {
         "model_num": "B-999",
         "model_name": "Faulty Bed",
@@ -172,7 +189,15 @@ def test_add_bed_item_not_correct_values(client):
 
 
 def test_add_chair(client):
-    """Test adding a new Chair item using POST request."""
+    """
+    Test adding a new Chair item using a POST request.
+
+    Steps:
+    1. Send a POST request to add a new chair item with valid details.
+    2. Verify the item was successfully added by checking the response status.
+    3. Retrieve the item using a GET request and confirm the item details.
+    """
+
     new_item = {
         "model_num": "C-202",
         "model_name": "ErgoChair",
@@ -204,7 +229,15 @@ def test_add_chair(client):
 
 
 def test_add_chair_item_not_correct_values(client):
-    """Test adding a Bed item with an invalid mattress type."""
+    """
+    Test adding a Chair item with an invalid material type.
+
+    Steps:
+    1. Attempt to add a chair with an invalid material (e.g., "stone").
+    2. Verify that the response returns a BAD REQUEST (400) error.
+    3. Ensure the invalid item was not added to the inventory.
+    """
+
     invalid_item = {
         "model_num": "C-203",
         "model_name": "ErgoChair",
@@ -233,7 +266,15 @@ def test_add_chair_item_not_correct_values(client):
 
 
 def test_add_BookShelf(client):
-    """Test adding a new BookShelf item using POST request."""
+    """
+    Test adding a new BookShelf item using a POST request.
+
+    Steps:
+    1. Send a POST request to add a new bookshelf item with valid details.
+    2. Verify the item was successfully added by checking the response status.
+    3. Retrieve the item using a GET request and confirm the item details.
+    """
+
     new_item = {
         "model_num": "BS-5001",
         "model_name": "ModernGlassShelf",
@@ -273,7 +314,15 @@ def test_add_BookShelf(client):
 
 
 def test_add_Sofa(client):
-    """Test adding a new Sofa item using POST request."""
+    """
+    Test adding a new Sofa item using a POST request.
+
+    Steps:
+    1. Send a POST request to add a new sofa item with valid details.
+    2. Verify the item was successfully added by checking the response status.
+    3. Retrieve the item using a GET request and confirm the item details.
+    """
+
     new_item = {
         "model_num": "SF-5005",
         "model_name": "CozyVelvet",
@@ -305,7 +354,14 @@ def test_add_Sofa(client):
 
 
 def test_update_quantity(client):
-    """Test to update quantity of an item, by its model number"""
+    """
+    Test updating the stock quantity of an item using a POST request.
+
+    Steps:
+    1. Update the stock quantity of "chair-0" to 0.
+    2. Verify the update by checking the item's stock quantity via a GET request.
+    """
+
     update_info = {
         "model_num": "chair-0",
         "stock_quantity": 0,
@@ -321,6 +377,14 @@ def test_update_quantity(client):
 
 
 def test_delete_item(client):
+    """
+        Test deleting an item from the inventory.
+
+        Steps:
+        1. Send a POST request to delete "chair-1" from the inventory.
+        2. Verify the deletion by sending a GET request to check if the item still exists.
+        """
+
     deleted_item = {"model_num": "chair-1"}
     # Send a POST request to delete the item
     response = client.post('/admin/delete_item', json=deleted_item)

@@ -6,7 +6,14 @@ from unittest.mock import patch
 
 
 class MockItem:
-    """Mock class to simulate an item object."""
+    """
+    Mock class to simulate an item object.
+
+    Attributes:
+    - item_id (int): Unique identifier for the item.
+    - quantity (int): Quantity of the item.
+    - name (str): Name of the item (default: "Test Item").
+    """
 
     def __init__(self, item_id: int, quantity: int, name: str = "Test Item") -> None:
         self.item_id = item_id
@@ -15,10 +22,25 @@ class MockItem:
 
 
 class TestCheckoutService(unittest.TestCase):
-    """Test suite for the CheckoutService class."""
+    """
+    Test suite for the CheckoutService class.
+
+    This class tests the core functionality of the checkout process, including
+    payment processing, inventory management, cart validation, and order creation.
+    """
 
     def setUp(self) -> None:
-        """Setup mock dependencies before each test case."""
+        """
+        Set up mock dependencies before each test case.
+
+        Mocks:
+        - Payment strategy
+        - Cart controller
+        - User controller
+        - Order controller
+        - Inventory controller
+        """
+
         self.mock_payment_strategy = MagicMock()
 
         # Patch the imported controllers inside the CheckoutService module
@@ -37,14 +59,29 @@ class TestCheckoutService(unittest.TestCase):
         self.checkout_service = CheckoutService(payment_strategy=self.mock_payment_strategy)
 
     def test_process_payment_success(self) -> None:
-        """Test successful payment processing."""
+        """
+        Test successful payment processing.
+
+        Steps:
+        1. Mock the payment strategy to return a successful payment.
+        2. Call `process_payment()`.
+        3. Ensure the function returns `None`, indicating success.
+        """
+
         self.mock_payment_strategy.process_payment.return_value = True
         result = self.checkout_service.process_payment(user_id=1, amount=100.0)
         self.assertIsNone(result)
 
     @patch("flask.abort")
     def test_process_payment_failure(self, mock_abort) -> None:
-        """Test failed payment raises HTTPException (Payment Required - 402)."""
+        """
+        Test failed payment raises HTTPException (Payment Required - 402).
+
+        Steps:
+        1. Mock payment failure.
+        2. Mock `flask.abort` to simulate HTTP 402 error.
+        3. Call `process_payment()` and verify the expected HTTPException is raised.
+        """
 
         # Mock flask.abort to simulate a PAYMENT_REQUIRED (402) error
         http_exception = HTTPException(description="Payment was declined. Please try another payment method.")
@@ -103,7 +140,13 @@ class TestCheckoutService(unittest.TestCase):
         mock_update_inventory.assert_called()
 
     def test_checkout_empty_cart(self) -> None:
-        """Test checkout fails when the cart is empty."""
+        """
+        Tests that attempting to checkout with an empty cart results in an HTTP 404 error.
+
+        Expected Outcome:
+        - An `HTTPException` with status code 404.
+        - The error message should indicate that the cart is empty.
+        """
         self.mock_cart_controller.get_cart.return_value = MagicMock(items=[])
 
         with self.assertRaises(HTTPException) as context:
@@ -115,7 +158,14 @@ class TestCheckoutService(unittest.TestCase):
 
     @patch("flask.abort")
     def test_checkout_out_of_stock(self, mock_abort) -> None:
-        """Test checkout fails when an item is out of stock."""
+        """
+        Tests that attempting to checkout with an out-of-stock item results in an HTTP 409 error.
+
+        Expected Outcome:
+        - An `HTTPException` with status code 409.
+        - The error message should indicate insufficient stock availability.
+        """
+
         # Mock flask.abort to simulate a CONFLICT (409) error
         http_exception = HTTPException(description="Not enough stock available.")
         http_exception.response = MagicMock(status_code=409)  # Manually set the response status
@@ -137,7 +187,14 @@ class TestCheckoutService(unittest.TestCase):
 
     @patch("flask.abort")
     def test_checkout_payment_failure(self, mock_abort) -> None:
-        """Test checkout fails when payment is declined."""
+        """
+        Tests that a payment failure during checkout results in an HTTP 402 error.
+
+        Expected Outcome:
+        - An `HTTPException` with status code 402.
+        - The error message should indicate that the payment was declined.
+        """
+
         # Mock flask.abort to simulate a PAYMENT_REQUIRED (402) error
         http_exception = HTTPException(description="Payment was declined. Please try another payment method.")
         http_exception.response = MagicMock(status_code=402)  # Manually set the response status
@@ -188,7 +245,13 @@ class TestCheckoutService(unittest.TestCase):
 
     @patch("flask.abort")
     def test_checkout_order_creation_failure(self, mock_abort) -> None:
-        """Test checkout fails when order creation fails."""
+        """
+        Tests that a failure in order creation during checkout results in an HTTP 500 error.
+
+        Expected Outcome:
+        - An `HTTPException` with status code 500.
+        - The error message should indicate that order creation failed.
+        """
         # Mock flask.abort to simulate INTERNAL_SERVER_ERROR (500)
         http_exception = HTTPException(description="Failed to create order.")
         http_exception.response = MagicMock(status_code=500)  # Manually set the response status
@@ -215,7 +278,13 @@ class TestCheckoutService(unittest.TestCase):
 
     @patch("flask.abort")
     def test_checkout_invalid_address(self, mock_abort) -> None:
-        """Test checkout fails when an invalid address is provided."""
+        """
+        Tests that providing an invalid address during checkout results in an HTTP 411 error.
+
+        Expected Outcome:
+        - An `HTTPException` with status code 411.
+        - The error message should indicate that a valid shipping address is required.
+        """
         # Set up mock behavior
         http_exception = HTTPException(description="Invalid address. Please provide a valid shipping address.")
         http_exception.response = MagicMock(status_code=411)  # Manually set the response status
@@ -246,7 +315,14 @@ class TestCheckoutService(unittest.TestCase):
         mock_delete_cart_item,
         mock_schema_session,
     ) -> None:
-        """Test that all cart items are deleted after successful checkout."""
+        """
+        Tests that all items in the cart are deleted after a successful checkout.
+
+        Expected Outcome:
+        - The checkout process completes successfully.
+        - `delete_cart_item()` is called once for each item in the cart.
+        - The order is successfully placed.
+        """
 
         # Mock the database session
         mock_schema_session.return_value = MagicMock()
@@ -282,7 +358,13 @@ class TestCheckoutService(unittest.TestCase):
         mock_delete_cart_item.assert_any_call(mock_schema_session.return_value, {'user_id': 1, 'model_num': 2})
 
     def tearDown(self) -> None:
-        """Stop all patches after tests."""
+        """
+        Stops all patches after each test case to restore original behavior.
+
+        Ensures that:
+        - All mocked dependencies return to their original state.
+        - No unintended modifications persist between tests.
+        """
         self.cart_patch.stop()
         self.user_patch.stop()
         self.order_patch.stop()
