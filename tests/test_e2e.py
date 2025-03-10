@@ -326,9 +326,9 @@ def test_user_cart_management_and_order_verification(client):
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
-    
+
     # The user searches for:
-    
+
     # 1) A table under ₪2000.
     response = client.get('/items', query_string={"category": "Bed", "max_price": 2000.0})
     assert response.status_code == http.HTTPStatus.OK
@@ -348,7 +348,7 @@ def test_user_cart_management_and_order_verification(client):
     cart_item2 = {"user_id": 1002, "model_num": items['SF-3003']['model_num'], "quantity": 1}
     response = client.post('/user/add_item_to_cart', json=cart_item2)
 
-    assert response.status_code == http.HTTPStatus.OK   
+    assert response.status_code == http.HTTPStatus.OK
 
     # 3) Two types chairs (filter by category)
     response = client.get('/items', query_string={"category": "Chair"})
@@ -359,11 +359,11 @@ def test_user_cart_management_and_order_verification(client):
     cart_item3 = {"user_id": 1002, "model_num": items['chair-0']['model_num'], "quantity": 1}
     response = client.post('/user/add_item_to_cart', json=cart_item3)
 
-    assert response.status_code == http.HTTPStatus.OK   
+    assert response.status_code == http.HTTPStatus.OK
 
     cart_item4 = {"user_id": 1002, "model_num": items['chair-1']['model_num'], "quantity": 2}
     response = client.post('/user/add_item_to_cart', json=cart_item4)
-    assert response.status_code == http.HTTPStatus.OK   
+    assert response.status_code == http.HTTPStatus.OK
 
     # The user decides to remove one chair from the cart.
     update_info = dict(model_num="chair-1", user_id=1002, quantity=1)
@@ -378,7 +378,6 @@ def test_user_cart_management_and_order_verification(client):
         assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     created_order_num = data['order_id']
-
 
     # The user retrieves all of his order statuses using the USER ID.
     response = client.get('/user/orders/1002')
@@ -448,7 +447,6 @@ def test_admin_updates_order_status(client):
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
-
     # The user retrieves the order status using the order ID and sees that it is marked as "SHIPPED".
     response = client.get('/user/orders/1002', query_string={"order_num": 1})
     assert response.status_code == http.HTTPStatus.OK
@@ -481,26 +479,23 @@ def test_admin_update_discount(client):
     assert response.status_code == http.HTTPStatus.OK
 
     # STEP 2: Admin updates the discount on an existing product (Chair-1)
-    update_discount_payload = {
-        "model_num": "chair-1",
-        "new_discount": 15.0  # 15% discount
-    }
-    response = client.put('/admin/update_discount', json=update_discount_payload)
+    update_discount_payload = {"model_num": "chair-1", "discount": 15.0}  # 15% discount
+    response = client.post('/admin/update_discount', json=update_discount_payload)
     assert response.status_code == http.HTTPStatus.OK
 
     # STEP 3: Fetch the updated product details as an admin
-    response = client.get('/products', query_string={"model_num": "chair-1"})
+    response = client.get('/items', query_string={"model_num": "chair-1"})
     assert response.status_code == http.HTTPStatus.OK
 
     data = response.get_json()
-    assert "products" in data
-    product = data["products"]["chair-1"]
+    assert "items" in data
+    product = data["items"]["chair-1"]
 
     # STEP 4: Validate the discount was updated correctly
     assert product["model_num"] == "chair-1"
     assert product["discount"] == 15.0  # Ensuring the discount was applied
     assert product["price"] == 200.0  # Original price
-    expected_discounted_price = product["price"] * (1 - 15.0 / 100)
+    expected_discounted_price = product["price"] * (1.18) * (1 - 15.0 / 100)
     assert product["final_price"] == expected_discounted_price  # Ensure final price reflects discount
 
     # STEP 5: Regular user logs in
@@ -509,12 +504,12 @@ def test_admin_update_discount(client):
     assert response.status_code == http.HTTPStatus.OK
 
     # STEP 6: Regular user fetches the product details
-    response = client.get('/products', query_string={"model_num": "chair-1"})
+    response = client.get('/items', query_string={"model_num": "chair-1"})
     assert response.status_code == http.HTTPStatus.OK
 
     user_data = response.get_json()
-    assert "products" in user_data
-    user_product = user_data["products"]["chair-1"]
+    assert "items" in user_data
+    user_product = user_data["items"]["chair-1"]
 
     # STEP 7: Validate the regular user sees the updated discount and price
     assert user_product["model_num"] == "chair-1"
