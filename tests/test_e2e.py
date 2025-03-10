@@ -3,11 +3,11 @@ import pytest
 import app
 import http
 import schema
+from freezegun import freeze_time
 from unittest.mock import patch
 from werkzeug.security import generate_password_hash
 from source.models.OrderStatus import OrderStatus
 from source.controller.payment_gateway import PaymentMethod, MockPaymentGateway
-from freezegun import freeze_time
 
 
 @pytest.fixture
@@ -538,8 +538,3 @@ def test_admin_update_discount(client):
     assert user_product["discount"] == 15.0  # User should see the new discount
     assert user_product["price"] == 200.0  # Original price remains the same
     assert user_product["final_price"] == expected_discounted_price  # Ensure user sees the correct final price
-        "user_name": "JaneSmith",
-        "phone_number": "555-1234",
-        "user_full_name": "Jane Smith",
-        "creation_time": 'Tue, 05 Mar 2024 12:30:00 GMT',
-    }

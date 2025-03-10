@@ -1,11 +1,9 @@
-from flask import session
 import flask
 import os
-from werkzeug.security import check_password_hash
+from flask import session
 from collections import defaultdict
-
-# from platformdirs import user_runtime_dir
 from http import HTTPStatus
+from werkzeug.security import check_password_hash
 import schema
 import source.controller.furniture_inventory as furniture_inventory
 import source.controller.user as user

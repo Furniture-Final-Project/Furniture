@@ -6,8 +6,6 @@ import schema
 from unittest.mock import patch
 from werkzeug.security import check_password_hash, generate_password_hash
 from source.models.OrderStatus import OrderStatus
-
-# import source.controller.user as user
 from source.controller.payment_gateway import PaymentMethod
 
 
