@@ -187,13 +187,13 @@ def preprepared_data(application):
 )
 def test_checkout_process(client, attribute, expected_output):
     """
-        Tests the checkout process integration with a mock payment gateway.
+    Tests the checkout process integration with a mock payment gateway.
 
-        Steps:
-        - Mocks the payment gateway to always return a successful charge.
-        - Initiates the checkout process for a user.
-        - Verifies that the specified attribute in the checkout service matches the expected output.
-        """
+    Steps:
+    - Mocks the payment gateway to always return a successful charge.
+    - Initiates the checkout process for a user.
+    - Verifies that the specified attribute in the checkout service matches the expected output.
+    """
     with patch.object(MockPaymentGateway, 'charge', return_value=True):
         checkout1 = checkout.CheckoutService(payment_strategy=CreditCardPayment())
         user_id = 1002
@@ -292,7 +292,7 @@ def test_order_creation(client):
 
 
 def test_empty_cart_after_checkout(client):
-     """
+    """
     Tests that the user's cart is emptied after a successful checkout.
 
     Steps:
