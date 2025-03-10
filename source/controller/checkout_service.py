@@ -60,7 +60,7 @@ class CheckoutService:
     def __init__(self, payment_strategy: str) -> None:
         """
         Initializes the checkout service with necessary managers.
-        :param payment_strategy: Strategy for handling payment processing.
+        param payment_strategy: Strategy for handling payment processing.
         """
         self.cart_control = cart_controller  # Manages the user's cart operations.
         self.inventory_control = furniture_inventory_controller  # Handles inventory stock checks.
@@ -76,9 +76,9 @@ class CheckoutService:
         """
         Executes the checkout process.
 
-        :param user_id: The ID of the user making the purchase.
-        :param address: The shipping address for the order.
-        :return: A dictionary containing the status and order details.
+        param user_id: The ID of the user making the purchase.
+        param address: The shipping address for the order.
+        return: A dictionary containing the status and order details.
         """
         try:
             self.validate_address(address)
@@ -119,7 +119,18 @@ class CheckoutService:
             raise e
 
     def validate_cart(self, user_id: int) -> None:
-        """Validates that the cart contains items and they are in stock."""
+        """
+    Validates that the user's cart contains items and that they are in stock.
+
+    Checks if the cart is empty and raises an error if so.
+    Ensures each item's requested quantity does not exceed available stock.
+
+    Args:
+        user_id (int): The ID of the user.
+
+    Raises:
+        HTTPException: If the cart is empty or if stock is insufficient for any item.
+    """
         print("testing the cart", self.cart)  # debug
         if not self.cart or self.cart == {}:
             flask.abort(http.HTTPStatus.NOT_FOUND, f"Cart for user {user_id} is empty!")
@@ -130,20 +141,48 @@ class CheckoutService:
                 flask.abort(http.HTTPStatus.CONFLICT, f"Not enough stock available, stock quantity is {item_details[model_num]['stock_quantity']}")
 
     def validate_address(self, address: str) -> None:
-        """Ensures the provided shipping address is valid."""
+        """
+    Validates the provided shipping address.
+
+    Ensures the address is not empty and meets the minimum length requirement.
+
+    Args:
+        address (str): The shipping address.
+
+    Raises:
+        HTTPException: If the address is missing or too short.
+    """
         if not address or len(address.strip()) < 5:
             flask.abort(http.HTTPStatus.LENGTH_REQUIRED, "Invalid address. Please provide a valid shipping address.")
 
     def process_payment(self, user_id: int, amount: float) -> None:
-        """Processes the payment via the selected strategy."""
+        """
+    Processes the payment using the selected strategy.
+
+    Args:
+        user_id (int): The ID of the user making the payment.
+        amount (float): The total amount to be charged.
+
+    Raises:
+        HTTPException: If the payment is declined.
+    """
         if not self.payment_strategy.process_payment(user_id, amount):
             flask.abort(http.HTTPStatus.PAYMENT_REQUIRED, "Payment was declined. Please try another payment method.")
 
     def create_order(self, user_id: int, address: str) -> int:
-        """Creates an order and returns the order ID.
-        :param user_id: the id
-        :param address: user's shipping address
         """
+    Creates an order for the user and returns the order ID.
+
+    Args:
+        user_id (int): The ID of the user placing the order.
+        address (str): The shipping address for the order.
+
+    Returns:
+        int: The generated order ID.
+
+    Raises:
+        HTTPException: If order creation fails.
+    """
         s = schema.session()
         data_for_order = {
             'user_id': user_id,
@@ -162,12 +201,23 @@ class CheckoutService:
         return order_id
 
     def update_inventory(self, cart: Any) -> None:
-        """Updates the inventory stock after a successful order."""
+        """
+    Updates inventory stock based on the purchased cart items.
+
+    Args:
+        cart (Any): A dictionary mapping item model numbers to purchased quantities.
+    """
         for key, val in cart.items():
             self.inventory_control.system_update_item_quantity(key, -val)
 
     def delete_item_from_cart(self, item: str, user_id: int) -> None:
-        """Deletes an item from the user cart."""
+        """
+    Removes a specific item from the user's cart.
+
+    Args:
+        item (str): The model number of the item to remove.
+        user_id (int): The ID of the user.
+    """
         s = schema.session()
         item_data = {'user_id': user_id, 'model_num': item}
         self.cart_control.delete_cart_item(s, item_data)

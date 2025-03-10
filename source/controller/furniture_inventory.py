@@ -1,7 +1,5 @@
 import http
-
-# from requests import session
-
+from requests import session
 import schema
 import flask
 from sqlalchemy.orm import Session
@@ -40,6 +38,13 @@ def add_item(session: Session, item_data: dict):
 
 
 def update_item_quantity(session: Session, data):
+    """
+        Updates the stock quantity of a furniture item.
+
+        Args:
+            session (Session): The database session.
+            data (dict): A dictionary containing 'model_num' and the new 'stock_quantity'.
+        """
     item = session.get(schema.Furniture, data["model_num"])
     if item:
         item.stock_quantity = data["stock_quantity"]
@@ -47,15 +52,29 @@ def update_item_quantity(session: Session, data):
 
 
 def system_update_item_quantity(model_num: str, quantity_to_add: int):
+    """
+        Adjusts the stock quantity of a furniture item.
+
+        Args:
+            model_num (str): The model number of the item.
+            quantity_to_add (int): The amount to add (or subtract if negative).
+        """
     s = schema.session()
     item = s.get(schema.Furniture, model_num)
     if item:
         item.stock_quantity += quantity_to_add
     s.commit()
-    # TODO: add tests
+
 
 
 def delete_item(session: Session, model_num: str):
+    """
+        Removes a furniture item from the inventory.
+
+        Args:
+            session (Session): The database session.
+            model_num (str): The model number of the item to delete.
+        """
     item = session.get(schema.Furniture, model_num)
     if item:
         session.delete(item)

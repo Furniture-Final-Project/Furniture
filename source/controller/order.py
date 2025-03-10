@@ -8,10 +8,23 @@ from source.controller.furniture_inventory import system_update_item_quantity
 
 def add_order(session: Session, item_data: dict):
     """
-    Adds a new order to orders.
-    :param session: SQLAlchemy session object.
-    :param item_data: Dictionary containing user id, items dict, user email, username, shipping address, total price .
-    :return: order_id
+    Adds a new order to the database.
+
+    Args:
+        session (Session): The database session.
+        item_data (dict): A dictionary containing:
+            - user_id (int): ID of the user placing the order.
+            - items (dict): Dictionary of items in the order.
+            - user_email (str): User's email address.
+            - user_name (str): User's name.
+            - shipping_address (str): Shipping address for the order.
+            - total_price (float): Total cost of the order.
+
+    Returns:
+        int: The generated order number.
+
+    Raises:
+        HTTPException: If the order validation fails.
     """
     order = schema.Order.new(
         user_id=item_data['user_id'],
@@ -35,9 +48,19 @@ def add_order(session: Session, item_data: dict):
 
 def update_order_status(session: Session, item_data: dict):
     """
-    Update the status of the order.
-    :param new_status: New status to set for the order.
-    :raises ValueError: If new_status is not a valid OrderStatus.
+    Updates the status of an existing order.
+
+    Args:
+        session (Session): The database session.
+        item_data (dict): A dictionary containing:
+            - order_num (int): The order number.
+            - status (str): The new order status.
+
+    Returns:
+        tuple: Empty string and HTTP status code (OK or NOT_FOUND).
+
+    Raises:
+        ValueError: If the provided status is invalid.
     """
     new_status_str = item_data['status']
     if new_status_str not in {status.value for status in OrderStatus}:
@@ -55,4 +78,4 @@ def update_order_status(session: Session, item_data: dict):
         for key, value in order.items:
             system_update_item_quantity(model_num=key, quantity_to_add=value)
 
-    return '' , HTTPStatus.OK
+    return '', HTTPStatus.OK

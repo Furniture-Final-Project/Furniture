@@ -10,11 +10,15 @@ from werkzeug.security import generate_password_hash
 
 def add_new_user(session: Session, user_data: dict):
     """
-    Adds a new user to the database, including duplicate checks and password security.
+    Adds a new user to the database with validation and password security.
 
-    :param session: SQLAlchemy Session object
-    :param user_data: Dictionary containing user details
-    :return: Dictionary indicating success or failure
+    Args:
+        session (Session): The database session.
+        user_data (dict): A dictionary containing user details.
+
+    Raises:
+        HTTPException: If a user with the same ID or email already exists.
+        IntegrityError: If a database integrity issue occurs.
     """
     try:
         # Check if a user with the same user_id or email already exists
@@ -45,21 +49,35 @@ def add_new_user(session: Session, user_data: dict):
         session.rollback()
 
 
-def update_info_user_full_name(session: Session, user_data: dict):
+def update_info_user_full_name(session: Session, user_data: dict) -> None:
+    """
+        Updates the full name of a user in the database.
+
+        Args:
+            session (Session): The database session.
+            user_data (dict): A dictionary containing 'user_id' and the new 'user_full_name'.
+        """
     user = session.get(schema.User, user_data["user_id"])
     if user:
         user.user_full_name = user_data["user_full_name"]
         session.commit()
 
 
-def update_info_user_phone_num(session: Session, user_data: dict):
+def update_info_user_phone_num(session: Session, user_data: dict) -> None:
+    """
+        Updates the phone number of a user in the database.
+
+        Args:
+            session (Session): The database session.
+            user_data (dict): A dictionary containing 'user_id' and the new 'user_phone_num'.
+        """
     user = session.get(schema.User, user_data["user_id"])
     if user:
         user.user_phone_num = user_data["user_phone_num"]
         session.commit()
 
 
-def update_info_address(session: Session, user_data: dict):
+def update_info_address(session: Session, user_data: dict) -> None:
     user = session.get(schema.User, user_data["user_id"])
     if user:
         user.address = user_data["address"]
@@ -67,20 +85,42 @@ def update_info_address(session: Session, user_data: dict):
 
 
 def update_info_user_name(session: Session, user_data: dict):
+    """
+        Updates the address of a user in the database.
+
+        Args:
+            session (Session): The database session.
+            user_data (dict): A dictionary containing 'user_id' and the new 'address'.
+        """
     user = session.get(schema.User, user_data["user_id"])
     if user:
         user.user_name = user_data["user_name"]
         session.commit()
 
 
-def update_info_email(session: Session, user_data: dict):
+def update_info_email(session: Session, user_data: dict) -> None:
+    """
+        Updates the email address of a user in the database.
+
+        Args:
+            session (Session): The database session.
+            user_data (dict): A dictionary containing 'user_id' and the new 'email'.
+        """
     user = session.get(schema.User, user_data["user_id"])
     if user:
         user.email = user_data["email"]
         session.commit()
 
 
-def update_info_password(session: Session, user_data: dict):
+def update_info_password(session: Session, user_data: dict) -> None:
+    """
+        Updates the user's password in the database after hashing it.
+
+        Args:
+            session (Session): The database session.
+            user_data (dict): A dictionary containing 'user_id' and the new 'password'.
+        """
+
     user = session.get(schema.User, user_data["user_id"])
     if user:
         # Hash the new password before storing it
@@ -88,7 +128,16 @@ def update_info_password(session: Session, user_data: dict):
         session.commit()
 
 
-def get_user_details(user_id):
+def get_user_details(user_id: int) -> dict | None:
+    """
+        Retrieves user details from the database, excluding the password.
+
+        Args:
+            user_id (int): The ID of the user.
+
+        Returns:
+            dict | None: A dictionary containing user details, or None if the user is not found.
+        """
     s = schema.session()
     query = s.query(schema.User)
     query = query.filter_by(user_id=user_id)
