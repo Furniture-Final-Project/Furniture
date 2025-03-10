@@ -1682,7 +1682,15 @@ def test_update_cart_item_quantity(client):
 
 
 def test_update_quantity_with_item_not_in_cart(client):
-    """Test that updating a cart item is not possible if the item not in user's cart"""
+    """
+    Tests that updating a cart item fails if the item is not in the user's cart.
+
+    Steps:
+    - Logs in as a valid user.
+    - Sends a POST request to update the quantity of an item not in the user's cart.
+    - Verifies the response status is 404 NOT FOUND, indicating the item does not exist in the cart.
+    """
+
     update_info = dict(model_num="chair-0", user_id=1004, quantity=1)
 
     # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
@@ -1696,9 +1704,15 @@ def test_update_quantity_with_item_not_in_cart(client):
 
 def test_update_quantity_with_not_enough_units_in_stock(client):
     """
-    Test that updating a cart item is not possible if the item not in stock or do not have enough units in stock.
-    Expecting an error response.
+    Tests that updating a cart item fails if there are not enough units in stock.
+
+    Steps:
+    - Logs in as a valid user.
+    - Sends a POST request to update the quantity of an item in the cart.
+    - Mocks stock availability to be lower than the requested quantity.
+    - Verifies the response status is 409 CONFLICT, indicating insufficient stock.
     """
+
     # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1712,7 +1726,17 @@ def test_update_quantity_with_not_enough_units_in_stock(client):
 
 
 def test_delete_cart_item(client):
-    """Test deleting a cart item from CartItem table"""
+    """
+    Tests deleting an item from a user's cart.
+
+    Steps:
+    - Logs in as a valid user.
+    - Verifies the item exists in the cart before deletion.
+    - Sends a POST request to delete the cart item.
+    - Verifies the response status is 200 OK.
+    - Sends a GET request to confirm the item was successfully removed from the cart.
+    """
+
     # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1738,7 +1762,17 @@ def test_delete_cart_item(client):
 
 
 def test_updating_cart_item_quantity_to_0(client):
-    """Test updating a cart item quantity to 0 will delete it from the table"""
+    """
+    Tests that updating a cart item's quantity to 0 removes it from the cart.
+
+    Steps:
+    - Logs in as a valid user.
+    - Verifies the item exists in the cart before the update.
+    - Sends a POST request to update the cart item quantity to 0.
+    - Verifies the response status is 200 OK.
+    - Sends a GET request to confirm the item was successfully removed from the cart.
+    """
+
     # Log in first to ensure the @login_required endpoint (/cart and /user/add_item_to_cart) can be accessed
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1816,6 +1850,16 @@ def test_order_view_all_orders(client):
 
 
 def test_get_order_by_user_id_for_admin(client):
+    """
+        Tests retrieving a user's order details as an admin.
+
+        Steps:
+        - Logs in as an admin user.
+        - Sends a GET request to retrieve orders for a specific user.
+        - Verifies the response status is 200 OK.
+        - Ensures the returned order details match the expected data.
+        """
+
     # Authenticate as an admin to access detailed user data for verification.
     login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
     response = client.post('/login', json=login_info)
@@ -1843,6 +1887,15 @@ def test_get_order_by_user_id_for_admin(client):
 
 
 def test_user_view_my_orders(client):
+    """
+        Tests that a user can view their own orders.
+
+        Steps:
+        - Logs in as a valid user.
+        - Sends a GET request to retrieve the user's order history.
+        - Verifies the response status is 200 OK.
+        - Ensures the returned order details match the expected data.
+        """
     # Authenticate as an admin to access detailed user data for verification.
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1870,7 +1923,15 @@ def test_user_view_my_orders(client):
 
 
 def test_view_user_order_no_user_id(client):
-    """Tests that the API call for user/orders will raise server error if no user id procided."""
+    """
+    Tests that accessing the /user/orders endpoint without a user ID results in a server error.
+
+    Steps:
+    - Logs in as a valid user.
+    - Sends a GET request to retrieve orders without providing a user ID.
+    - Verifies the response status is 404 NOT FOUND.
+    """
+
     # Authenticate as an admin to access detailed user data for verification.
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1881,7 +1942,15 @@ def test_view_user_order_no_user_id(client):
 
 
 def test_user_view_all_orders_block(client):
-    """Tests that a user can't see an order that isn't his."""
+    """
+    Tests that a regular user cannot access all orders (admin-only access).
+
+    Steps:
+    - Logs in as a regular user.
+    - Sends a GET request to the admin orders endpoint.
+    - Verifies the response status is 403 FORBIDDEN, indicating restricted access.
+    """
+
     # Authenticate as an admin to access detailed user data for verification.
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1892,6 +1961,16 @@ def test_user_view_all_orders_block(client):
 
 
 def test_get_order_by_order_num_for_admin(client):
+    """
+        Tests retrieving an order by order number as an admin.
+
+        Steps:
+        - Logs in as an admin user.
+        - Sends a GET request to retrieve a specific order by order number.
+        - Verifies the response status is 200 OK.
+        - Ensures the returned order details match the expected data.
+        """
+
     # Authenticate as an admin to access detailed user data for verification.
     login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
     response = client.post('/login', json=login_info)
@@ -1920,6 +1999,16 @@ def test_get_order_by_order_num_for_admin(client):
 
 
 def test_user_view_specific_order(client):
+    """
+        Tests that a user can view a specific order by order number.
+
+        Steps:
+        - Logs in as a valid user.
+        - Sends a GET request to retrieve a specific order by order number.
+        - Verifies the response status is 200 OK.
+        - Ensures the returned order details match the expected data.
+        """
+
     # Authenticate as an admin to access detailed user data for verification.
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1997,7 +2086,14 @@ def test_user_view_specific_order(client):
 
 # ===============checkout============================================
 def test_check_out_process(client):
-    """Tests the API call for checkout start the checkout service"""
+     """
+    Tests the checkout process initiation via the API.
+
+    Steps:
+    - Sends a POST request to start the checkout process with user ID, address, and payment method.
+    - Verifies the response status is 200 OK, indicating the checkout process started successfully.
+    """
+
     user_id = 1002  # User not exists
     address = "Even Gabirol 3, Tel Aviv"
 
@@ -2006,7 +2102,14 @@ def test_check_out_process(client):
 
 
 def test_checkout_user_not_exists(client):
-    """test retrieving a cart with no items will raise error"""
+    """
+    Tests that checkout fails for a non-existent user.
+
+    Steps:
+    - Sends a POST request to initiate checkout with a non-existent user ID.
+    - Verifies the response status is 404 NOT FOUND, indicating the user does not exist.
+    """
+
     user_id = 1007  # User not exists
     address = "Even Gabirol 3, Tel Aviv"
 
@@ -2015,7 +2118,14 @@ def test_checkout_user_not_exists(client):
 
 
 def test_checkout_empty_cart(client):
-    """test retrieving a cart with no items will raise error"""
+    """
+    Tests that checkout fails when the user's cart is empty.
+
+    Steps:
+    - Sends a POST request to initiate checkout for a user with an empty cart.
+    - Verifies the response status is 404 NOT FOUND, indicating no items in the cart.
+    """
+
     user_id = 1005  # User exists but has no items in cart
     address = "Even Gabirol 3, Tel Aviv"
 
