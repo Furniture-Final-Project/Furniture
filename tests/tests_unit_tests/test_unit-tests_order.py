@@ -11,11 +11,10 @@ from source.models.OrderStatus import OrderStatus
 @pytest.fixture(autouse=True)
 def bypass_admin_required(monkeypatch):
     """
-    Automatically bypass the admin_required decorator for testing.
+    Bypasses the `admin_required` decorator for testing.
 
-    This fixture defines a dummy decorator that simply calls the original function,
-    effectively bypassing admin authentication. It then patches the app's admin_required
-    decorator with this dummy version before any routes are created.
+    This fixture replaces the `admin_required` decorator with a dummy function
+    that simply calls the original function without performing any authentication checks.
     """
 
     def dummy_decorator(fn):
@@ -34,10 +33,10 @@ def bypass_admin_required(monkeypatch):
 @pytest.fixture(autouse=True)
 def bypass_login_required(monkeypatch):
     """
-    Automatically bypass the login_required decorator for testing.
+    Bypasses the `login_required` decorator for testing.
 
-    Similar to bypass_admin_required, this fixture defines a dummy decorator
-    that ignores the login check and directly calls the decorated function.
+    This fixture replaces the `login_required` decorator with a dummy function
+    that allows access to all protected routes during testing.
     """
 
     def dummy_decorator(fn):
@@ -54,6 +53,12 @@ def bypass_login_required(monkeypatch):
 
 @pytest.fixture
 def application():
+    """
+        Creates a test application instance with an in-memory database.
+
+        This fixture sets up a test environment using an SQLite in-memory database
+        to ensure tests are performed in isolation.
+        """
     import app
 
     application = app.create_app({'database_url': f'sqlite:///:memory:'})  # Use in-memory DB for testing
@@ -62,12 +67,23 @@ def application():
 
 @pytest.fixture
 def client(application):
+    """
+        Provides a test client for sending requests to the application.
+
+        This fixture allows API requests to be made without starting a live server.
+        """
     with application.test_client() as client:
         yield client
 
 
 @pytest.fixture
 def test_db(application):
+    """
+        Provides a test database session.
+
+        This fixture ensures that each test uses a fresh database session
+        and properly cleans up afterward.
+        """
     import schema
 
     # Use the application's database session or create a new one
@@ -78,6 +94,12 @@ def test_db(application):
 
 @pytest.fixture(autouse=True)
 def preprepared_data(application):
+    """
+        Populates the database with predefined test data.
+
+        This fixture preloads the database with sample orders and user information
+        to facilitate testing.
+        """
     session = schema.session()
     order1 = schema.Order(
         order_num=1,
@@ -107,6 +129,14 @@ def preprepared_data(application):
 
 
 def test_create_order_object(test_db):
+    """
+        Tests the creation of an order object and verifies it is correctly stored in the database.
+
+        Steps:
+        - Mocks required functions for retrieving user and cart details.
+        - Calls `add_order()` with valid order data.
+        - Retrieves the created order from the database and verifies its details.
+        """
     # Sample valid order data
     order_data = {
         "user_id": 1,
@@ -138,8 +168,12 @@ def test_create_order_object(test_db):
 # TODO: FIX
 # def test_add_order_invalid(client):
 #     """
-#     Test Invalid order can not be created in the table.
-#     The order is invalid since the dict is empty.
+#     Tests that an invalid order (empty items dictionary) cannot be added.
+
+#     Steps:
+#     - Sends a POST request with an empty order.
+#     - Verifies that the server responds with a `405` error.
+#     - Ensures that the order was not added to the database.
 #     """
 #     order_data = {
 #         "user_id": 2,
@@ -160,8 +194,14 @@ def test_create_order_object(test_db):
 #     added_order = session.query(schema.Order).filter_by(user_id=2).first()
 #     assert added_order is None
 
-
 def test_add_order_to_table():
+    """
+        Tests adding a valid order to the database.
+
+        Steps:
+        - Mocks the database session and order creation process.
+        - Calls `add_order()` and verifies that it was successfully stored.
+        """
     # Mock session
     mock_session = MagicMock(spec=Session)
 
@@ -188,6 +228,15 @@ def test_add_order_to_table():
 
 
 def test_add_order_invalid_items(client):
+    """
+        Tests that an order with missing or invalid items cannot be added.
+
+        Steps:
+        - Mocks order validation failure.
+        - Attempts to add an invalid order and expects an exception.
+        - Ensures that the database session was not modified.
+        """
+
     # Mock session
     mock_session = MagicMock(spec=Session)
 
@@ -215,7 +264,14 @@ def test_add_order_invalid_items(client):
 
 
 def test_add_order_negative_price(client):
-    """Test order with a negative price."""
+    """
+    Tests that an order with a negative price cannot be created.
+
+    Steps:
+    - Attempts to add an order with a negative total price.
+    - Verifies that the function raises an exception.
+    """
+
     order_data = {
         "user_id": 4,
         "items": {"desk-1": 2},
@@ -240,8 +296,10 @@ def test_add_order_negative_price(client):
 )
 def test_valid_method_cartitem(user_exists, item_exists, expected):
     """
-    Test the valid() function of CartItem.
-    It should return True only if both the user and item exist.
+    Tests the `valid()` function of CartItem.
+
+    This function verifies that the `valid()` method returns `True` only when both the user
+    and the cart item exist.
     """
     cart_item = schema.CartItem(user_id=9999, model_num="chair-10", quantity=1)
 

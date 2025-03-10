@@ -186,6 +186,14 @@ def preprepared_data(application):
     ],
 )
 def test_checkout_process(client, attribute, expected_output):
+    """
+        Tests the checkout process integration with a mock payment gateway.
+
+        Steps:
+        - Mocks the payment gateway to always return a successful charge.
+        - Initiates the checkout process for a user.
+        - Verifies that the specified attribute in the checkout service matches the expected output.
+        """
     with patch.object(MockPaymentGateway, 'charge', return_value=True):
         checkout1 = checkout.CheckoutService(payment_strategy=CreditCardPayment())
         user_id = 1002
@@ -196,7 +204,16 @@ def test_checkout_process(client, attribute, expected_output):
 
 
 def test_quantity_update(client):
-    """Test that the quantity in inventory is updated"""
+    """
+    Tests that the inventory quantity is updated after checkout.
+
+    Steps:
+    - Retrieves the current stock levels of items in the user's cart.
+    - Mocks the payment gateway to always return a successful charge.
+    - Initiates the checkout process.
+    - Verifies that the stock quantity for each item is reduced correctly.
+    """
+
     user_id = 1004
     address = "Even Gabirol 5, Tel Aviv"
 
@@ -221,7 +238,13 @@ def test_quantity_update(client):
 
 # TODO: move to tests app - after fixing order
 def test_checkout_validate_cart_out_of_stock(client):
-    """Test that validate_cart raises an HTTP 409 error when an item is out of stock."""
+    """
+    Tests that the checkout process fails if an item in the cart is out of stock.
+
+    Steps:
+    - Sends a POST request to initiate checkout for a user.
+    - Verifies the response status is 409 CONFLICT, indicating an item is out of stock.
+    """
     user_id = 1003  # User not exists
     address = "Even Gabirol 3, Tel Aviv"
 
@@ -230,7 +253,17 @@ def test_checkout_validate_cart_out_of_stock(client):
 
 
 def test_order_creation(client):
-    """Test that checkout process creates a valid order in order table"""
+    """
+    Tests that the checkout process successfully creates a valid order.
+
+    Steps:
+    - Mocks the payment gateway to always return a successful charge.
+    - Initiates the checkout process.
+    - Verifies the response status is 200 OK and retrieves the created order ID.
+    - Logs in as an admin to access order details.
+    - Sends a GET request to verify the order exists with the correct user ID, shipping address, items, and total price.
+    """
+
     user_id = 1004
     address = "Even Gabirol 3, Tel Aviv"
 
@@ -259,7 +292,16 @@ def test_order_creation(client):
 
 
 def test_empty_cart_after_checkout(client):
-    """Test that checkout process creates a valid order in order table"""
+     """
+    Tests that the user's cart is emptied after a successful checkout.
+
+    Steps:
+    - Logs in as a valid user.
+    - Mocks the payment gateway to always return a successful charge.
+    - Initiates the checkout process.
+    - Sends a GET request to verify the user's cart is now empty.
+    """
+
     login_info = {"user_name": "EmilyDavis", "password": "davisEmily!"}
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK

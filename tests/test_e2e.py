@@ -193,8 +193,17 @@ def preprepared_data(application):
 @freeze_time("2024-03-03 12:30:00")
 def test_scenario1(client):
     """
-    New User Registration and Purchase Flow
+    End-to-End Test: New User Registration and Purchase Flow.
+
+    Steps:
+    - Registers a new user.
+    - Logs into the newly created account.
+    - Adds an item to the shopping cart.
+    - Proceeds to checkout with a credit card payment.
+    - Verifies that the order is created successfully.
+    - Retrieves the order status and confirms it is marked as "Pending".
     """
+
     # STEP 1- The user accesses the website and locates the registration option.
     user_info = {
         "user_id": 1006,
@@ -256,11 +265,16 @@ def test_scenario1(client):
 
 def test_scenario2(client):
     """
-    Guest Browsing and Login Requirement for Checkout
+    End-to-End Test: Guest Browsing and Login Requirement for Checkout.
+
+    Steps:
+    - Attempts to add an item to the cart without logging in (expected failure).
+    - Logs in as Jane Smith and successfully adds an item to the cart.
+    - Logs in as Michael Brown, adds the same item, and successfully completes checkout.
+    - Verifies that Jane Smith cannot complete checkout due to the item being out of stock.
+    - Removes the out-of-stock item from Jane Smith's cart.
+    - Completes checkout successfully with the remaining items.
     """
-    # The guest user (Jane Smith) accesses the website without logging in.
-    # Jane Smith browses product categories and selects an item to add to the cart.
-    # The system detects that the user is not logged in and displays a prompt requiring login or registration.
 
     # 1) Attempt to add item to cart without logging in
     cart_item1 = {"user_id": 1002, "model_num": "BS-4004", "quantity": 1}
@@ -324,15 +338,23 @@ def test_scenario2(client):
 @freeze_time("2024-03-05 12:30:00")
 def test_scenario3(client):
     """
-    Advanced Product Search and Cart Management
+    End-to-End Test: Advanced Product Search and Cart Management.
+
+    Steps:
+    - Logs in as a valid user.
+    - Searches for products based on different filters (price, category, model name).
+    - Adds selected items to the shopping cart.
+    - Updates cart by removing one chair.
+    - Proceeds to checkout and verifies correct items and prices.
+    - Retrieves order history and confirms all placed orders.
     """
+
     # The user logs into their account.
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
     
     # The user searches for:
-    
     # 1) A table under ₪2000.
     response = client.get('/items', query_string={"category": "Bed", "max_price": 2000.0})
     assert response.status_code == http.HTTPStatus.OK

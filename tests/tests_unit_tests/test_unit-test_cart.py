@@ -145,7 +145,13 @@ def preprepared_data(application):
 
 
 def test_update_quantity_with_item_not_in_cart(client):
-    """Test that updating a cart item is not possible if the item not in user's cart"""
+    """
+    Tests that updating a cart item fails if the item is not in the user's cart.
+
+    Steps:
+    - Sends a POST request to update the quantity of an item that is not in the cart.
+    - Verifies that the response status is 404 NOT FOUND.
+    """
     update_info = dict(model_num="chair-0", user_id=1004, quantity=1)
 
     response = client.post('/user/update_cart_item_quantity', json=update_info)
@@ -155,16 +161,20 @@ def test_update_quantity_with_item_not_in_cart(client):
 @pytest.mark.parametrize(
     "user_exists, item_exists, expected",
     [
-        (True, True, True),  # True
-        (False, True, False),  # False
-        (True, False, False),  # False
-        (False, False, False),  # False
+        (True, True, True),  # Both user and item exist, expecting success.
+        (False, True, False),  # User does not exist, expecting failure.
+        (True, False, False),  # Item does not exist, expecting failure.
+        (False, False, False),  # Neither user nor item exist, expecting failure.
     ],
 )
 def test_valid_method_cartitem(user_exists, item_exists, expected):
     """
-    Test the valid() function of CartItem.
-    It should return True only if both the user and item exist.
+    Tests the valid() function of CartItem.
+
+    Steps:
+    - Mocks the user existence check.
+    - Mocks the item existence check.
+    - Verifies that valid() returns True only when both user and item exist.
     """
     cart_item = schema.CartItem(user_id=9999, model_num="chair-10", quantity=1)
 
@@ -178,8 +188,14 @@ def test_valid_method_cartitem(user_exists, item_exists, expected):
 
 def test_update_cart_item_quantity(client):
     """
-    Test updating a cart item quantity and that the price updates.
+    Tests updating a cart item quantity and verifies that the price updates accordingly.
+
+    Steps:
+    - Sends a POST request to update the quantity of an existing cart item.
+    - Mocks the stock availability check.
+    - Sends a GET request to verify that the updated quantity and price are reflected correctly.
     """
+
     update_info = dict(model_num="chair-0", user_id=1002, quantity=4)
 
     with patch("source.controller.cart.get_cart_item_full_details", return_value={update_info["model_num"]: {"stock_quantity": 5}}):
@@ -200,7 +216,15 @@ def test_update_cart_item_quantity(client):
 
 
 def test_updating_cart_item_quantity_to_0(client):
-    """Test updating a cart item quantity to 0 will delete it from the table"""
+    """
+    Tests that updating a cart item quantity to zero removes it from the cart.
+
+    Steps:
+    - Ensures the item is in the cart before updating.
+    - Sends a POST request to set the quantity to 0.
+    - Sends a GET request to confirm that the item has been deleted.
+    """
+
     # Ensure the cart item in the cart
     response = client.get('/carts', query_string={"user_id": 1002, 'model_num': 'chair-0'})
     assert response.status_code == http.HTTPStatus.OK
@@ -250,14 +274,14 @@ def test_cart_get_all_cart_table(client):
 
 def test_cart_get_cart_by_userid(client):
     """
-    Test retrieving a cart by user id.
+    Tests retrieving a cart for a specific user.
 
-    send a GET request to the '/carts' with 'user_id' as a query parameter.
-    Verifies the response status is 200 OK and that the returned cart match
-    the specified user id.
-    :param client:
-    :return: Cart
+    Steps:
+    - Sends a GET request with a 'user_id' query parameter.
+    - Verifies that the response contains the correct items for the specified user.
+    - Ensures that the total price calculation is accurate.
     """
+
     response = client.get('/carts', query_string={"user_id": 1002})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
@@ -274,8 +298,13 @@ def test_cart_get_cart_by_userid(client):
 
 def test_get_specific_item_in_cart(client):
     """
-    Test retrieving an item by model number and user id.
+    Tests retrieving a specific item in the cart by user ID and model number.
+
+    Steps:
+    - Sends a GET request to retrieve the cart item.
+    - Ensures that the response contains the correct item details.
     """
+
     response = client.get('/carts', query_string={"user_id": 1002, 'model_num': 'chair-0'})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
@@ -286,7 +315,15 @@ def test_get_specific_item_in_cart(client):
 
 
 def test_delete_cart_item(client):
-    """Test deleting a cart item from CartItem table"""
+    """
+    Tests deleting a cart item.
+
+    Steps:
+    - Ensures the item is in the cart before deletion.
+    - Sends a POST request to remove the item.
+    - Sends a GET request to confirm that the item has been successfully deleted.
+    """
+
     # Ensure the cart item in the cart
     response = client.get('/carts', query_string={"user_id": 1002, 'model_num': 'chair-0'})
     assert response.status_code == http.HTTPStatus.OK
