@@ -16,11 +16,14 @@ from source.controller.payment_gateway import get_payment_strategy
 from source.controller.checkout_service import CheckoutService
 
 
-def create_app(config: dict):
+def create_app(config: dict=None):
+    if config is None:
+        config = {}
     app = flask.Flask(__name__)
     app.secret_key = os.urandom(24)
 
-    schema.create(config['database_url'])
+    database_url = config.get('database_url', 'sqlite:///:memory:')
+    schema.create(database_url)
 
     @app.route('/items', methods=['GET'])
     def get_items():
