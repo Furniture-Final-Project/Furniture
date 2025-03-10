@@ -1,5 +1,8 @@
 from flask import session
 import flask
+import os
+from werkzeug.security import check_password_hash
+from collections import defaultdict
 
 # from platformdirs import user_runtime_dir
 from http import HTTPStatus
@@ -9,11 +12,8 @@ import source.controller.user as user
 import source.controller.cart as cart
 import source.controller.order as order
 from decorators import login_required, admin_required
-import os
-from werkzeug.security import check_password_hash
 from source.controller.payment_gateway import get_payment_strategy
 from source.controller.checkout_service import CheckoutService
-from collections import defaultdict
 
 
 def create_app(config: dict):
@@ -77,8 +77,6 @@ def create_app(config: dict):
             items = {result.model_num: result.to_dict() for result in results}
 
         return flask.jsonify({'items': items})
-
-    # TODO - Admin
 
     @app.route('/admin/add_item', methods=['POST'])
     @admin_required
@@ -222,26 +220,36 @@ def create_app(config: dict):
     # ===================login====================
     @app.route('/login', methods=['POST'])
     def login():
+        if not flask.request.is_json:
+            flask.abort(HTTPStatus.BAD_REQUEST)
+
         data = flask.request.get_json()
         if not data:
-            return '', HTTPStatus.BAD_REQUEST
+            flask.abort(HTTPStatus.BAD_REQUEST)
+
+        if not isinstance(data, dict):
+            flask.abort(HTTPStatus.BAD_REQUEST)
 
         username = data.get("user_name")
         password = data.get("password")
+
+        if not isinstance(username, str) or not isinstance(password, str):
+            flask.abort(HTTPStatus.BAD_REQUEST)
+
         if not username or not password:
-            return '', HTTPStatus.BAD_REQUEST
+            flask.abort(HTTPStatus.BAD_REQUEST)
 
         s = schema.session()
         user = s.query(schema.User).filter_by(user_name=username).first()
 
         if not user:
-            return '', HTTPStatus.UNAUTHORIZED
+            flask.abort(HTTPStatus.UNAUTHORIZED)
 
         if check_password_hash(user.password, password):
             session['user_id'] = user.user_id
             return '', HTTPStatus.OK
         else:
-            return '', HTTPStatus.UNAUTHORIZED
+            flask.abort(HTTPStatus.UNAUTHORIZED)
 
     @app.route('/logout', methods=['POST'])
     def logout():
@@ -366,8 +374,15 @@ def create_app(config: dict):
         """
         API endpoint to update the status of an order.
         """
-        data = flask.request.get_json()  # Get JSON payload from the request
-        s = schema.session()  # create a new session for DB operations
+        data = flask.request.get_json()
+
+        if "status" not in data:
+            flask.abort(HTTPStatus.BAD_REQUEST, description="new order status is missing")
+
+        if "order_num" not in data:
+            flask.abort(HTTPStatus.BAD_REQUEST, description="order num  is missing")
+
+        s = schema.session()
         order.update_order_status(s, data)
         return flask.jsonify({})
 

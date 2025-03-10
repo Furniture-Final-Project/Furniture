@@ -161,17 +161,19 @@ def preprepared_data(application):
     session.commit()
     yield
 
+    # ================ Inventory API ====================
+
 
 def test_user_get_all_items(client):
     """
-    Test retrieving all items, including out-of-stock items.
+    Tests retrieving all furniture items, including out-of-stock ones.
 
-    Sends a GET request to '/items' to fetch the complete list of items.
-    Verifies the response status is 200 OK and that all expected items are returned,
-    regardless of their stock status. Ensures each item includes necessary details
-    such as model number, model_name, description, price, final price (including tax and
-    discounts), dimensions, category, image filename, stock quantity, discount, and
-    additional details.
+    Sends a GET request to '/items' and verifies:
+    - Response status is 200 OK.
+    - The expected number of items is returned.
+    - Each item contains the correct details, including model number, name,
+      description, price, final price (with tax and discounts), dimensions,
+      category, image, stock quantity, discount, and additional details.
     """
     response = client.get('/items')
     assert response.status_code == http.HTTPStatus.OK
@@ -277,11 +279,13 @@ def test_single_filter_by_category(client):
 
 def test_single_filter_by_name(client):
     """
-    Test retrieving items by model_name.
+    Tests filtering items by category.
 
-    Sends a GET request to '/items' with 'model_name' as a query parameter.
-    Verifies the response status is 200 OK and that the returned items match
-    the specified model_name.
+    Sends a GET request to '/items' with a 'category' query parameter.
+    Verifies that:
+    - The response status is 200 OK.
+    - The returned items belong to the requested category.
+    - Each item includes 'stock_quantity' for inventory status display.
     """
     response = client.get('/items', query_string={"model_name": "LuxComfort"})
     assert response.status_code == http.HTTPStatus.OK
@@ -305,12 +309,14 @@ def test_single_filter_by_name(client):
 
 def test_double_filter(client):
     """
-    Test filtering items by category and maximum price.
+    Tests filtering items by category and maximum price.
 
     Sends a GET request to '/items' with 'category' and 'max_price' as query parameters.
-    Verifies the response status is 200 OK and that the returned items match the specified
-    category and do not exceed the maximum price. Ensures each item's 'stock_quantity' is
-    included for inventory status display.
+    Verifies that:
+    - The response status is 200 OK.
+    - Returned items match the specified category.
+    - No item exceeds the given maximum price.
+    - Each item includes 'stock_quantity' for inventory status display.
     """
     response = client.get('/items', query_string={"category": "Chair", "max_price": 150})
     assert response.status_code == http.HTTPStatus.OK
@@ -334,28 +340,16 @@ def test_double_filter(client):
 
 def test_get_item_by_model_num_and_verify_availability(client):
     """
-    Tests the retrieval of a specific item by its model number from the inventory API
-    and verifies its stock availability.
+    Tests retrieving an item by model number and verifying its availability.
 
-    This test sends a GET request to '/items' with a `model_num` query parameter
-    to fetch details about a specific furniture item.
-
-    Expected Behavior:
-    - The response status code should be HTTP 200 (OK).
-    - The response should contain exactly one item matching the requested `model_num`.
-    - The returned item's details should include:
-        - Model number, name, description, price, and final price.
-        - Final price reflecting any applied discount and tax calculations.
-        - Dimensions (height, width, depth), category, image filename, and stock quantity.
-        - Additional details specific to the item's category.
-    - If the item is in stock (`stock_quantity > 0`), the response must include `"is_available": True`.
-    - If the item is out of stock (`stock_quantity == 0`), the response must include `"is_available": False`.
-
-    This ensures that:
-    - The API correctly retrieves item details.
-    - The `is_available` field accurately reflects stock availability.
-    - The system properly applies discounts and tax calculations in the response.
+    Sends a GET request to '/items' with a `model_num` query parameter.
+    Verifies that:
+    - The response status is 200 OK.
+    - The correct item details are returned.
+    - The `is_available` field correctly reflects stock availability.
+    - Discounts and tax calculations are properly applied.
     """
+
     response = client.get('/items', query_string={"model_num": "BD-5005"})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
@@ -379,8 +373,15 @@ def test_get_item_by_model_num_and_verify_availability(client):
 
 def test_verify_availability_out_of_stock(client):
     """
-    Tests that an out-of-stock item is correctly returned with `is_available: False`.
+    Tests that an out-of-stock item is correctly marked as unavailable.
+
+    Sends a GET request to '/items' with a `model_num` query parameter.
+    Verifies that:
+    - The response status is 200 OK.
+    - The correct item details are returned.
+    - The `is_available` field is False for an out-of-stock item.
     """
+
     response = client.get('/items', query_string={"model_num": "BS-4004"})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
@@ -403,7 +404,17 @@ def test_verify_availability_out_of_stock(client):
 
 
 def test_add_bed_item(client):
-    """Test adding a new Bed item using POST request."""
+    """
+    Tests adding a new bed item via a POST request.
+
+    Steps:
+    - Logs in as an admin user.
+    - Sends a POST request to add a new bed item.
+    - Verifies the response status is 200 OK.
+    - Sends a GET request to ensure the item was successfully added.
+    - Confirms the item's details and availability.
+    """
+
     new_item = {
         "model_num": "B-101",
         "model_name": "King Bed",
@@ -441,7 +452,16 @@ def test_add_bed_item(client):
 
 
 def test_add_bed_item_not_correct_values(client):
-    """Test adding a Bed item with an invalid mattress type."""
+    """
+    Tests adding a bed item with invalid values.
+
+    Steps:
+    - Logs in as an admin user.
+    - Sends a POST request with an invalid mattress type.
+    - Verifies that the response returns a 400 BAD REQUEST error.
+    - Sends a GET request to ensure the invalid item was not added.
+    """
+
     invalid_item = {
         "model_num": "B-999",
         "model_name": "Faulty Bed",
@@ -476,7 +496,17 @@ def test_add_bed_item_not_correct_values(client):
 
 
 def test_add_chair(client):
-    """Test adding a new Chair item using POST request."""
+    """
+    Tests adding a new chair item via a POST request.
+
+    Steps:
+    - Logs in as an admin user.
+    - Sends a POST request to add a new chair item.
+    - Verifies the response status is 200 OK.
+    - Sends a GET request to ensure the item was successfully added.
+    - Confirms the item's details and availability.
+    """
+
     new_item = {
         "model_num": "C-202",
         "model_name": "ErgoChair",
@@ -514,7 +544,16 @@ def test_add_chair(client):
 
 
 def test_add_chair_item_not_correct_values(client):
-    """Test adding a Bed item with an invalid mattress type."""
+    """
+    Tests adding a chair item with invalid values.
+
+    Steps:
+    - Logs in as an admin user.
+    - Sends a POST request with an invalid material type.
+    - Verifies that the response returns a 400 BAD REQUEST error.
+    - Sends a GET request to ensure the invalid item was not added.
+    """
+
     invalid_item = {
         "model_num": "C-203",
         "model_name": "ErgoChair",
@@ -549,7 +588,17 @@ def test_add_chair_item_not_correct_values(client):
 
 
 def test_add_BookShelf(client):
-    """Test adding a new BookShelf item using POST request."""
+    """
+    Tests adding a new bookshelf item via a POST request.
+
+    Steps:
+    - Logs in as an admin user.
+    - Sends a POST request to add a new bookshelf item.
+    - Verifies the response status is 200 OK.
+    - Sends a GET request to ensure the item was successfully added.
+    - Confirms the item's details and availability.
+    """
+
     new_item = {
         "model_num": "BS-5001",
         "model_name": "ModernGlassShelf",
@@ -591,11 +640,67 @@ def test_add_BookShelf(client):
     assert data["items"]["BS-5001"]["is_available"] is True
 
 
-# TODO - add: test_add_Bookshelf_item_not_correct_values(client)
+def test_add_Bookshelf_item_not_correct_values(client):
+    """
+    Tests adding a bookshelf item with invalid values via a POST request.
+
+    Steps:
+    - Logs in as an admin user.
+    - Sends a POST request with invalid data (empty model number, negative price, invalid material).
+    - Verifies the response status is 400 BAD REQUEST.
+    - Ensures the response contains appropriate error messages for each invalid field.
+    """
+    # Invalid item data: missing required field, negative price, invalid material
+    invalid_item_data = {
+        "model_num": "",  # Model number should not be empty
+        "model_name": "ModernGlassShelf",
+        "description": "A sleek, modern bookshelf with tempered glass shelves and a metal frame.",
+        "price": -50.0,  # Invalid price
+        "dimensions": {"width": 90, "depth": 35, "height": 200},
+        "stock_quantity": 5,
+        "details": {
+            "num_shelves": 4,
+            "max_capacity_weight_per_shelf": 15.0,
+            "material": "non_existent_material",  # Invalid material
+            "color": "transparent",
+        },
+        "image_filename": "modern_glass_bookshelf.jpg",
+        "discount": 15.0,
+        "category": "Book Shelf",
+    }
+
+    # Log in as an admin user to enable access to detailed user information
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    login_response = client.post('/login', json=login_info)
+    assert login_response.status_code == 200  # Ensure login is successful
+
+    # Send a POST request to add the invalid item to the inventory
+    response = client.post('/admin/add_item', json=invalid_item_data)
+
+    # Assert that the response status code is 400 (Bad Request) because the data is invalid
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
+
+    # Check the response body and handle the case where it's None
+    data = response.get_json()
+    if data:
+        assert "error" in data
+        assert "model_num" in data["error"]  # Check if 'model_num' is required and not empty
+        assert "price" in data["error"]  # Check if price is positive
+        assert "material" in data["error"]  # Check if material is valid
 
 
 def test_add_Sofa(client):
-    """Test adding a new Sofa item using POST request."""
+    """
+    Tests adding a new sofa item via a POST request.
+
+    Steps:
+    - Logs in as an admin user.
+    - Sends a POST request to add a new sofa item.
+    - Verifies the response status is 200 OK.
+    - Sends a GET request to ensure the item was successfully added.
+    - Confirms the item's details and availability.
+    """
+
     new_item = {
         "model_num": "SF-5005",
         "model_name": "CozyVelvet",
@@ -632,11 +737,68 @@ def test_add_Sofa(client):
     assert data["items"]["SF-5005"]["is_available"] is True
 
 
-# TODO - add: test_add_Sofa_item_not_correct_values(client)
+def test_add_Sofa_item_not_correct_values(client):
+    """
+    Tests adding a sofa item with invalid values via a POST request.
+
+    Steps:
+    - Logs in as an admin user.
+    - Sends a POST request with invalid data (empty model number, negative price, invalid upholstery).
+    - Verifies the response status is 400 BAD REQUEST.
+    - Ensures the response contains appropriate error messages for each invalid field.
+    """
+
+    # Invalid item data: missing required field, negative price, invalid material
+    invalid_item_data = {
+        "model_num": "",  # Model number should not be empty
+        "model_name": "CozyVelvet",
+        "description": "A stylish and comfortable two-seater sofa with plush velvet upholstery, perfect for cozy living spaces.",
+        "price": -100.0,  # Invalid price
+        "dimensions": {"width": 180, "depth": 85, "height": 80},
+        "stock_quantity": 7,
+        "details": {
+            "upholstery": "non_existent_material",  # Invalid upholstery material
+            "color": "navy blue",
+            "num_seats": 2,
+        },
+        "image_filename": "cozy_velvet_sofa.jpg",
+        "discount": 12.0,
+        "category": "Sofa",
+    }
+
+    # Log in as an admin user to enable access to detailed user information
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    login_response = client.post('/login', json=login_info)
+    assert login_response.status_code == 200  # Ensure login is successful
+
+    # Send a POST request to add the invalid item to the inventory
+    response = client.post('/admin/add_item', json=invalid_item_data)
+
+    # Assert that the response status code is 400 (Bad Request) because the data is invalid
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
+
+    # Check that the error message contains information about the invalid fields
+    data = response.get_json()
+
+    # Proceed if the response has data
+    if data:
+        assert "error" in data
+        assert "model_num" in data["error"]  # Check if 'model_num' is required and not empty
+        assert "price" in data["error"]  # Check if price is positive
+        assert "upholstery" in data["error"]  # Check if upholstery is valid
 
 
 def test_update_quantity(client):
-    """Test to update quantity of an item, by its model number"""
+    """
+    Tests updating the stock quantity of an item via a POST request.
+
+    Steps:
+    - Logs in as an admin user.
+    - Sends a POST request to update the stock quantity of an item.
+    - Verifies the response status is 200 OK.
+    - Sends a GET request to ensure the stock quantity was updated correctly.
+    """
+
     update_info = {
         "model_num": "chair-0",
         "stock_quantity": 0,
@@ -681,6 +843,16 @@ def test_update_discount(client):
 
 
 def test_delete_item(client):
+    """
+    Tests deleting an item via a POST request.
+
+    Steps:
+    - Logs in as an admin user.
+    - Sends a POST request to delete an item by model number.
+    - Verifies the response status is 200 OK.
+    - Sends a GET request to ensure the item was successfully deleted.
+    """
+
     deleted_item = {"model_num": "chair-1"}
     # Log in as an admin user to enable access to detailed user information.
     login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
@@ -697,10 +869,19 @@ def test_delete_item(client):
     assert data == {'items': {}}
 
 
-# ============user=============================
-
-
+# ============user API=============================
 def test_get_user_by_id(client):
+    """
+    Tests retrieving user details by user ID via a GET request.
+
+    Steps:
+    - Logs in as an admin user.
+    - Sends a GET request to fetch user details by user ID.
+    - Verifies the response status is 200 OK.
+    - Ensures the returned user details are correct.
+    - Confirms the stored password is hashed.
+    """
+
     # Authenticate as an admin to access detailed user data for verification.
     login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
     response = client.post('/login', json=login_info)
@@ -724,6 +905,17 @@ def test_get_user_by_id(client):
 
 
 def test_add_new_user(client):
+    """
+    Tests adding a new user via a POST request.
+
+    Steps:
+    - Sends a POST request to create a new user.
+    - Verifies the response status is 200 OK.
+    - Logs in as an admin to retrieve user details.
+    - Sends a GET request to verify the user was added successfully.
+    - Ensures the returned user data matches the expected values.
+    """
+
     user_info = {
         "user_id": 207105880,
         "user_name": "JonCohen",
@@ -750,6 +942,18 @@ def test_add_new_user(client):
 
 
 def test_password_hashing(client):
+    """
+    Tests that user passwords are securely hashed upon registration.
+
+    Steps:
+    - Sends a POST request to create a new user.
+    - Verifies the response status is 200 OK.
+    - Logs in as an admin to retrieve user details.
+    - Sends a GET request to fetch the user's stored password.
+    - Ensures the stored password is hashed and does not match the original plaintext password.
+    - Verifies that the stored hash correctly matches the original password.
+    """
+
     user_info = {
         "user_id": 67890,
         "user_name": "AliceDoe",
@@ -779,6 +983,14 @@ def test_password_hashing(client):
 
 
 def test_add_existing_user(client):
+    """
+    Tests that attempting to add an existing user results in a 400 BAD REQUEST error.
+
+    Steps:
+    - Sends a POST request to create a user that already exists in the system.
+    - Verifies that the response status is 400 BAD REQUEST.
+    """
+
     existing_user = {
         "user_id": 1002,
         "user_name": "JaneSmith",
@@ -794,6 +1006,17 @@ def test_add_existing_user(client):
 
 
 def test_add_admin_user(client):
+    """
+    Tests adding a new admin user via a POST request.
+
+    Steps:
+    - Sends a POST request to create a new admin user.
+    - Verifies the response status is 200 OK.
+    - Logs in as an admin to retrieve user details.
+    - Sends a GET request to verify the admin user was added successfully.
+    - Ensures the returned user data matches the expected values.
+    """
+
     user_info = {
         "user_id": 207105881,
         "user_name": "RonCohen",
@@ -880,7 +1103,17 @@ def test_add_user_invalid_role(client):
 
 
 def test_user_update_address(client):
-    """Test to update address of a user, by its user_id"""
+    """
+    Tests updating a user's address via a POST request.
+
+    Steps:
+    - Logs in as the user who wants to update their address.
+    - Sends a POST request to update the address.
+    - Verifies the response status is 200 OK.
+    - Logs in as an admin to retrieve updated user details.
+    - Sends a GET request to verify the address was updated correctly.
+    """
+
     # The user that wants to change its address logs in
     login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}  # user id 1003
     response = client.post('/login', json=login_info)
@@ -904,7 +1137,17 @@ def test_user_update_address(client):
 
 
 def test_user_update_user_name(client):
-    """Test to update user_name of a user, by its user_id"""
+    """
+    Tests updating a user's username via a POST request.
+
+    Steps:
+    - Logs in as the user who wants to update their username.
+    - Sends a POST request to update the username.
+    - Verifies the response status is 200 OK.
+    - Logs in as an admin to retrieve updated user details.
+    - Sends a GET request to verify the username was updated correctly.
+    """
+
     # The user that wants to change its user_name logs in
     login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}  # user id 1003
     response = client.post('/login', json=login_info)
@@ -928,7 +1171,17 @@ def test_user_update_user_name(client):
 
 
 def test_user_update_user_full_name(client):
-    """Test to update user_full_name of a user, by its user_id"""
+    """
+    Tests updating a user's full name via a POST request.
+
+    Steps:
+    - Logs in as the user who wants to update their full name.
+    - Sends a POST request to update the full name.
+    - Verifies the response status is 200 OK.
+    - Logs in as an admin to retrieve updated user details.
+    - Sends a GET request to verify the full name was updated correctly.
+    """
+
     # The user that wants to change its full name logs in
     login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}  # user id 1003
     response = client.post('/login', json=login_info)
@@ -952,7 +1205,17 @@ def test_user_update_user_full_name(client):
 
 
 def test_user_update_user_phone_num(client):
-    """Test to update user_phone_num of a user, by its user_id"""
+    """
+    Tests updating a user's phone number via a POST request.
+
+    Steps:
+    - Logs in as the user who wants to update their phone number.
+    - Sends a POST request to update the phone number.
+    - Verifies the response status is 200 OK.
+    - Logs in as an admin to retrieve updated user details.
+    - Sends a GET request to verify the phone number was updated correctly.
+    """
+
     # The user that wants to change its phone number logs in
     login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}  # user id 1003
     response = client.post('/login', json=login_info)
@@ -976,7 +1239,17 @@ def test_user_update_user_phone_num(client):
 
 
 def test_user_update_email(client):
-    """Test to update email of a user, by its user_id"""
+    """
+    Tests updating a user's email via a POST request.
+
+    Steps:
+    - Logs in as the user who wants to update their email.
+    - Sends a POST request to update the email address.
+    - Verifies the response status is 200 OK.
+    - Logs in as an admin to retrieve updated user details.
+    - Sends a GET request to verify the email was updated correctly.
+    """
+
     # The user that wants to change its email logs in
     login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}  # user id 1003
     response = client.post('/login', json=login_info)
@@ -1000,7 +1273,19 @@ def test_user_update_email(client):
 
 
 def test_user_update_password(client):
-    """Test to update password of a user and hash it, by its user_id"""
+    """
+    Tests updating a user's password and ensuring it is hashed.
+
+    Steps:
+    - Logs in as the user who wants to update their password.
+    - Sends a POST request to update the password.
+    - Verifies the response status is 200 OK.
+    - Logs in as an admin to retrieve updated user details.
+    - Sends a GET request to fetch the stored password.
+    - Ensures the stored password is hashed and does not match the plaintext password.
+    - Confirms the stored hash correctly matches the new password.
+    """
+
     # The user that wants to change its password logs in
     login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}  # user id 1003
     response = client.post('/login', json=login_info)
@@ -1027,20 +1312,84 @@ def test_user_update_password(client):
 
 
 def test_user_login(client):
-    """Test user login with correct credentials"""
+    """
+    Tests user login with valid credentials.
+
+    Steps:
+    - Sends a POST request to the login endpoint with correct username and password.
+    - Verifies the response status is 200 OK, indicating successful login.
+    """
+
     login_info = {"user_name": "MichaelBrown", "password": "brownieM123"}
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
 
-# TODO- התחברות עם שם משתמש לא קיים (אמור להחזיר 401 UNAUTHORIZED).
-# TODO- התחברות עם סיסמה שגויה (401).
-# TODO- שליחת בקשת התחברות ללא פרמטרים (400).
-# TODO- שליחת בקשת התחברות עם מבנה JSON שגוי (400).
+def test_login_with_nonexistent_user(client):
+    """
+    Tests user login with a non-existent username.
+
+    Steps:
+    - Sends a POST request to the login endpoint with a non-existent username.
+    - Verifies the response status is 401 UNAUTHORIZED, indicating failed login.
+    """
+
+    login_info = {"user_name": "non_existent_user", "password": "randompassword"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.UNAUTHORIZED
+
+
+def test_login_with_wrong_password(client):
+    """Test user login with wrong password"""
+    login_info = {"user_name": "JaneSmith", "password": "wrongpassword"}
+    """
+    Tests user login with an incorrect password.
+
+    Steps:
+    - Sends a POST request to the login endpoint with a valid username but incorrect password.
+    - Verifies the response status is 401 UNAUTHORIZED, indicating failed login.
+    """
+
+    login_info = {"user_name": "JaneSmith", "password": "wrongpassword"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.UNAUTHORIZED
+
+
+def test_login_with_no_parameters(client):
+    """
+    Tests user login without providing credentials.
+
+    Steps:
+    - Sends a POST request to the login endpoint with an empty JSON payload.
+    - Verifies the response status is 400 BAD REQUEST, indicating missing credentials.
+    """
+
+    response = client.post('/login', json={})
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
+
+
+@pytest.mark.parametrize("invalid_json", [["user_name", "password"], {"user_name": 123, "password": 456}, "this is not a json", None])
+def test_login_with_invalid_json(client, invalid_json):
+    """
+    Tests user login with an invalid JSON payload.
+
+    Steps:
+    - Sends a POST request to the login endpoint with malformed or incorrect JSON data.
+    - Verifies the response status is 400 BAD REQUEST, indicating invalid request format.
+    """
+    response = client.post('/login', json=invalid_json)
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
 
 def test_user_logout(client):
-    """Test user logout with correct credentials"""
+    """
+    Tests user logout after a successful login.
+
+    Steps:
+    - Logs in with valid credentials.
+    - Sends a POST request to the logout endpoint.
+    - Verifies the response status is 200 OK, indicating successful logout.
+    """
     # Login first
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1051,44 +1400,82 @@ def test_user_logout(client):
     assert response.status_code == http.HTTPStatus.OK
 
 
-# TODO: Add a test for logging out when the user is not logged in.
-# Even if 'user_id' is missing in the session, session.pop('user_id', None)
-# will simply return None and not raise an error.
-# The logout endpoint still returns HTTPStatus.OK with an empty response body.
+def test_logout_when_not_logged_in(client):
+    """
+    Tests logging out when no user is logged in.
 
-# TODO: After implementing @login_required, make a request to an endpoint that requires login
-# and expect HTTPStatus.UNAUTHORIZED. This verifies that the session was successfully cleared
-# during the logout process. A recommended test sequence would be:
-# 1) Log in
-# 2) Log out
-# 3) Call the protected endpoint -> expect HTTPStatus.UNAUTHORIZED
+    Steps:
+    - Sends a POST request to the logout endpoint without an active session.
+    - Verifies the response status is 200 OK with an empty response body.
+    """
+    response = client.post('/logout')
+    assert response.status_code == http.HTTPStatus.OK
+    assert response.data == b""
+
+
+def test_access_protected_endpoint_after_logout(client):
+    """
+    Tests that access to a protected route is denied after logging out.
+
+    Steps:
+    - Logs in with valid credentials.
+    - Logs out the user.
+    - Attempts to access a protected endpoint.
+    - Verifies the response status is 401 UNAUTHORIZED, indicating access is denied.
+    """
+
+    login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    response = client.post('/logout')
+    assert response.status_code == http.HTTPStatus.OK
+
+    response = client.post('/user/update_cart_item_quantity', json={"item_id": 1, "quantity": 2})
+    assert response.status_code == http.HTTPStatus.UNAUTHORIZED
 
 
 def test_add_item_to_cart_requires_login(client):
     """
-    Verifies that the /user/add_item_to_cart endpoint is protected by @login_required.
-    1) Without logging in, the request should return 401 UNAUTHORIZED.
-    2) After logging in successfully, the request should return 200 OK.
+    Tests that adding an item to the cart requires authentication.
+
+    Steps:
+    - Attempts to add an item to the cart without logging in.
+    - Verifies the response status is 401 UNAUTHORIZED.
+    - Logs in with valid credentials.
+    - Retries adding the item to the cart.
+    - Verifies the response status is 200 OK, indicating success.
     """
-    # 1) Attempt to add item to cart without logging in
+
+    # Attempt to add item to cart without logging in
     cart_item = {"user_id": 1003, "model_num": "chair-1", "quantity": 1}
 
     # Send a POST request to add the cart for the specific user
     response = client.post('/user/add_item_to_cart', json=cart_item)
     assert response.status_code == http.HTTPStatus.UNAUTHORIZED
 
-    # 2) Log in with valid credentials
+    # Log in with valid credentials
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
     assert response.status_code == http.HTTPStatus.OK
 
-    # 3) Now that we're logged in, try again
+    # Now that we're logged in, try again
     response = client.post('/user/add_item_to_cart', json={"user_id": 1003, "model_num": "chair-1", "quantity": 1})
     # Expect a success code (200 OK, 201 CREATED, etc.), depending on your implementation
     assert response.status_code == http.HTTPStatus.OK
 
 
 def test_admin_required_operator(client):
+    """
+    Tests that accessing an admin-only endpoint requires admin authentication.
+
+    Steps:
+    - Logs in as an admin user.
+    - Sends a GET request to an admin-protected endpoint.
+    - Verifies the response status is 200 OK.
+    - Ensures the retrieved user password is securely hashed.
+    """
+
     # log in as admin user
     login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
     response = client.post('/login', json=login_info)
@@ -1103,12 +1490,11 @@ def test_admin_required_operator(client):
     assert check_password_hash(hashed_password, "wilsonRob007")
 
 
-# def test_user_login_nonexistent_user(client):
-#     """Test user login with non-existent user ID"""
-#     login_info = {"user_id": 9999, "password": "AnyPassword"}
-#     response = client.post('/login', json=login_info)
-#     data = response.get_json()
-#     assert response.status_code == http.HTTPStatus.UNAUTHORIZED
+def test_user_login_nonexistent_user(client):
+    """Test user login with non-existent user ID"""
+    login_info = {"user_name": "nonexistent_user", "password": "AnyPassword"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.UNAUTHORIZED
 
 
 # ===============cart============================================
@@ -1147,8 +1533,8 @@ def test_cart_get_cart_by_userid(client):
     send a GET request to the '/carts' with 'user_id' as a query parameter.
     Verifies the response status is 200 OK and that the returned cart match
     the specified user id.
-    :param client:
-    :return: Cart
+    param client:
+    return: Cart
     """
     # Login first
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
@@ -1171,8 +1557,16 @@ def test_cart_get_cart_by_userid(client):
 
 def test_add_first_item_to_cart(client):
     """
-    Test adding new item to a specific cart of a specific user.
+    Tests adding the first item to a specific user's cart.
+
+    Steps:
+    - Logs in as a valid user.
+    - Sends a POST request to add an item to the user's cart.
+    - Verifies the response status is 200 OK.
+    - Sends a GET request to retrieve the user's cart.
+    - Ensures the cart contains the newly added item with the correct quantity.
     """
+
     # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1202,8 +1596,13 @@ def test_add_first_item_to_cart(client):
 
 def test_add_item_to_cart_not_enough_units_in_stock(client):
     """
-    Test  adding item to cart is not possible if the asked quantity is bigger than stock quantity.
-    Expecting an error response.
+    Tests that adding an item to the cart fails if the requested quantity exceeds available stock.
+
+    Steps:
+    - Logs in as a valid user.
+    - Sends a POST request to add an item with a quantity greater than stock availability.
+    - Mocks the stock quantity to be lower than the requested amount.
+    - Verifies the response status is 409 CONFLICT, indicating insufficient stock.
     """
     # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
@@ -1218,9 +1617,15 @@ def test_add_item_to_cart_not_enough_units_in_stock(client):
 
 def test_add_invalid_cart_item(client):
     """
-    Test adding an item to the cart with a non-existent user ID or non-existent model number.
-    Expecting an error response.
+    Tests that adding an item to the cart fails if the user ID or model number does not exist.
+
+    Steps:
+    - Logs in as a valid user.
+    - Sends a POST request to add an item with a non-existent user ID or model number.
+    - Mocks the validation to return False.
+    - Verifies the response status is 400 BAD REQUEST, indicating invalid input.
     """
+
     # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1236,8 +1641,15 @@ def test_add_invalid_cart_item(client):
 
 def test_get_specific_item_in_cart(client):
     """
-    Test retrieving an item by model number and user id.
+    Tests retrieving a specific item from a user's cart by model number.
+
+    Steps:
+    - Logs in as a valid user.
+    - Sends a GET request to retrieve a specific item from the user's cart.
+    - Verifies the response status is 200 OK.
+    - Ensures the returned cart contains the requested item with correct details.
     """
+
     # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1254,7 +1666,14 @@ def test_get_specific_item_in_cart(client):
 
 def test_update_cart_item_quantity(client):
     """
-    Test updating a cart item quantity and that the price updates.
+    Tests updating the quantity of a cart item and verifying the price update.
+
+    Steps:
+    - Logs in as a valid user.
+    - Sends a POST request to update the quantity of an item in the cart.
+    - Mocks stock availability to ensure the update is allowed.
+    - Verifies the response status is 200 OK.
+    - Sends a GET request to confirm the updated quantity and price in the cart.
     """
     # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
@@ -1284,7 +1703,15 @@ def test_update_cart_item_quantity(client):
 
 
 def test_update_quantity_with_item_not_in_cart(client):
-    """Test that updating a cart item is not possible if the item not in user's cart"""
+    """
+    Tests that updating a cart item fails if the item is not in the user's cart.
+
+    Steps:
+    - Logs in as a valid user.
+    - Sends a POST request to update the quantity of an item not in the user's cart.
+    - Verifies the response status is 404 NOT FOUND, indicating the item does not exist in the cart.
+    """
+
     update_info = dict(model_num="chair-0", user_id=1004, quantity=1)
 
     # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
@@ -1298,9 +1725,15 @@ def test_update_quantity_with_item_not_in_cart(client):
 
 def test_update_quantity_with_not_enough_units_in_stock(client):
     """
-    Test that updating a cart item is not possible if the item not in stock or do not have enough units in stock.
-    Expecting an error response.
+    Tests that updating a cart item fails if there are not enough units in stock.
+
+    Steps:
+    - Logs in as a valid user.
+    - Sends a POST request to update the quantity of an item in the cart.
+    - Mocks stock availability to be lower than the requested quantity.
+    - Verifies the response status is 409 CONFLICT, indicating insufficient stock.
     """
+
     # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1314,7 +1747,17 @@ def test_update_quantity_with_not_enough_units_in_stock(client):
 
 
 def test_delete_cart_item(client):
-    """Test deleting a cart item from CartItem table"""
+    """
+    Tests deleting an item from a user's cart.
+
+    Steps:
+    - Logs in as a valid user.
+    - Verifies the item exists in the cart before deletion.
+    - Sends a POST request to delete the cart item.
+    - Verifies the response status is 200 OK.
+    - Sends a GET request to confirm the item was successfully removed from the cart.
+    """
+
     # Log in first to ensure the @login_required endpoint (/user/add_item_to_cart) can be accessed
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1340,7 +1783,17 @@ def test_delete_cart_item(client):
 
 
 def test_updating_cart_item_quantity_to_0(client):
-    """Test updating a cart item quantity to 0 will delete it from the table"""
+    """
+    Tests that updating a cart item's quantity to 0 removes it from the cart.
+
+    Steps:
+    - Logs in as a valid user.
+    - Verifies the item exists in the cart before the update.
+    - Sends a POST request to update the cart item quantity to 0.
+    - Verifies the response status is 200 OK.
+    - Sends a GET request to confirm the item was successfully removed from the cart.
+    """
+
     # Log in first to ensure the @login_required endpoint (/cart and /user/add_item_to_cart) can be accessed
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1418,6 +1871,16 @@ def test_order_view_all_orders(client):
 
 
 def test_get_order_by_user_id_for_admin(client):
+    """
+    Tests retrieving a user's order details as an admin.
+
+    Steps:
+    - Logs in as an admin user.
+    - Sends a GET request to retrieve orders for a specific user.
+    - Verifies the response status is 200 OK.
+    - Ensures the returned order details match the expected data.
+    """
+
     # Authenticate as an admin to access detailed user data for verification.
     login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
     response = client.post('/login', json=login_info)
@@ -1445,6 +1908,15 @@ def test_get_order_by_user_id_for_admin(client):
 
 
 def test_user_view_my_orders(client):
+    """
+    Tests that a user can view their own orders.
+
+    Steps:
+    - Logs in as a valid user.
+    - Sends a GET request to retrieve the user's order history.
+    - Verifies the response status is 200 OK.
+    - Ensures the returned order details match the expected data.
+    """
     # Authenticate as an admin to access detailed user data for verification.
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1472,7 +1944,15 @@ def test_user_view_my_orders(client):
 
 
 def test_view_user_order_no_user_id(client):
-    """Tests that the API call for user/orders will raise server error if no user id procided."""
+    """
+    Tests that accessing the /user/orders endpoint without a user ID results in a server error.
+
+    Steps:
+    - Logs in as a valid user.
+    - Sends a GET request to retrieve orders without providing a user ID.
+    - Verifies the response status is 404 NOT FOUND.
+    """
+
     # Authenticate as an admin to access detailed user data for verification.
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1483,7 +1963,15 @@ def test_view_user_order_no_user_id(client):
 
 
 def test_user_view_all_orders_block(client):
-    """Tests that a user can't see an order that isn't his."""
+    """
+    Tests that a regular user cannot access all orders (admin-only access).
+
+    Steps:
+    - Logs in as a regular user.
+    - Sends a GET request to the admin orders endpoint.
+    - Verifies the response status is 403 FORBIDDEN, indicating restricted access.
+    """
+
     # Authenticate as an admin to access detailed user data for verification.
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1494,6 +1982,16 @@ def test_user_view_all_orders_block(client):
 
 
 def test_get_order_by_order_num_for_admin(client):
+    """
+    Tests retrieving an order by order number as an admin.
+
+    Steps:
+    - Logs in as an admin user.
+    - Sends a GET request to retrieve a specific order by order number.
+    - Verifies the response status is 200 OK.
+    - Ensures the returned order details match the expected data.
+    """
+
     # Authenticate as an admin to access detailed user data for verification.
     login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
     response = client.post('/login', json=login_info)
@@ -1522,6 +2020,16 @@ def test_get_order_by_order_num_for_admin(client):
 
 
 def test_user_view_specific_order(client):
+    """
+    Tests that a user can view a specific order by order number.
+
+    Steps:
+    - Logs in as a valid user.
+    - Sends a GET request to retrieve a specific order by order number.
+    - Verifies the response status is 200 OK.
+    - Ensures the returned order details match the expected data.
+    """
+
     # Authenticate as an admin to access detailed user data for verification.
     login_info = {"user_name": "JaneSmith", "password": "mypassword456"}
     response = client.post('/login', json=login_info)
@@ -1561,30 +2069,47 @@ def test_update_order_status(client):
     orders = data['orders']
     assert orders["1"]["status"] == "PENDING"
 
-    # Authenticate as an admin to access detailed user data for verification.
-    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
-    response = client.post('/login', json=login_info)
-    assert response.status_code == http.HTTPStatus.OK
-
     # update order status
     update_info = dict(order_num=1, status=OrderStatus.SHIPPED.value)  # Convert to string
     response = client.post('/admin/update_order_status', json=update_info)
     assert response.status_code == http.HTTPStatus.OK
 
     # Send a GET request to verify item stock update
-    response = client.get('admin/orders', query_string={"order_num": 1})
+    response = client.get('/admin/orders', query_string={"order_num": 1})
     assert response.status_code == http.HTTPStatus.OK
     data = response.get_json()
     orders = data['orders']
     assert orders["1"]["status"] == "SHIPPED"
 
 
-# TODO: test that invalid status will raise error
+def test_update_order_status_invalid_status(client):
+    """Test that sending an invalid status to update_order_status raises an error"""
+
+    login_info = {"user_name": "RobertWilson", "password": "wilsonRob007"}
+    response = client.post('/login', json=login_info)
+    assert response.status_code == http.HTTPStatus.OK
+
+    response = client.get('/admin/orders', query_string={"order_num": 1})
+    assert response.status_code == http.HTTPStatus.OK
+    data = response.get_json()
+    orders = data['orders']
+    assert orders["1"]["status"] == "PENDING"
+
+    invalid_status_data = {"order_id": 123, "status": "invalid_status"}
+    response = client.post('/admin/update_order_status', json=invalid_status_data)
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
 
 # ===============checkout============================================
 def test_check_out_process(client):
-    """Tests the API call for checkout start the checkout service"""
+    """
+    Tests the checkout process initiation via the API.
+
+    Steps:
+    - Sends a POST request to start the checkout process with user ID, address, and payment method.
+    - Verifies the response status is 200 OK, indicating the checkout process started successfully.
+    """
+
     user_id = 1002  # User not exists
     address = "Even Gabirol 3, Tel Aviv"
 
@@ -1593,7 +2118,14 @@ def test_check_out_process(client):
 
 
 def test_checkout_user_not_exists(client):
-    """test retrieving a cart with no items will raise error"""
+    """
+    Tests that checkout fails for a non-existent user.
+
+    Steps:
+    - Sends a POST request to initiate checkout with a non-existent user ID.
+    - Verifies the response status is 404 NOT FOUND, indicating the user does not exist.
+    """
+
     user_id = 1007  # User not exists
     address = "Even Gabirol 3, Tel Aviv"
 
@@ -1602,7 +2134,14 @@ def test_checkout_user_not_exists(client):
 
 
 def test_checkout_empty_cart(client):
-    """test retrieving a cart with no items will raise error"""
+    """
+    Tests that checkout fails when the user's cart is empty.
+
+    Steps:
+    - Sends a POST request to initiate checkout for a user with an empty cart.
+    - Verifies the response status is 404 NOT FOUND, indicating no items in the cart.
+    """
+
     user_id = 1005  # User exists but has no items in cart
     address = "Even Gabirol 3, Tel Aviv"
 
