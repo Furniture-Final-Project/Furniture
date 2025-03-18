@@ -3,7 +3,7 @@ from sqlalchemy import String, Float, Integer, JSON, create_engine, PrimaryKeyCo
 from typing import Optional, Dict
 import copy
 import abc
-from datetime import datetime
+from datetime import datetime, UTC
 import source.controller.cart as cart
 import source.controller.user as user
 from source.models.OrderStatus import OrderStatus
@@ -325,7 +325,7 @@ class Order(Base):
             shipping_address=shipping_address,
             total_price=total_price,
             status=OrderStatus.PENDING,
-            creation_time=datetime.utcnow(),
+            creation_time=datetime.now(UTC),
         )
         #  Order num is generated automatic
 
