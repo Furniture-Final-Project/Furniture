@@ -201,8 +201,6 @@ Processes a user's order, handling:
 ----
 ## Full API documantation:
 
-# API Documentation - Online Furniture Store
-
 ## Introduction
 
 The API for the online furniture store allows users to perform various operations, including user management, orders, shopping cart operations, checkout, and inventory management.
@@ -238,26 +236,18 @@ All requests to the API should be made using **JSON**, and responses are returne
 
 ## **Request Body (JSON)**
 - 'model_num' (string, required): Unique identifier for the furniture item.
-- 'name' (string, required): Name of the furniture item.
+- 'model_name' (string, required): Name of the furniture item.
 - 'category' (string, required): Category of the furniture item (e.g., Chair, Table).
 - 'price' (float, required): Price of the item.
 - 'stock_quantity' (integer, required): Number of available units.
 - 'description' (string, optional): Additional details about the furniture item.
+- 'dimentions' (dict) : The dimentions of an item
+- 'details' (dict): A dictionary of some details about the iten such as color, material, weight..
+- 'image_filename' (str): The name of the item's image file
+- 'discount' (float): Discount percentage
 
 ## **Response Details**
 - Returns an empty JSON response ('{}') upon successful addition.
-
-## **Example API Request**
-```json
-{
-    "model_num": "SOFA-123",
-    "name": "Luxury Sofa",
-    "category": "Sofa",
-    "price": 3200.00,
-    "stock_quantity": 10,
-    "description": "A premium luxury sofa with high-end fabric."
-}
-```
 
 ## **Notes**
 - This endpoint requires **Admin privileges**.
@@ -279,14 +269,6 @@ All requests to the API should be made using **JSON**, and responses are returne
 ## **Response Details**
 - Returns an empty JSON response ('{}') upon successful update.
 
-## **Example API Request**
-```json
-{
-    "model_num": "SOFA-123",
-    "stock_quantity": 15
-}
-```
-
 ## **Notes**
 - This endpoint requires **Admin privileges**.
 - The request must be sent with a **valid JSON payload**.
@@ -307,12 +289,6 @@ All requests to the API should be made using **JSON**, and responses are returne
 ## **Response Details**
 - Returns an empty JSON response ('{}') upon successful deletion.
 
-## **Example API Request**
-```json
-{
-    "model_num": "SOFA-123"
-}
-```
 
 ## **Notes**
 - This endpoint requires **Admin privileges**.
@@ -337,13 +313,6 @@ All requests to the API should be made using **JSON**, and responses are returne
 - **400 BAD REQUEST**: If required fields are missing or if the discount is not within the valid range (0-100).
 - **404 NOT FOUND**: If the specified item does not exist.
 
-## **Example API Request**
-```json
-{
-    "model_num": "chair-1",
-    "discount": 15.0
-}
-```
 
 ## **Notes**
 - This endpoint requires **Admin privileges**.
@@ -801,10 +770,25 @@ GET /admin/carts
 ---
 
 ## Warning Summary  - Online Furniture Store
+**SQLAlchemy 2.0 Compatibility Fixes**
 
-During testing, we encountered deprecation warnings related to **SQLAlchemy 2.0**:  
+During testing, we encountered deprecation warnings related to SQLAlchemy 2.0. To ensure compatibility and avoid potential issues, we made the following updates:
 
-- `declarative_base()` should now be used as `sqlalchemy.orm.declarative_base()`.  
-- `Query.get()` is considered legacy and should be replaced with `Session.get()`.  
+1. **Updated `declarative_base()` Import**  
+   - Previous: `Base = declarative_base()`  
+   - Fixed: `from sqlalchemy.orm import declarative_base` followed by `Base = declarative_base()`  
+   - Affected File: `source/models/OrderStatus.py`
 
-These warnings appear because our implementation was based on an older SQLAlchemy version. However, since this is a **course project** that won’t be maintained after the semester, we chose not to refactor. The current implementation remains functional, and if extended in the future, updating these methods would ensure long-term compatibility.
+2. **Replaced `Query.get()` with `Session.get()`**  
+   - Previous: `current_user = s.query(schema.User).get(user_id)`  
+   - Fixed: `current_user = s.get(schema.User, user_id)`  
+   - Affected File: `decorators.py`
+
+3. **Replaced `datetime.utcnow()` with timezone-aware `datetime.now(UTC)`**  
+   - Previous: `creation_time=datetime.utcnow(),`  
+   - Fixed: `creation_time=datetime.now(UTC),`  
+   - Affected File: `schema.py`
+
+After applying these fixes, all tests pass successfully without warnings. This ensures long-term compatibility with SQLAlchemy 2.0.
+
+
