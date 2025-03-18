@@ -15,5 +15,4 @@ distlib~=0.3.9
 virtualenv~=20.29.1
 requests~=2.32.3
 filelock~=3.17.0
-requests
 freezegun

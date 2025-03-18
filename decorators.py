@@ -25,7 +25,7 @@ def admin_required(f):
 
         # check if the user is an admin type
         s = schema.session()
-        current_user = s.query(schema.User).get(user_id)
+        current_user = s.get(schema.User, user_id)
         if not current_user or current_user.role != "admin":
             return '', HTTPStatus.FORBIDDEN
 
