@@ -9,7 +9,6 @@ black
 ptpython
 pre-commit
 Werkzeug>=2.0.0
-pip~=21.3.1
 jedi~=0.19.2
 distlib~=0.3.9
 virtualenv~=20.29.1
