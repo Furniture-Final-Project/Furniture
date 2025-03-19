@@ -124,9 +124,25 @@ POST /user/add_item_to_cart
 ```
 #### **Authentication:**
 **Login Required**
+Users must be authenticated before adding items to their shopping cart.
 
+---
+
+### **Pre-Request: Login First**
+Before calling this API, the user must be logged in.  
+
+#### **Step 1: Perform Login**
+```http
+POST /login?user_name=MichaelBrown&password=brownieM123
 #### **Description:**
 Allows a logged-in user to add an item to their shopping cart.
+
+Expected Response:
+- 200 OK on success.
+- 401 Unauthorized if login credentials are incorrect.
+
+### **Step 2: Add Item to Cart**
+Once logged in, you can add an item to the cart.
 
 #### **Request Body (JSON):**
 ```json
@@ -148,13 +164,20 @@ Returns `200 OK` when updated successfully.
 | 404 Not Found | If the item does not exist in inventory. |
 | 409 Conflict | If not enough stock is available. |
 
----
+#### **Example Request:**
+- POST /user/add_item_to_cart?user_id=123&model_num=BD-5005&quantity=2
 
+---
 ### 3. Checkout and Process Order
 #### **Endpoint:**
 ```
 POST /checkout
 ```
+## Authentication:
+**Login Required**
+Users must be authenticated before proceeding with checkout.
+
+---
 #### **Description:**
 Processes a user's order, handling:
 - **Cart validation** (ensuring items are in stock).
@@ -162,6 +185,28 @@ Processes a user's order, handling:
 - **Order creation** (returns an `order_id` if successful).
 - **Inventory update** (reduces stock for purchased items).
 - **Cart cleanup** (removes items from cart after purchase).
+
+---
+## Pre-Request: Login First
+Before calling this API, the user must be logged in.
+
+### **Step 1: Perform Login**
+```http
+POST /login?user_name=MichaelBrown&password=brownieM123
+```
+**Expected Response:**
+- `200 OK` on success.
+- `401 Unauthorized` if login credentials are incorrect.
+
+---
+
+### **Step 2: Process Checkout**
+Once logged in, the user can proceed to checkout.
+
+### **Request Example:**
+```http
+POST /checkout?user_id=123&address=123+Elm+Street,+NY&payment_method=credit_card
+```
 
 #### **Request Body (JSON):**
 ```json
